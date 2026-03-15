@@ -112,6 +112,7 @@ Page({
     houseId: "",
     submitting: false,
     loadingDetail: false,
+    errorText: "",
     formData: createInitialForm(),
     imageList: [],
     paymentOptions: PAYMENT_OPTIONS,
@@ -127,6 +128,7 @@ Page({
 
   async onLoad(options) {
     logger.info("page_load", { page: "publish/edit", query: options || {} });
+    this.detailRequestId = 0;
     const houseId = options && options.houseId ? String(options.houseId) : "";
     const isEdit = Boolean(houseId);
     this.setData({ houseId, isEdit });
@@ -181,6 +183,7 @@ Page({
       houseId: "",
       submitting: false,
       loadingDetail: false,
+      errorText: "",
       formData,
       imageList: [],
       selectedPaymentIndex: getPickerIndex(PAYMENT_OPTIONS, formData.paymentMethod),
@@ -204,9 +207,10 @@ Page({
       const houseId = String(context.houseId);
       this.setData({
         isEdit: true,
-        houseId
+        houseId,
+        errorText: ""
       });
-      await this.loadHouseDetail(houseId);
+      await this.loadHouseDetail(houseId, { resetBeforeLoad: true });
       logger.info("publish_apply_context_end", { mode: "edit", houseId });
       return;
     }
@@ -247,13 +251,51 @@ Page({
     }
   },
 
-  async loadHouseDetail(houseId) {
+  buildEmptyEditState(nextHouseId) {
+    const formData = createInitialForm();
+    return {
+      isEdit: true,
+      houseId: String(nextHouseId || ""),
+      errorText: "",
+      formData,
+      imageList: [],
+      selectedPaymentIndex: getPickerIndex(PAYMENT_OPTIONS, formData.paymentMethod),
+      selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
+      selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
+      selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region)
+    };
+  },
+
+  async loadHouseDetail(houseId, options = {}) {
     logger.info("publish_load_detail_start", { houseId });
-    this.setData({ loadingDetail: true });
+    const {
+      resetBeforeLoad = false
+    } = options;
+    const normalizedHouseId = String(houseId || "").trim();
+    const requestId = (this.detailRequestId || 0) + 1;
+    this.detailRequestId = requestId;
+
+    if (resetBeforeLoad) {
+      this.setData({
+        ...this.buildEmptyEditState(normalizedHouseId),
+        loadingDetail: true
+      });
+    } else {
+      this.setData({
+        loadingDetail: true,
+        errorText: ""
+      });
+    }
+
     try {
-      logger.info("api_call", { func: "house.getDetail", params: { houseId } });
-      const detail = await houseService.getHouseDetail(houseId);
+      logger.info("api_call", { func: "house.getDetail", params: { houseId: normalizedHouseId } });
+      const detail = await houseService.getHouseDetail(normalizedHouseId);
       logger.info("api_resp", { func: "house.getDetail", code: 0 });
+
+      if (requestId !== this.detailRequestId) {
+        logger.warn("publish_load_detail_stale", { houseId: normalizedHouseId, requestId });
+        return;
+      }
 
       const formData = {
         ...createInitialForm(),
@@ -279,7 +321,8 @@ Page({
 
       this.setData({
         isEdit: true,
-        houseId,
+        houseId: normalizedHouseId,
+        errorText: "",
         formData,
         imageList: (detail.images || []).map((url) => ({ url })),
         selectedPaymentIndex: getPickerIndex(PAYMENT_OPTIONS, formData.paymentMethod),
@@ -288,10 +331,24 @@ Page({
         selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region)
       });
     } catch (error) {
+      if (requestId !== this.detailRequestId) {
+        logger.warn("publish_load_detail_error_stale", {
+          houseId: normalizedHouseId,
+          requestId,
+          err: error.message
+        });
+        return;
+      }
+
       logger.error("api_error", { func: "house.getDetail", err: error.message });
+      this.setData({
+        errorText: error.message || "房源详情加载失败"
+      });
       wx.showToast({ title: error.message || "加载失败", icon: "none" });
     } finally {
-      this.setData({ loadingDetail: false });
+      if (requestId === this.detailRequestId) {
+        this.setData({ loadingDetail: false });
+      }
       logger.info("publish_load_detail_end", {});
     }
   },

@@ -206,7 +206,7 @@ Page({
     logger.info("my_houses_go_publish_end", {});
   },
 
-  onGoEdit(event) {
+  async onGoEdit(event) {
     logger.info("my_houses_go_edit_start", { data: event.currentTarget.dataset || {} });
     const houseId = event.currentTarget.dataset.houseId;
     if (!houseId) {
@@ -218,7 +218,12 @@ Page({
       mode: "edit",
       houseId: String(houseId)
     });
-    switchTab(ROUTES.PUBLISH_EDIT);
+    try {
+      await switchTab(ROUTES.PUBLISH_EDIT);
+    } catch (error) {
+      logger.error("my_houses_go_edit_failed", { houseId, err: error.message });
+      wx.showToast({ title: error.message || "跳转编辑页失败", icon: "none" });
+    }
     logger.info("my_houses_go_edit_end", { houseId });
   },
 

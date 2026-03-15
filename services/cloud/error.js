@@ -12,13 +12,29 @@ function isCloudError(error) {
   return error instanceof CloudError;
 }
 
+function getErrorMessage(error) {
+  if (typeof error === "string" && error.trim()) {
+    return error.trim();
+  }
+
+  if (error && typeof error.message === "string" && error.message.trim()) {
+    return error.message.trim();
+  }
+
+  if (error && typeof error.errMsg === "string" && error.errMsg.trim()) {
+    return error.errMsg.trim();
+  }
+
+  return "请求失败";
+}
+
 function normalizeCloudError(error, context = {}) {
   if (isCloudError(error)) {
     return error;
   }
 
   const contextMessage = [context.moduleName, context.action].filter(Boolean).join(".");
-  const baseMessage = error && error.message ? error.message : "请求失败";
+  const baseMessage = getErrorMessage(error);
   const message = contextMessage ? `${contextMessage}: ${baseMessage}` : baseMessage;
 
   return new CloudError(message, {

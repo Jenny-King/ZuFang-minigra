@@ -9,6 +9,41 @@ const LOGIN_MODE = {
   PASSWORD: "password"
 };
 
+function getErrorMessage(error, fallbackMessage) {
+  if (typeof error === "string" && error.trim()) {
+    return error.trim();
+  }
+
+  if (error && typeof error.message === "string" && error.message.trim()) {
+    return error.message.trim();
+  }
+
+  if (error && typeof error.errMsg === "string" && error.errMsg.trim()) {
+    return error.errMsg.trim();
+  }
+
+  return fallbackMessage;
+}
+
+function requestWechatLoginCode() {
+  return new Promise((resolve, reject) => {
+    wx.login({
+      success: resolve,
+      fail: reject
+    });
+  });
+}
+
+function requestWechatUserProfile() {
+  return new Promise((resolve, reject) => {
+    wx.getUserProfile({
+      desc: "用于完善账号资料与头像展示",
+      success: resolve,
+      fail: reject
+    });
+  });
+}
+
 Page({
   data: {
     mode: LOGIN_MODE.CODE,
@@ -62,10 +97,11 @@ Page({
 
     this.setData({ submitLoading: true });
     try {
-      const loginRes = await wx.login();
-      const userProfile = await wx.getUserProfile({
-        desc: "用于完善账号资料与头像展示"
-      });
+      const userProfile = await requestWechatUserProfile();
+      const loginRes = await requestWechatLoginCode();
+      if (!loginRes || !loginRes.code) {
+        throw new Error("微信登录凭证获取失败");
+      }
 
       logger.info("api_call", {
         func: "auth.wechatLogin",
@@ -82,8 +118,9 @@ Page({
       wx.showToast({ title: "登录成功", icon: "success" });
       switchTab(ROUTES.HOME);
     } catch (error) {
-      logger.error("api_error", { func: "auth.wechatLogin", err: error.message });
-      wx.showToast({ title: error.message || "微信登录失败", icon: "none" });
+      const errorMessage = getErrorMessage(error, "微信登录失败");
+      logger.error("api_error", { func: "auth.wechatLogin", err: errorMessage });
+      wx.showToast({ title: errorMessage, icon: "none" });
     } finally {
       this.setData({ submitLoading: false });
       logger.info("auth_login_wechat_end", {});

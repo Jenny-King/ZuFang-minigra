@@ -5,71 +5,80 @@
     <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
 
     <view class="form-item">
+      <view class="label-row">
+        <text class="label">房源图片（最多9张）</text>
+        <text class="helper-text">{{imageList.length}}/9</text>
+      </view>
+      <view class="image-grid image-grid-top">
+        <view class="image-item" wx:for="{{imageList}}" wx:key="index">
+          <image class="preview-image" src="{{item.url}}" mode="aspectFill" />
+          <view class="remove-btn" data-index="{{index}}" bindtap="onRemoveImage">x</view>
+        </view>
+        <view wx:if="{{imageList.length < 9}}" class="image-add" bindtap="onChooseImages">+ 添加</view>
+      </view>
+    </view>
+
+    <view class="form-item">
       <text class="label">标题</text>
       <input class="input" data-field="title" value="{{formData.title}}" placeholder="如：地铁口精装一室一厅" bindinput="onInputChange" />
     </view>
 
     <view class="form-item">
-      <text class="label">月租金（元）</text>
-      <input class="input" type="number" data-field="price" value="{{formData.price}}" placeholder="请输入月租金" bindinput="onInputChange" />
-    </view>
-
-    <view class="form-item">
       <text class="label">户型</text>
-      <input class="input" data-field="type" value="{{formData.type}}" placeholder="如：一室一厅" bindinput="onInputChange" />
+      <view class="layout-picker-row">
+        <picker mode="selector" range="{{roomOptions}}" range-key="label" value="{{selectedRoomIndex}}" bindchange="onRoomChange">
+          <view class="input layout-picker">{{roomOptions[selectedRoomIndex].label}}</view>
+        </picker>
+        <picker mode="selector" range="{{hallOptions}}" range-key="label" value="{{selectedHallIndex}}" bindchange="onHallChange">
+          <view class="input layout-picker">{{hallOptions[selectedHallIndex].label}}</view>
+        </picker>
+        <picker mode="selector" range="{{bathOptions}}" range-key="label" value="{{selectedBathIndex}}" bindchange="onBathChange">
+          <view class="input layout-picker">{{bathOptions[selectedBathIndex].label}}</view>
+        </picker>
+      </view>
+      <view class="helper-text">当前户型：{{formData.layoutText || '请选择室 / 厅 / 卫'}}</view>
     </view>
 
     <view class="form-item">
-      <text class="label">面积（㎡）</text>
-      <input class="input" type="number" data-field="area" value="{{formData.area}}" placeholder="请输入面积" bindinput="onInputChange" />
+      <text class="label">房源基础信息</text>
+      <view class="meta-grid">
+        <view class="meta-tag">
+          <text class="meta-tag-label">月租金（元）</text>
+          <input class="input meta-tag-control" type="number" data-field="price" value="{{formData.price}}" placeholder="请输入月租金" bindinput="onInputChange" />
+        </view>
+        <view class="meta-tag">
+          <text class="meta-tag-label">面积（㎡）</text>
+          <input class="input meta-tag-control" type="number" data-field="area" value="{{formData.area}}" placeholder="请输入面积" bindinput="onInputChange" />
+        </view>
+        <view class="meta-tag">
+          <text class="meta-tag-label">最短租期</text>
+          <picker mode="selector" range="{{minRentPeriodOptions}}" value="{{selectedMinRentPeriodIndex}}" bindchange="onMinRentPeriodChange">
+            <view class="input meta-tag-control meta-picker">{{minRentPeriodOptions[selectedMinRentPeriodIndex]}}个月</view>
+          </picker>
+        </view>
+        <view class="meta-tag">
+          <text class="meta-tag-label">楼层</text>
+          <input class="input meta-tag-control" data-field="floor" value="{{formData.floor}}" placeholder="如：12/30层" bindinput="onInputChange" />
+        </view>
+        <view class="meta-tag">
+          <text class="meta-tag-label">朝向</text>
+          <picker mode="selector" range="{{orientationOptions}}" value="{{selectedOrientationIndex}}" bindchange="onOrientationChange">
+            <view class="input meta-tag-control meta-picker">{{formData.orientation || '请选择朝向'}}</view>
+          </picker>
+        </view>
+      </view>
     </view>
 
     <view class="form-item">
-      <text class="label">地址</text>
-      <input class="input" data-field="address" value="{{formData.address}}" placeholder="请输入详细地址" bindinput="onInputChange" />
-    </view>
-
-    <view class="form-item">
-      <text class="label">房源描述</text>
-      <textarea class="textarea" data-field="description" value="{{formData.description}}" placeholder="描述房源亮点、配套与交通" bindinput="onInputChange" />
-    </view>
-
-    <view class="form-item">
-      <text class="label">付款方式</text>
-      <picker mode="selector" range="{{paymentOptions}}" value="{{selectedPaymentIndex}}" bindchange="onPaymentChange">
-        <view class="input">{{paymentOptions[selectedPaymentIndex]}}</view>
-      </picker>
-    </view>
-
-    <view class="form-item">
-      <text class="label">最短租期</text>
-      <picker mode="selector" range="{{minRentPeriodOptions}}" value="{{selectedMinRentPeriodIndex}}" bindchange="onMinRentPeriodChange">
-        <view class="input">{{minRentPeriodOptions[selectedMinRentPeriodIndex]}}个月</view>
-      </picker>
-    </view>
-
-    <view class="form-item">
-      <text class="label">楼层</text>
-      <input class="input" data-field="floor" value="{{formData.floor}}" placeholder="如：12/30层" bindinput="onInputChange" />
-    </view>
-
-    <view class="form-item">
-      <text class="label">朝向</text>
-      <picker mode="selector" range="{{orientationOptions}}" value="{{selectedOrientationIndex}}" bindchange="onOrientationChange">
-        <view class="input">{{formData.orientation || '请选择朝向'}}</view>
-      </picker>
-    </view>
-
-    <view class="form-item">
-      <text class="label">区域</text>
-      <picker mode="selector" range="{{regionOptions}}" range-key="label" value="{{selectedRegionIndex}}" bindchange="onRegionChange">
-        <view class="input">{{regionOptions[selectedRegionIndex].label}}</view>
-      </picker>
-    </view>
-
-    <view class="form-item">
-      <text class="label">位置定位</text>
-      <button size="mini" bindtap="onChooseLocation">选择位置</button>
+      <text class="label">地址信息</text>
+      <view class="location-row">
+        <button class="location-btn" size="mini" bindtap="onChooseLocation">地图定位</button>
+        <picker mode="selector" range="{{regionOptions}}" range-key="label" value="{{selectedRegionIndex}}" bindchange="onRegionChange">
+          <view class="input location-picker">{{regionOptions[selectedRegionIndex].label}}</view>
+        </picker>
+      </view>
+      <input class="input location-address" data-field="address" value="{{formData.address}}" placeholder="请输入详细地址" bindinput="onInputChange" />
+      <view class="helper-text">可先地图定位自动带出区域，也可手动调整区域和详细地址</view>
       <map
         wx:if="{{formData.latitude}}"
         latitude="{{formData.latitude}}"
@@ -82,20 +91,22 @@
     </view>
 
     <view class="form-item">
+      <text class="label">房源描述</text>
+      <textarea class="textarea" data-field="description" value="{{formData.description}}" placeholder="描述房源亮点、配套与交通" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
       <text class="label">配套设施</text>
-      <checkbox-group>
-        <label
+      <view class="facility-grid">
+        <view
           wx:for="{{facilityOptions}}"
           wx:key="key"
-          class="input"
-          style="display:flex;align-items:center;margin-bottom:12rpx;"
+          class="facility-tag {{formData.facilities[item.key] ? 'active' : ''}}"
           data-key="{{item.key}}"
           bindtap="onFacilityToggle"
-        >
-          <checkbox checked="{{formData.facilities[item.key]}}" />
-          <text style="margin-left:16rpx;">{{item.label}}</text>
-        </label>
-      </checkbox-group>
+        >{{item.label}}</view>
+      </view>
+      <view class="helper-text">点击标签可多选</view>
     </view>
 
     <view class="form-item">
@@ -106,20 +117,6 @@
     <view class="form-item">
       <text class="label">联系电话</text>
       <input class="input" type="number" data-field="contactPhone" value="{{formData.contactPhone}}" placeholder="请输入手机号" bindinput="onInputChange" />
-    </view>
-
-    <view class="form-item">
-      <view class="label-row">
-        <text class="label">房源图片（最多9张）</text>
-        <text class="helper-text">{{imageList.length}}/9</text>
-      </view>
-      <view class="image-grid">
-        <view class="image-item" wx:for="{{imageList}}" wx:key="index">
-          <image class="preview-image" src="{{item.url}}" mode="aspectFill" />
-          <view class="remove-btn" data-index="{{index}}" bindtap="onRemoveImage">x</view>
-        </view>
-        <view wx:if="{{imageList.length < 9}}" class="image-add" bindtap="onChooseImages">+ 添加</view>
-      </view>
     </view>
 
     <button class="submit-btn" loading="{{submitting}}" bindtap="onSubmitTap">

@@ -131,7 +131,7 @@ Page({
       displayTitle: fallbackText(item.title, "未命名房源"),
       displayPrice: formatPrice(Number(item.price) || 0),
       displayAddress: fallbackText(item.address, "地址待完善"),
-      displayType: fallbackText(item.type, "未知户型"),
+      displayType: fallbackText(item.layoutText || item.type, "未知户型"),
       displayImage: Array.isArray(item.images) && item.images.length
         ? item.images[0]
         : "/assets/images/house-placeholder.png",

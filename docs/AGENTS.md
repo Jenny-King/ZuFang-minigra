@@ -189,7 +189,7 @@ function getHouseList(params) {
 - `favorite`：收藏
 - `history`：浏览历史
 - `chat`：会话、消息、通知
-- `map`：地理编码、周边搜索
+- `map`：地理编码、逆地理编码、周边搜索
 - `bootstrap`：初始化集合与区域数据，仅开发环境允许
 
 ---

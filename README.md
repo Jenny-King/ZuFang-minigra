@@ -26,6 +26,7 @@
 - 图片上传统一走 `services/cloud/upload.js`
 - 受保护接口统一通过 `accessToken -> user_sessions -> userId` 鉴权
 - `bootstrap` 仅允许在显式标记的非生产环境执行
+- `map` 云函数接入腾讯地图 WebService 时，需要在云开发控制台配置环境变量 `TENCENT_MAP_KEY`
 
 更多上下文请先阅读：
 

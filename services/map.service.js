@@ -17,6 +17,16 @@ async function geocodeAddress(address) {
   return callCloud("map", "geocode", { address: address.trim() });
 }
 
+async function reverseGeocode(latitude, longitude) {
+  assertNumber(latitude, "latitude");
+  assertNumber(longitude, "longitude");
+
+  return callCloud("map", "reverseGeocode", {
+    latitude,
+    longitude
+  });
+}
+
 async function searchNearby(latitude, longitude, keywords = "") {
   assertNumber(latitude, "latitude");
   assertNumber(longitude, "longitude");
@@ -30,5 +40,6 @@ async function searchNearby(latitude, longitude, keywords = "") {
 
 module.exports = {
   geocodeAddress,
+  reverseGeocode,
   searchNearby
 };

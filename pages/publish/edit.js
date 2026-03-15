@@ -1,5 +1,6 @@
 const houseService = require("../../services/house.service");
 const mapService = require("../../services/map.service");
+const { HOUSE_TYPE } = require("../../config/constants");
 const authUtils = require("../../utils/auth");
 const { validateHouseForm, isPhone } = require("../../utils/validate");
 const { logger } = require("../../utils/logger");
@@ -7,10 +8,33 @@ const { ROUTES, switchTab } = require("../../config/routes");
 
 const PENDING_PUBLISH_CONTEXT_KEY = "pendingPublishContext";
 const PROFILE_ENTRY_HIGHLIGHT_KEY = "profileEntryHighlight";
-const PAYMENT_OPTIONS = ["月付", "季付", "半年付", "年付"];
 const MIN_RENT_PERIOD_OPTIONS = [1, 3, 6, 12];
 const ORIENTATION_OPTIONS = ["东", "南", "西", "北", "东南", "东北", "西南", "西北"];
 const FALLBACK_REGION_OPTIONS = [{ label: "全部区域", value: "" }];
+const ROOM_OPTIONS = [
+  { label: "请选择室", value: 0 },
+  { label: "1室", value: 1 },
+  { label: "2室", value: 2 },
+  { label: "3室", value: 3 },
+  { label: "4室", value: 4 },
+  { label: "5室", value: 5 },
+  { label: "6室", value: 6 }
+];
+const HALL_OPTIONS = [
+  { label: "请选择厅", value: -1 },
+  { label: "0厅", value: 0 },
+  { label: "1厅", value: 1 },
+  { label: "2厅", value: 2 },
+  { label: "3厅", value: 3 }
+];
+const BATH_OPTIONS = [
+  { label: "请选择卫", value: -1 },
+  { label: "0卫", value: 0 },
+  { label: "1卫", value: 1 },
+  { label: "2卫", value: 2 },
+  { label: "3卫", value: 3 },
+  { label: "4卫", value: 4 }
+];
 const DEFAULT_FACILITIES = {
   elevator: false,
   parking: false,
@@ -77,10 +101,10 @@ function createInitialForm() {
     title: "",
     price: "",
     type: "",
+    layoutText: "",
     area: "",
     address: "",
     description: "",
-    paymentMethod: PAYMENT_OPTIONS[0],
     minRentPeriod: MIN_RENT_PERIOD_OPTIONS[0],
     floor: "",
     orientation: "",
@@ -116,21 +140,142 @@ function getRegionIndex(regionOptions = [], region = "") {
   return index >= 0 ? index : 0;
 }
 
-function matchRegionByLocation(regionOptions = [], location = {}, formattedAddress = "") {
-  const latitude = Number(location.lat || location.latitude || 0);
-  const longitude = Number(location.lng || location.longitude || 0);
-  const normalizedAddress = String(formattedAddress || "").trim();
+function matchRegionByLocation(regionOptions = [], locationDetail = {}, formattedAddress = "") {
+  const normalizedAddress = String(
+    formattedAddress
+    || locationDetail?.formattedAddress
+    || locationDetail?.address
+    || ""
+  ).trim();
+  const districtCandidates = [
+    locationDetail?.district,
+    locationDetail?.addressComponent?.district,
+    locationDetail?.adInfo?.district
+  ]
+    .map((item) => String(item || "").trim())
+    .filter(Boolean);
+  const candidates = Array.isArray(regionOptions) ? regionOptions : [];
+  const districtMatched = candidates.find((item) => districtCandidates.includes(String(item?.value || "").trim()));
 
-  if (!latitude || !longitude || !normalizedAddress) {
+  if (districtMatched) {
+    return districtMatched.value;
+  }
+
+  if (!normalizedAddress) {
     return "";
   }
 
-  const matched = (Array.isArray(regionOptions) ? regionOptions : [])
+  const matched = candidates
     .filter((item) => item && item.value && item.value !== "全市")
     .sort((left, right) => String(right.value || "").length - String(left.value || "").length)
     .find((item) => normalizedAddress.includes(String(item.value || "").trim()));
 
   return matched ? matched.value : "";
+}
+
+function buildPickedLocationAddress(address = "", name = "") {
+  const normalizedAddress = String(address || "").trim();
+  const normalizedName = String(name || "").trim();
+
+  if (normalizedAddress && normalizedName && !normalizedAddress.includes(normalizedName)) {
+    return `${normalizedAddress}${normalizedName}`;
+  }
+
+  return normalizedAddress || normalizedName;
+}
+
+function getOptionIndexByValue(options = [], value) {
+  const index = options.findIndex((item) => item.value === value);
+  return index >= 0 ? index : 0;
+}
+
+function buildLayoutText(roomCount, hallCount, bathCount) {
+  if (roomCount <= 0 || hallCount < 0 || bathCount < 0) {
+    return "";
+  }
+
+  return `${roomCount}室${hallCount}厅${bathCount}卫`;
+}
+
+function getHouseTypeByLayout(roomCount, hallCount) {
+  if (roomCount >= 3) {
+    return HOUSE_TYPE.THREE_PLUS;
+  }
+
+  if (roomCount === 2) {
+    return HOUSE_TYPE.TWO_BEDROOM;
+  }
+
+  if (roomCount === 1) {
+    return hallCount > 0 ? HOUSE_TYPE.ONE_BEDROOM : HOUSE_TYPE.STUDIO;
+  }
+
+  return "";
+}
+
+function buildLayoutFields(selectedRoomIndex, selectedHallIndex, selectedBathIndex) {
+  const roomCount = Number(ROOM_OPTIONS[selectedRoomIndex]?.value || 0);
+  const hallCount = Number(HALL_OPTIONS[selectedHallIndex]?.value ?? -1);
+  const bathCount = Number(BATH_OPTIONS[selectedBathIndex]?.value ?? -1);
+  const layoutText = buildLayoutText(roomCount, hallCount, bathCount);
+
+  return {
+    type: layoutText ? getHouseTypeByLayout(roomCount, hallCount) : "",
+    layoutText
+  };
+}
+
+function resolveLayoutState(type = "", layoutText = "") {
+  const normalizedType = String(type || "").trim();
+  const normalizedLayoutText = String(layoutText || "").trim();
+  const layoutSource = normalizedLayoutText || normalizedType;
+  const matched = layoutSource.match(/^(\d+)室(\d+)厅(\d+)卫$/);
+
+  if (matched) {
+    return {
+      selectedRoomIndex: getOptionIndexByValue(ROOM_OPTIONS, Number(matched[1])),
+      selectedHallIndex: getOptionIndexByValue(HALL_OPTIONS, Number(matched[2])),
+      selectedBathIndex: getOptionIndexByValue(BATH_OPTIONS, Number(matched[3]))
+    };
+  }
+
+  if (normalizedType === HOUSE_TYPE.STUDIO) {
+    return {
+      selectedRoomIndex: getOptionIndexByValue(ROOM_OPTIONS, 1),
+      selectedHallIndex: getOptionIndexByValue(HALL_OPTIONS, 0),
+      selectedBathIndex: getOptionIndexByValue(BATH_OPTIONS, 1)
+    };
+  }
+
+  if (normalizedType === HOUSE_TYPE.ONE_BEDROOM) {
+    return {
+      selectedRoomIndex: getOptionIndexByValue(ROOM_OPTIONS, 1),
+      selectedHallIndex: getOptionIndexByValue(HALL_OPTIONS, 1),
+      selectedBathIndex: getOptionIndexByValue(BATH_OPTIONS, 1)
+    };
+  }
+
+  if (normalizedType === HOUSE_TYPE.TWO_BEDROOM) {
+    return {
+      selectedRoomIndex: getOptionIndexByValue(ROOM_OPTIONS, 2),
+      selectedHallIndex: getOptionIndexByValue(HALL_OPTIONS, 1),
+      selectedBathIndex: getOptionIndexByValue(BATH_OPTIONS, 1)
+    };
+  }
+
+  if (normalizedType === HOUSE_TYPE.THREE_PLUS) {
+    return {
+      selectedRoomIndex: getOptionIndexByValue(ROOM_OPTIONS, 3),
+      selectedHallIndex: getOptionIndexByValue(HALL_OPTIONS, 1),
+      selectedBathIndex: getOptionIndexByValue(BATH_OPTIONS, 1)
+    };
+  }
+
+  return {
+    selectedRoomIndex: 0,
+    selectedHallIndex: 0,
+    selectedBathIndex: 0
+  };
 }
 
 Page({
@@ -142,12 +287,16 @@ Page({
     errorText: "",
     formData: createInitialForm(),
     imageList: [],
-    paymentOptions: PAYMENT_OPTIONS,
+    roomOptions: ROOM_OPTIONS,
+    hallOptions: HALL_OPTIONS,
+    bathOptions: BATH_OPTIONS,
     minRentPeriodOptions: MIN_RENT_PERIOD_OPTIONS,
     orientationOptions: ORIENTATION_OPTIONS,
     regionOptions: FALLBACK_REGION_OPTIONS,
     facilityOptions: FACILITY_OPTIONS,
-    selectedPaymentIndex: 0,
+    selectedRoomIndex: 0,
+    selectedHallIndex: 0,
+    selectedBathIndex: 0,
     selectedMinRentPeriodIndex: 0,
     selectedOrientationIndex: 0,
     selectedRegionIndex: 0,
@@ -211,6 +360,7 @@ Page({
   resetPublishState() {
     logger.info("publish_reset_state_start", {});
     const formData = createInitialForm();
+    const layoutState = resolveLayoutState(formData.type, formData.layoutText);
     this.clearTitleHighlightTimer();
     this.setData({
       isEdit: false,
@@ -220,7 +370,9 @@ Page({
       errorText: "",
       formData,
       imageList: [],
-      selectedPaymentIndex: getPickerIndex(PAYMENT_OPTIONS, formData.paymentMethod),
+      selectedRoomIndex: layoutState.selectedRoomIndex,
+      selectedHallIndex: layoutState.selectedHallIndex,
+      selectedBathIndex: layoutState.selectedBathIndex,
       selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
       selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
       selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region),
@@ -318,13 +470,16 @@ Page({
 
   buildEmptyEditState(nextHouseId) {
     const formData = createInitialForm();
+    const layoutState = resolveLayoutState(formData.type, formData.layoutText);
     return {
       isEdit: true,
       houseId: String(nextHouseId || ""),
       errorText: "",
       formData,
       imageList: [],
-      selectedPaymentIndex: getPickerIndex(PAYMENT_OPTIONS, formData.paymentMethod),
+      selectedRoomIndex: layoutState.selectedRoomIndex,
+      selectedHallIndex: layoutState.selectedHallIndex,
+      selectedBathIndex: layoutState.selectedBathIndex,
       selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
       selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
       selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region)
@@ -367,10 +522,10 @@ Page({
         title: detail.title || "",
         price: detail.price ? String(detail.price) : "",
         type: detail.type || "",
+        layoutText: detail.layoutText || "",
         area: detail.area ? String(detail.area) : "",
         address: detail.address || "",
         description: detail.description || "",
-        paymentMethod: detail.paymentMethod || PAYMENT_OPTIONS[0],
         minRentPeriod: Number(detail.minRentPeriod) > 0
           ? Number(detail.minRentPeriod)
           : MIN_RENT_PERIOD_OPTIONS[0],
@@ -383,6 +538,14 @@ Page({
         contactName: detail.contactName || "",
         contactPhone: detail.contactPhone || ""
       };
+      const layoutState = resolveLayoutState(formData.type, formData.layoutText);
+      const layoutFields = buildLayoutFields(
+        layoutState.selectedRoomIndex,
+        layoutState.selectedHallIndex,
+        layoutState.selectedBathIndex
+      );
+      formData.type = layoutFields.type || formData.type;
+      formData.layoutText = layoutFields.layoutText || formData.layoutText;
 
       this.setData({
         isEdit: true,
@@ -390,7 +553,9 @@ Page({
         errorText: "",
         formData,
         imageList: (detail.images || []).map((url) => ({ url })),
-        selectedPaymentIndex: getPickerIndex(PAYMENT_OPTIONS, formData.paymentMethod),
+        selectedRoomIndex: layoutState.selectedRoomIndex,
+        selectedHallIndex: layoutState.selectedHallIndex,
+        selectedBathIndex: layoutState.selectedBathIndex,
         selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
         selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
         selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region)
@@ -432,15 +597,54 @@ Page({
     logger.debug("publish_input_change_end", { field });
   },
 
-  onPaymentChange(event) {
-    logger.info("publish_payment_change_start", { value: event.detail.value });
-    const selectedPaymentIndex = Number(event.detail.value) || 0;
-    const paymentMethod = PAYMENT_OPTIONS[selectedPaymentIndex] || PAYMENT_OPTIONS[0];
+  updateLayoutSelection(partialState = {}) {
+    const selectedRoomIndex = partialState.selectedRoomIndex ?? this.data.selectedRoomIndex;
+    const selectedHallIndex = partialState.selectedHallIndex ?? this.data.selectedHallIndex;
+    const selectedBathIndex = partialState.selectedBathIndex ?? this.data.selectedBathIndex;
+    const layoutFields = buildLayoutFields(selectedRoomIndex, selectedHallIndex, selectedBathIndex);
+
     this.setData({
-      selectedPaymentIndex,
-      "formData.paymentMethod": paymentMethod
+      selectedRoomIndex,
+      selectedHallIndex,
+      selectedBathIndex,
+      "formData.type": layoutFields.type,
+      "formData.layoutText": layoutFields.layoutText
     });
-    logger.info("publish_payment_change_end", { paymentMethod });
+
+    return layoutFields;
+  },
+
+  onRoomChange(event) {
+    logger.info("publish_room_change_start", { value: event.detail.value });
+    const selectedRoomIndex = Number(event.detail.value) || 0;
+    const layoutFields = this.updateLayoutSelection({ selectedRoomIndex });
+    logger.info("publish_room_change_end", {
+      selectedRoomIndex,
+      type: layoutFields.type,
+      layoutText: layoutFields.layoutText
+    });
+  },
+
+  onHallChange(event) {
+    logger.info("publish_hall_change_start", { value: event.detail.value });
+    const selectedHallIndex = Number(event.detail.value) || 0;
+    const layoutFields = this.updateLayoutSelection({ selectedHallIndex });
+    logger.info("publish_hall_change_end", {
+      selectedHallIndex,
+      type: layoutFields.type,
+      layoutText: layoutFields.layoutText
+    });
+  },
+
+  onBathChange(event) {
+    logger.info("publish_bath_change_start", { value: event.detail.value });
+    const selectedBathIndex = Number(event.detail.value) || 0;
+    const layoutFields = this.updateLayoutSelection({ selectedBathIndex });
+    logger.info("publish_bath_change_end", {
+      selectedBathIndex,
+      type: layoutFields.type,
+      layoutText: layoutFields.layoutText
+    });
   },
 
   onMinRentPeriodChange(event) {
@@ -496,7 +700,7 @@ Page({
     logger.info("publish_choose_location_start", {});
     try {
       const result = await wx.chooseLocation();
-      const address = String(result.address || result.name || "").trim();
+      const address = buildPickedLocationAddress(result.address, result.name);
       const latitude = Number(result.latitude || 0);
       const longitude = Number(result.longitude || 0);
 
@@ -506,35 +710,35 @@ Page({
         "formData.longitude": longitude
       });
 
-      try {
-        const geocodeResult = await mapService.geocodeAddress(address);
-        const formattedAddress = String(geocodeResult?.formattedAddress || "").trim();
-        const nextAddress = formattedAddress || address || this.data.formData.address;
-        const nextData = {
-          "formData.address": nextAddress
-        };
-
-        if (!this.data.formData.region) {
+      if (latitude && longitude) {
+        try {
+          const reverseGeocodeResult = await mapService.reverseGeocode(latitude, longitude);
+          const nextAddress = String(
+            reverseGeocodeResult?.formattedAddress
+            || reverseGeocodeResult?.address
+            || address
+            || this.data.formData.address
+          ).trim();
           const matchedRegion = matchRegionByLocation(
             this.data.regionOptions,
-            geocodeResult?.location || {
-              latitude: geocodeResult?.latitude,
-              longitude: geocodeResult?.longitude
-            },
+            reverseGeocodeResult,
             nextAddress
           );
+          const nextData = {
+            "formData.address": nextAddress
+          };
 
           if (matchedRegion) {
             nextData["formData.region"] = matchedRegion;
             nextData.selectedRegionIndex = getRegionIndex(this.data.regionOptions, matchedRegion);
           }
-        }
 
-        this.setData(nextData);
-      } catch (error) {
-        logger.warn("publish_choose_location_geocode_failed", {
-          err: error.message || "地址解析失败"
-        });
+          this.setData(nextData);
+        } catch (error) {
+          logger.warn("publish_choose_location_reverse_geocode_failed", {
+            err: error.message || "逆地址解析失败"
+          });
+        }
       }
 
       logger.info("publish_choose_location_end", {
@@ -606,10 +810,10 @@ Page({
       title: form.title.trim(),
       price: Number(form.price) || 0,
       type: form.type.trim(),
+      layoutText: String(form.layoutText || "").trim(),
       area: Number(form.area) || 0,
       address: form.address.trim(),
       description: form.description.trim(),
-      paymentMethod: String(form.paymentMethod || PAYMENT_OPTIONS[0]).trim() || PAYMENT_OPTIONS[0],
       minRentPeriod: Number(form.minRentPeriod) || MIN_RENT_PERIOD_OPTIONS[0],
       floor: String(form.floor || "").trim(),
       orientation: String(form.orientation || "").trim(),

@@ -73,7 +73,7 @@ Page({
         displayTitle: fallbackText(house.title, "未命名房源"),
         displayAddress: fallbackText(house.address, "地址待完善"),
         displayPrice: formatPrice(Number(house.price) || 0),
-        displayType: fallbackText(house.type, "未知户型"),
+        displayType: fallbackText(house.layoutText || house.type, "未知户型"),
         displayViewTime: item.viewTime ? formatDate(item.viewTime) : "",
         displayImage: Array.isArray(house.images) && house.images.length
           ? house.images[0]

@@ -146,6 +146,14 @@ function validatePaymentMethod(paymentMethod) {
   return normalized;
 }
 
+function resolveCreatePaymentMethod(paymentMethod) {
+  if (paymentMethod === undefined) {
+    return PAYMENT_METHOD_OPTIONS[0];
+  }
+
+  return validatePaymentMethod(paymentMethod);
+}
+
 function validateContactPhone(contactPhone) {
   const normalized = normalizeString(contactPhone);
   if (!PHONE_REGEXP.test(normalized)) {
@@ -157,6 +165,7 @@ function validateContactPhone(contactPhone) {
 function buildCreateData(payload) {
   const title = normalizeString(payload.title);
   const type = normalizeString(payload.type);
+  const layoutText = normalizeString(payload.layoutText) || type;
   const address = normalizeString(payload.address);
 
   if (!title) {
@@ -174,10 +183,11 @@ function buildCreateData(payload) {
   return {
     title,
     price: normalizePositiveNumber(payload.price, "price"),
-    paymentMethod: validatePaymentMethod(payload.paymentMethod),
+    paymentMethod: resolveCreatePaymentMethod(payload.paymentMethod),
     minRentPeriod: normalizeMinRentPeriod(payload.minRentPeriod),
     area: normalizePositiveNumber(payload.area, "area"),
     type,
+    layoutText,
     floor: normalizeString(payload.floor),
     orientation: normalizeString(payload.orientation),
     address,
@@ -225,6 +235,10 @@ function buildUpdateData(payload) {
       throw new Error("type 不能为空");
     }
     updateData.type = type;
+  }
+
+  if (payload.layoutText !== undefined) {
+    updateData.layoutText = normalizeString(payload.layoutText);
   }
 
   if (payload.address !== undefined) {

@@ -77,7 +77,7 @@ Page({
       ...detail,
       displayTitle: fallbackText(detail.title, "未命名房源"),
       displayPrice: formatPrice(Number(detail.price) || 0),
-      displayType: fallbackText(detail.type, "未知户型"),
+      displayType: fallbackText(detail.layoutText || detail.type, "未知户型"),
       displayAddress: fallbackText(detail.address, "地址待完善"),
       displayArea: detail.area ? `${detail.area}㎡` : "--",
       displayFloor: fallbackText(detail.floor, "--"),

@@ -1,0 +1,46 @@
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  box-sizing: border-box;
+}
+
+.button-primary {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-radius: var(--radius-control);
+  font-size: var(--font-body);
+}
+
+.button-danger {
+  background: var(--color-warning);
+  color: #ffffff;
+  border-radius: var(--radius-control);
+  font-size: var(--font-body);
+}

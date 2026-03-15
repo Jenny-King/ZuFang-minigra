@@ -1,0 +1,32 @@
+<view class="container chat-page">
+  <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
+
+  <view wx:if="{{!listLoading && conversationList.length === 0}}" class="empty-tip">
+    暂无会话，去房源详情联系房东吧
+  </view>
+
+  <view class="chat-list">
+    <view
+      class="chat-item card"
+      wx:for="{{conversationList}}"
+      wx:key="conversationId"
+      data-conversation-id="{{item.conversationId}}"
+      data-target-user-id="{{item.targetUserId}}"
+      bindtap="onConversationTap"
+    >
+      <image class="avatar" src="{{item.displayAvatar || '/assets/images/avatar-placeholder.png'}}" mode="aspectFill" />
+      <view class="content">
+        <view class="top-row">
+          <text class="name text-ellipsis">{{item.displayName}}</text>
+          <text class="time">{{item.displayLastTime}}</text>
+        </view>
+        <view class="bottom-row">
+          <text class="message text-ellipsis">{{item.displayLastMessage}}</text>
+          <text wx:if="{{item.unreadCount > 0}}" class="badge">{{item.unreadCount}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{listLoading}}" class="loading-tip">加载中...</view>
+</view>

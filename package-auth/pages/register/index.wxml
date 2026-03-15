@@ -1,0 +1,46 @@
+<view class="container auth-page">
+  <view class="card auth-card">
+    <view class="title">注册账号</view>
+
+    <view class="form-item">
+      <text class="label">昵称</text>
+      <input class="input" data-field="nickName" value="{{formData.nickName}}" placeholder="请输入昵称" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">手机号</text>
+      <input class="input" type="number" data-field="phone" value="{{formData.phone}}" placeholder="请输入手机号" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">密码</text>
+      <input class="input" password data-field="password" value="{{formData.password}}" placeholder="6-20位，至少字母+数字" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">微信号（可选）</text>
+      <input class="input" data-field="wechatId" value="{{formData.wechatId}}" placeholder="请输入微信号" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">默认身份</text>
+      <radio-group class="role-group" bindchange="onRoleChange">
+        <label class="role-item">
+          <radio value="0" checked="{{formData.role === 'tenant'}}" />
+          <text>租客</text>
+        </label>
+        <label class="role-item">
+          <radio value="1" checked="{{formData.role === 'landlord'}}" />
+          <text>房东</text>
+        </label>
+      </radio-group>
+    </view>
+
+    <button class="submit-btn" loading="{{submitLoading}}" bindtap="onSubmitTap">注册并登录</button>
+
+    <view class="bottom-text">
+      已有账号？
+      <text class="link" bindtap="onGoLoginTap">去登录</text>
+    </view>
+  </view>
+</view>

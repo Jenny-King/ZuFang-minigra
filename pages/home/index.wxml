@@ -1,0 +1,56 @@
+<view class="container home-page">
+  <view class="search-bar card">
+    <input
+      class="search-input"
+      placeholder="搜索小区、地铁、房源关键词"
+      value="{{keywordDraft}}"
+      bindinput="onKeywordInput"
+      confirm-type="search"
+    />
+    <button class="search-btn" size="mini" bindtap="onSearchTap">搜索</button>
+  </view>
+
+  <view class="filter-bar card">
+    <picker mode="selector" range="{{regionOptions}}" range-key="label" value="{{selectedRegionIndex}}" bindchange="onRegionChange">
+      <view class="filter-item">区域：{{regionOptions[selectedRegionIndex].label}}</view>
+    </picker>
+    <picker mode="selector" range="{{typeOptions}}" range-key="label" value="{{selectedTypeIndex}}" bindchange="onTypeChange">
+      <view class="filter-item">户型：{{typeOptions[selectedTypeIndex].label}}</view>
+    </picker>
+    <picker mode="selector" range="{{sortOptions}}" range-key="label" value="{{selectedSortIndex}}" bindchange="onSortChange">
+      <view class="filter-item">排序：{{sortOptions[selectedSortIndex].label}}</view>
+    </picker>
+  </view>
+
+  <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
+
+  <view wx:if="{{!loading && houseList.length === 0}}" class="empty-tip">
+    暂无房源，试试调整筛选条件
+  </view>
+
+  <view class="house-list">
+    <view
+      class="house-card card"
+      wx:for="{{houseList}}"
+      wx:key="_id"
+      data-house-id="{{item._id}}"
+      bindtap="onGoDetail"
+    >
+      <image class="house-image" src="{{item.images[0] || '/assets/images/house-placeholder.png'}}" mode="aspectFill" />
+      <view class="house-main">
+        <view class="house-title text-ellipsis">{{item.displayTitle}}</view>
+        <view class="house-meta-row">
+          <text class="house-type">{{item.displayType}}</text>
+          <text class="house-address text-ellipsis">{{item.displayAddress}}</text>
+        </view>
+        <view class="house-footer">
+          <text class="house-price">{{item.displayPrice}}</text>
+          <text class="house-time">{{item.displayCreateTime}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+  <view wx:if="{{!loading && houseList.length > 0 && !hasMore}}" class="loading-tip">没有更多了</view>
+</view>

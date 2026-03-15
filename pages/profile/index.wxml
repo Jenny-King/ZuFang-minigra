@@ -1,0 +1,54 @@
+<view class="container profile-page">
+  <view class="card profile-header">
+    <view class="avatar-wrap">
+      <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/avatar-placeholder.png'}}" mode="aspectFill" />
+    </view>
+    <view class="profile-main" wx:if="{{isLoggedIn}}">
+      <view class="name">{{userInfo.displayName}}</view>
+      <view class="sub-text">{{userInfo.displayPhone}}</view>
+      <view class="sub-text">当前角色：{{userInfo.displayRole}}</view>
+      <view class="sub-text">{{userInfo.displayVerifyStatus}}</view>
+      <view class="sub-text">{{userInfo.displayWechatStatus}}</view>
+    </view>
+    <view class="profile-main" wx:else>
+      <view class="name">未登录</view>
+      <view class="sub-text">登录后可查看收藏、历史和消息</view>
+      <view class="auth-actions">
+        <button size="mini" class="auth-btn primary" bindtap="onGoLogin">登录</button>
+        <button size="mini" class="auth-btn" bindtap="onGoRegister">注册</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="card menu-card" wx:if="{{isLoggedIn}}">
+    <view class="menu-item" bindtap="onGoFavorites">
+      <text>我的收藏</text>
+      <text class="arrow">></text>
+    </view>
+    <view class="menu-item" bindtap="onGoHistory">
+      <text>浏览历史</text>
+      <text class="arrow">></text>
+    </view>
+    <view class="menu-item" bindtap="onGoVerify">
+      <text>实名认证</text>
+      <text class="arrow">></text>
+    </view>
+    <view class="menu-item" wx:if="{{userInfo && userInfo.wechatBound}}" bindtap="onUnbindWechatTap">
+      <text>解绑微信</text>
+      <text class="arrow">></text>
+    </view>
+    <view class="menu-item" wx:else bindtap="onBindWechatTap">
+      <text>绑定微信</text>
+      <text class="arrow">></text>
+    </view>
+    <view class="menu-item" wx:if="{{userInfo && userInfo.role === 'landlord'}}" bindtap="onGoPublish">
+      <text>发布房源</text>
+      <text class="arrow">></text>
+    </view>
+  </view>
+
+  <view class="action-area" wx:if="{{isLoggedIn}}">
+    <button class="action-btn switch" bindtap="onSwitchRoleTap">切换角色（租客/房东）</button>
+    <button class="action-btn logout" bindtap="onLogoutTap">退出登录</button>
+  </view>
+</view>

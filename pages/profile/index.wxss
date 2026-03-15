@@ -1,0 +1,100 @@
+.profile-page {
+  min-height: 100vh;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.avatar-wrap {
+  margin-right: 20rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  background: #f0f2f5;
+}
+
+.profile-main {
+  flex: 1;
+}
+
+.name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.sub-text {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.auth-actions {
+  margin-top: 16rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.auth-btn {
+  margin: 0;
+  border-radius: 6rpx;
+  background: #f5f5f5;
+  color: #333333;
+}
+
+.auth-btn.primary {
+  background: #1677ff;
+  color: #ffffff;
+}
+
+.menu-card {
+  padding: 0 24rpx;
+}
+
+.menu-item {
+  height: 92rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 28rpx;
+  color: #333333;
+  border-bottom: 2rpx solid #f3f3f3;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.arrow {
+  color: #bfbfbf;
+  font-size: 26rpx;
+}
+
+.action-area {
+  margin-top: 24rpx;
+}
+
+.action-btn {
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  margin-bottom: 16rpx;
+}
+
+.action-btn.switch {
+  background: #1677ff;
+  color: #ffffff;
+}
+
+.action-btn.logout {
+  background: #ff4d4f;
+  color: #ffffff;
+}

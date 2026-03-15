@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "聊天详情",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f7f8fa",
+  "backgroundTextStyle": "dark"
+}

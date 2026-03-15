@@ -1,0 +1,12 @@
+node_modules/
+coverage/
+
+# WeChat DevTools local-only settings
+project.private.config.json
+
+# OS/editor artifacts
+Thumbs.db
+.DS_Store
+
+# Accidental binary artifact in repo root
+System.Drawing.Drawing2D.GraphicsPath

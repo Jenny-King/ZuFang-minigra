@@ -1,0 +1,31 @@
+<view class="container favorites-page">
+  <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
+
+  <view wx:if="{{!loading && list.length === 0}}" class="empty-tip">暂无收藏房源</view>
+
+  <view class="fav-list">
+    <view class="fav-item card" wx:for="{{list}}" wx:key="houseId">
+      <image
+        class="cover"
+        src="{{item.displayImage}}"
+        mode="aspectFill"
+        data-house-id="{{item.houseId}}"
+        bindtap="onGoDetailTap"
+      />
+      <view class="main" data-house-id="{{item.houseId}}" bindtap="onGoDetailTap">
+        <view class="title text-ellipsis">{{item.displayTitle}}</view>
+        <view class="meta">{{item.displayType}} · {{item.displayAddress}}</view>
+        <view class="footer">
+          <text class="price">{{item.displayPrice}}</text>
+          <text class="time">{{item.displayCreateTime}}</text>
+        </view>
+      </view>
+      <button class="cancel-btn" size="mini" data-house-id="{{item.houseId}}" bindtap="onCancelFavoriteTap">
+        取消
+      </button>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+  <view wx:if="{{!loading && list.length > 0 && !hasMore}}" class="loading-tip">没有更多了</view>
+</view>

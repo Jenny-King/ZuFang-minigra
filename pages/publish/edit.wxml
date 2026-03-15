@@ -1,0 +1,120 @@
+<view class="container publish-page">
+  <view class="card form-card">
+    <view class="form-title">{{isEdit ? '编辑房源' : '发布房源'}}</view>
+
+    <view class="form-item">
+      <text class="label">标题</text>
+      <input class="input" data-field="title" value="{{formData.title}}" placeholder="如：地铁口精装一室一厅" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">月租金（元）</text>
+      <input class="input" type="number" data-field="price" value="{{formData.price}}" placeholder="请输入月租金" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">户型</text>
+      <input class="input" data-field="type" value="{{formData.type}}" placeholder="如：一室一厅" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">面积（㎡）</text>
+      <input class="input" type="number" data-field="area" value="{{formData.area}}" placeholder="请输入面积" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">地址</text>
+      <input class="input" data-field="address" value="{{formData.address}}" placeholder="请输入详细地址" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">房源描述</text>
+      <textarea class="textarea" data-field="description" value="{{formData.description}}" placeholder="描述房源亮点、配套与交通" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">付款方式</text>
+      <picker mode="selector" range="{{paymentOptions}}" value="{{selectedPaymentIndex}}" bindchange="onPaymentChange">
+        <view class="input">{{paymentOptions[selectedPaymentIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">最短租期</text>
+      <picker mode="selector" range="{{minRentPeriodOptions}}" value="{{selectedMinRentPeriodIndex}}" bindchange="onMinRentPeriodChange">
+        <view class="input">{{minRentPeriodOptions[selectedMinRentPeriodIndex]}}个月</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">楼层</text>
+      <input class="input" data-field="floor" value="{{formData.floor}}" placeholder="如：12/30层" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">朝向</text>
+      <picker mode="selector" range="{{orientationOptions}}" value="{{selectedOrientationIndex}}" bindchange="onOrientationChange">
+        <view class="input">{{formData.orientation || '请选择朝向'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">区域</text>
+      <picker mode="selector" range="{{regionOptions}}" range-key="label" value="{{selectedRegionIndex}}" bindchange="onRegionChange">
+        <view class="input">{{regionOptions[selectedRegionIndex].label}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">位置定位</text>
+      <button size="mini" bindtap="onChooseLocation">选择位置</button>
+      <view class="helper-text">{{formData.address || '未选择位置'}}</view>
+      <view class="helper-text">坐标：{{formData.latitude}}, {{formData.longitude}}</view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">配套设施</text>
+      <checkbox-group>
+        <label
+          wx:for="{{facilityOptions}}"
+          wx:key="key"
+          class="input"
+          style="display:flex;align-items:center;margin-bottom:12rpx;"
+          data-key="{{item.key}}"
+          bindtap="onFacilityToggle"
+        >
+          <checkbox checked="{{formData.facilities[item.key]}}" />
+          <text style="margin-left:16rpx;">{{item.label}}</text>
+        </label>
+      </checkbox-group>
+    </view>
+
+    <view class="form-item">
+      <text class="label">联系人</text>
+      <input class="input" data-field="contactName" value="{{formData.contactName}}" placeholder="请输入联系人姓名" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">联系电话</text>
+      <input class="input" type="number" data-field="contactPhone" value="{{formData.contactPhone}}" placeholder="请输入手机号" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <view class="label-row">
+        <text class="label">房源图片（最多9张）</text>
+        <text class="helper-text">{{imageList.length}}/9</text>
+      </view>
+      <view class="image-grid">
+        <view class="image-item" wx:for="{{imageList}}" wx:key="index">
+          <image class="preview-image" src="{{item.url}}" mode="aspectFill" />
+          <view class="remove-btn" data-index="{{index}}" bindtap="onRemoveImage">x</view>
+        </view>
+        <view wx:if="{{imageList.length < 9}}" class="image-add" bindtap="onChooseImages">+ 添加</view>
+      </view>
+    </view>
+
+    <button class="submit-btn" loading="{{submitting}}" bindtap="onSubmitTap">
+      {{isEdit ? '保存修改' : '发布房源'}}
+    </button>
+  </view>
+</view>

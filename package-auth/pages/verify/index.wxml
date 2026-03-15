@@ -1,0 +1,25 @@
+<view class="container verify-page">
+  <view class="card verify-card">
+    <view class="title">实名认证</view>
+
+    <view class="status-box" wx:if="{{userInfo}}">
+      <text class="status-label">当前状态：</text>
+      <text class="status-value {{userInfo.verified ? 'ok' : 'pending'}}">
+        {{userInfo.verified ? '已认证' : '未认证'}}
+      </text>
+      <text wx:if="{{userInfo.idCardMasked}}" class="masked">身份证：{{userInfo.idCardMasked}}</text>
+    </view>
+
+    <view class="form-item">
+      <text class="label">真实姓名</text>
+      <input class="input" data-field="realName" value="{{formData.realName}}" placeholder="请输入真实姓名" bindinput="onInputChange" />
+    </view>
+
+    <view class="form-item">
+      <text class="label">身份证号</text>
+      <input class="input" data-field="idCard" value="{{formData.idCard}}" placeholder="请输入身份证号" bindinput="onInputChange" />
+    </view>
+
+    <button class="submit-btn" loading="{{submitLoading}}" bindtap="onSubmitTap">提交认证</button>
+  </view>
+</view>

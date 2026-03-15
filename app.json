@@ -1,0 +1,80 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/publish/edit",
+    "pages/chat/index",
+    "pages/profile/index"
+  ],
+  "subpackages": [
+    {
+      "root": "package-house",
+      "pages": [
+        "pages/detail/index"
+      ]
+    },
+    {
+      "root": "package-auth",
+      "pages": [
+        "pages/login/index",
+        "pages/register/index",
+        "pages/verify/index"
+      ]
+    },
+    {
+      "root": "package-profile",
+      "pages": [
+        "pages/favorites/index",
+        "pages/history/index",
+        "pages/my-houses/index"
+      ]
+    },
+    {
+      "root": "package-chat",
+      "pages": [
+        "pages/detail/index"
+      ]
+    }
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "租房",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7f8fa",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#1677ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "找房",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/publish/edit",
+        "text": "发布",
+        "iconPath": "assets/icons/publish.png",
+        "selectedIconPath": "assets/icons/publish-active.png"
+      },
+      {
+        "pagePath": "pages/chat/index",
+        "text": "消息",
+        "iconPath": "assets/icons/chat.png",
+        "selectedIconPath": "assets/icons/chat-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "assets/icons/profile.png",
+        "selectedIconPath": "assets/icons/profile-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

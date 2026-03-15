@@ -1,0 +1,42 @@
+page {
+  background: var(--color-bg);
+  color: var(--color-text-main);
+  font-size: var(--font-body);
+  box-sizing: border-box;
+}
+
+view,
+text,
+button,
+input,
+textarea {
+  box-sizing: border-box;
+}
+
+.container {
+  padding: var(--space-md);
+}
+
+.section-title {
+  font-size: var(--font-title);
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.section-subtitle {
+  margin-top: var(--space-xs);
+  font-size: var(--font-meta);
+  color: var(--color-text-secondary);
+}
+
+.empty-tip {
+  padding: var(--space-xl) 0;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-meta);
+}
+
+.error-text {
+  color: var(--color-warning);
+  font-size: var(--font-meta);
+}

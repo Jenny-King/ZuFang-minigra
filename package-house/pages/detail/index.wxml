@@ -1,0 +1,51 @@
+<view class="container detail-page">
+  <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
+
+  <view wx:if="{{houseDetail}}" class="card detail-card">
+    <swiper class="image-swiper" circular indicator-dots>
+      <swiper-item wx:for="{{houseDetail.displayImages}}" wx:key="index">
+        <image class="swiper-image" src="{{item}}" mode="aspectFill" data-url="{{item}}" bindtap="onPreviewImage" />
+      </swiper-item>
+    </swiper>
+
+    <view class="main-info">
+      <view class="title">{{houseDetail.displayTitle}}</view>
+      <view class="price">{{houseDetail.displayPrice}}</view>
+      <view class="meta-row">
+        <text class="meta-item">{{houseDetail.displayType}}</text>
+        <text class="meta-item">{{houseDetail.displayArea}}</text>
+        <text class="meta-item">{{houseDetail.displayFloor}}层</text>
+      </view>
+      <view class="address">{{houseDetail.displayAddress}}</view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">房源描述</view>
+      <view class="section-content">{{houseDetail.displayDescription}}</view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">配套设施</view>
+      <view class="facility-list">
+        <text
+          class="facility-item"
+          wx:for="{{houseDetail.displayFacilities}}"
+          wx:key="index"
+        >{{item}}</text>
+        <text wx:if="{{houseDetail.displayFacilities.length === 0}}" class="facility-empty">暂无设施信息</text>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">联系人</view>
+      <view class="section-content">{{houseDetail.displayContactName}}（{{houseDetail.displayContactPhone}}）</view>
+    </view>
+  </view>
+
+  <view class="bottom-bar">
+    <button class="bottom-btn ghost" loading="{{favoriteLoading}}" bindtap="onToggleFavoriteTap">
+      {{isFavorite ? '取消收藏' : '收藏'}}
+    </button>
+    <button class="bottom-btn primary" bindtap="onContactTap">联系房东</button>
+  </view>
+</view>

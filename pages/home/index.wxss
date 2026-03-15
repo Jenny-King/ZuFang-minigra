@@ -1,0 +1,135 @@
+.home-page {
+  min-height: 100vh;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  gap: 16rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 68rpx;
+  background: #f5f6f8;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+}
+
+.search-btn {
+  min-width: 120rpx;
+  height: 68rpx;
+  line-height: 68rpx;
+  margin: 0;
+  background: #1677ff;
+  color: #ffffff;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  gap: 12rpx;
+}
+
+.filter-item {
+  padding: 12rpx 16rpx;
+  border-radius: 6rpx;
+  background: #f5f6f8;
+  color: #333333;
+  font-size: 24rpx;
+}
+
+.error-box {
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  border-radius: 8rpx;
+  color: #ff4d4f;
+  background: #fff1f0;
+  font-size: 24rpx;
+}
+
+.house-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.house-card {
+  display: flex;
+  padding: 16rpx;
+  gap: 16rpx;
+}
+
+.house-image {
+  width: 200rpx;
+  height: 150rpx;
+  border-radius: 8rpx;
+  background: #f1f2f5;
+}
+
+.house-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.house-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.house-meta-row {
+  margin-top: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.house-type {
+  padding: 4rpx 10rpx;
+  border-radius: 4rpx;
+  background: #e6f4ff;
+  color: #1677ff;
+  font-size: 22rpx;
+  flex-shrink: 0;
+}
+
+.house-address {
+  font-size: 24rpx;
+  color: #666666;
+  min-width: 0;
+}
+
+.house-footer {
+  margin-top: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.house-price {
+  color: #ff4d4f;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.house-time {
+  color: #999999;
+  font-size: 22rpx;
+}
+
+.loading-tip {
+  padding: 24rpx 0 12rpx;
+  text-align: center;
+  color: #999999;
+  font-size: 24rpx;
+}

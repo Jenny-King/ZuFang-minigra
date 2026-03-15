@@ -1,6 +1,12 @@
 const houseService = require("../../services/house.service");
 const mapService = require("../../services/map.service");
-const { HOUSE_TYPE, HOUSE_SORT_BY, REQUEST_DEFAULT, STORAGE_KEY } = require("../../config/constants");
+const {
+  HOUSE_TYPE,
+  HOUSE_SORT_BY,
+  PRICE_RANGE,
+  REQUEST_DEFAULT,
+  STORAGE_KEY
+} = require("../../config/constants");
 const { ROUTES, navigateTo } = require("../../config/routes");
 const { formatPrice, formatDate, fallbackText } = require("../../utils/format");
 const storage = require("../../utils/storage");
@@ -15,11 +21,23 @@ const TYPE_OPTIONS = [
   { label: HOUSE_TYPE.TWO_BEDROOM, value: HOUSE_TYPE.TWO_BEDROOM },
   { label: HOUSE_TYPE.THREE_PLUS, value: HOUSE_TYPE.THREE_PLUS }
 ];
-const SORT_OPTIONS = [
-  { label: "最新发布", value: HOUSE_SORT_BY.LATEST },
-  { label: "价格从低到高", value: HOUSE_SORT_BY.PRICE_ASC },
-  { label: "价格从高到低", value: HOUSE_SORT_BY.PRICE_DESC }
+const PRICE_OPTIONS = PRICE_RANGE.map((item) => ({
+  label: item.label,
+  minPrice: Number(item.minPrice || 0),
+  maxPrice: Number(item.maxPrice || 0)
+}));
+const LIST_SORT_TABS = [
+  { label: "最新", value: HOUSE_SORT_BY.LATEST },
+  { label: "价格 ↑", value: HOUSE_SORT_BY.PRICE_ASC },
+  { label: "面积 ↑", value: "areaAsc" }
 ];
+const FEATURED_BADGES = [
+  { label: "热门精选", type: "red" },
+  { label: "近地铁", type: "blue" },
+  { label: "品质房源", type: "green" }
+];
+const FEATURED_ACCENT_CLASSES = ["accent-blue", "accent-green", "accent-gold"];
+const CARD_ACCENT_CLASSES = ["accent-blue", "accent-green", "accent-gold", "accent-pink", "accent-purple"];
 
 function buildRegionOptions(regions = []) {
   return FALLBACK_REGION_OPTIONS.concat(
@@ -147,6 +165,36 @@ function buildCachedLocationPayload(location = {}) {
   };
 }
 
+function formatArea(area) {
+  const normalizedArea = Number(area || 0);
+  return normalizedArea > 0 ? `${normalizedArea}㎡` : "面积待定";
+}
+
+function buildDisplayAddress(item = {}) {
+  const region = String(item.region || "").trim();
+  const address = fallbackText(item.address, "地址待完善");
+  return region && address.indexOf(region) === -1
+    ? `${region} · ${address}`
+    : address;
+}
+
+function sortBySelectedTab(list = [], sortValue = HOUSE_SORT_BY.LATEST) {
+  const workingList = Array.isArray(list) ? list.slice() : [];
+  if (sortValue === HOUSE_SORT_BY.PRICE_ASC) {
+    return workingList.sort((left, right) => Number(left.price || 0) - Number(right.price || 0));
+  }
+
+  if (sortValue === "areaAsc") {
+    return workingList.sort((left, right) => Number(left.area || 0) - Number(right.area || 0));
+  }
+
+  return workingList.sort((left, right) => {
+    const leftTime = new Date(left.createTime || 0).getTime();
+    const rightTime = new Date(right.createTime || 0).getTime();
+    return rightTime - leftTime;
+  });
+}
+
 Page({
   data: {
     keyword: "",
@@ -155,11 +203,15 @@ Page({
     regionOptions: FALLBACK_REGION_OPTIONS,
     cityOptions: [],
     typeOptions: TYPE_OPTIONS,
-    sortOptions: SORT_OPTIONS,
+    priceOptions: PRICE_OPTIONS,
+    listSortTabs: LIST_SORT_TABS,
     selectedRegionIndex: 0,
     selectedTypeIndex: 0,
-    selectedSortIndex: 0,
+    selectedPriceIndex: 0,
+    selectedListSort: HOUSE_SORT_BY.LATEST,
     houseList: [],
+    featuredList: [],
+    latestList: [],
     page: REQUEST_DEFAULT.PAGE,
     pageSize: REQUEST_DEFAULT.PAGE_SIZE,
     total: 0,
@@ -316,18 +368,23 @@ Page({
   buildQueryParams(targetPage) {
     logger.debug("home_build_query_start", { targetPage });
     const selectedRegionOption = this.data.regionOptions[this.data.selectedRegionIndex] || {};
+    const selectedPriceOption = this.data.priceOptions[this.data.selectedPriceIndex] || {};
     const region = selectedRegionOption.value || "";
     const city = region
       ? String(selectedRegionOption.city || this.data.selectedCityRaw || "").trim()
       : String(this.data.selectedCityRaw || "").trim();
     const type = this.data.typeOptions[this.data.selectedTypeIndex]?.value || "";
-    const sortBy = this.data.sortOptions[this.data.selectedSortIndex]?.value || HOUSE_SORT_BY.LATEST;
+    const sortBy = this.data.selectedListSort === "areaAsc"
+      ? HOUSE_SORT_BY.LATEST
+      : this.data.selectedListSort;
 
     const params = {
       keyword: this.data.keyword.trim(),
       city,
       region,
       type,
+      minPrice: Number(selectedPriceOption.minPrice || 0),
+      maxPrice: Number(selectedPriceOption.maxPrice || 0),
       sortBy,
       page: targetPage,
       pageSize: this.data.pageSize
@@ -339,19 +396,43 @@ Page({
 
   normalizeHouseList(list = []) {
     logger.debug("home_normalize_list_start", { count: Array.isArray(list) ? list.length : 0 });
-    const normalizedList = (Array.isArray(list) ? list : []).map((item) => ({
+    const normalizedList = (Array.isArray(list) ? list : []).map((item, index) => ({
       ...item,
       displayTitle: fallbackText(item.title, "未命名房源"),
-      displayPrice: formatPrice(Number(item.price) || 0),
-      displayAddress: fallbackText(item.address, "地址待完善"),
+      displayPrice: formatPrice(Number(item.price) || 0, ""),
+      displayAddress: buildDisplayAddress(item),
       displayType: fallbackText(item.layoutText || item.type, "未知户型"),
+      displayArea: formatArea(item.area),
+      displayRegion: fallbackText(item.region || normalizeCityLabel(item.city), "区域待定"),
       displayImage: Array.isArray(item.images) && item.images.length
         ? item.images[0]
         : "/assets/images/house-placeholder.png",
-      displayCreateTime: item.createTime ? formatDate(item.createTime) : ""
+      displayCreateTime: item.createTime ? formatDate(item.createTime) : "",
+      accentClass: CARD_ACCENT_CLASSES[index % CARD_ACCENT_CLASSES.length]
     }));
     logger.debug("home_normalize_list_end", { count: normalizedList.length });
     return normalizedList;
+  },
+
+  syncDisplayLists(sourceList = this.data.houseList) {
+    const latestList = sortBySelectedTab(sourceList, this.data.selectedListSort).map((item, index) => ({
+      ...item,
+      accentClass: CARD_ACCENT_CLASSES[index % CARD_ACCENT_CLASSES.length]
+    }));
+    const featuredSource = sourceList
+      .filter((item) => item.displayImage && item.displayImage !== "/assets/images/house-placeholder.png")
+      .slice(0, 3);
+    const featuredList = featuredSource.map((item, index) => ({
+      ...item,
+      accentClass: FEATURED_ACCENT_CLASSES[index % FEATURED_ACCENT_CLASSES.length],
+      featuredBadgeLabel: FEATURED_BADGES[index % FEATURED_BADGES.length].label,
+      featuredBadgeType: FEATURED_BADGES[index % FEATURED_BADGES.length].type
+    }));
+
+    this.setData({
+      featuredList,
+      latestList
+    });
   },
 
   async refreshList() {
@@ -412,6 +493,7 @@ Page({
         total,
         hasMore
       });
+      this.syncDisplayLists(mergedList);
 
       logger.info("api_resp", {
         func: "house.getList",
@@ -422,7 +504,12 @@ Page({
       });
     } catch (error) {
       const message = error.message || "加载房源失败";
-      this.setData({ errorText: message });
+      this.setData({
+        errorText: message,
+        houseList: [],
+        featuredList: [],
+        latestList: []
+      });
       logger.error("api_error", { func: "house.getList", err: message });
     } finally {
       this.setData({ loading: false });
@@ -517,25 +604,119 @@ Page({
     }
   },
 
-  async onRegionChange(event) {
-    logger.info("home_region_change_start", { value: event.detail.value });
-    this.setData({ selectedRegionIndex: Number(event.detail.value) || 0 });
-    await this.refreshList();
-    logger.info("home_region_change_end", {});
+  async openSelectorSheet(options = {}) {
+    const {
+      itemList = [],
+      currentIndex = 0
+    } = options;
+    if (!itemList.length) {
+      return -1;
+    }
+
+    try {
+      const result = await wx.showActionSheet({
+        itemList: itemList.map((item, index) => (index === currentIndex ? `${item} ✓` : item))
+      });
+      return Number(result?.tapIndex);
+    } catch (error) {
+      const errMsg = String(error?.errMsg || error?.message || "");
+      if (!/cancel/i.test(errMsg)) {
+        logger.warn("home_selector_sheet_failed", { err: errMsg });
+      }
+      return -1;
+    }
   },
 
-  async onTypeChange(event) {
-    logger.info("home_type_change_start", { value: event.detail.value });
-    this.setData({ selectedTypeIndex: Number(event.detail.value) || 0 });
+  async onOpenRegionFilter() {
+    const selectedIndex = await this.openSelectorSheet({
+      itemList: this.data.regionOptions.map((item) => item.label),
+      currentIndex: this.data.selectedRegionIndex
+    });
+
+    if (selectedIndex < 0 || selectedIndex === this.data.selectedRegionIndex) {
+      return;
+    }
+
+    this.setData({ selectedRegionIndex: selectedIndex });
     await this.refreshList();
-    logger.info("home_type_change_end", {});
   },
 
-  async onSortChange(event) {
-    logger.info("home_sort_change_start", { value: event.detail.value });
-    this.setData({ selectedSortIndex: Number(event.detail.value) || 0 });
+  async onOpenTypeFilter() {
+    const selectedIndex = await this.openSelectorSheet({
+      itemList: this.data.typeOptions.map((item) => item.label),
+      currentIndex: this.data.selectedTypeIndex
+    });
+
+    if (selectedIndex < 0 || selectedIndex === this.data.selectedTypeIndex) {
+      return;
+    }
+
+    this.setData({ selectedTypeIndex: selectedIndex });
     await this.refreshList();
-    logger.info("home_sort_change_end", {});
+  },
+
+  async onOpenPriceFilter() {
+    const selectedIndex = await this.openSelectorSheet({
+      itemList: this.data.priceOptions.map((item) => item.label),
+      currentIndex: this.data.selectedPriceIndex
+    });
+
+    if (selectedIndex < 0 || selectedIndex === this.data.selectedPriceIndex) {
+      return;
+    }
+
+    this.setData({ selectedPriceIndex: selectedIndex });
+    await this.refreshList();
+  },
+
+  async onOpenMoreFilter() {
+    try {
+      const result = await wx.showActionSheet({
+        itemList: ["重新定位", "清空筛选"]
+      });
+      const selectedIndex = Number(result?.tapIndex);
+
+      if (selectedIndex === 0) {
+        const refreshed = await this.refreshCurrentLocation({ silent: false, fromTap: true });
+        if (refreshed && !this.data.selectedCityRaw) {
+          this.syncRegionScopeWithCity(this.data.currentCityRaw, { preserveRegion: true });
+        }
+        await this.refreshList();
+        return;
+      }
+
+      if (selectedIndex === 1) {
+        this.setData({
+          keyword: "",
+          keywordDraft: "",
+          selectedRegionIndex: 0,
+          selectedTypeIndex: 0,
+          selectedPriceIndex: 0,
+          selectedListSort: HOUSE_SORT_BY.LATEST
+        });
+        await this.refreshList();
+      }
+    } catch (error) {
+      const errMsg = String(error?.errMsg || error?.message || "");
+      if (!/cancel/i.test(errMsg)) {
+        logger.warn("home_more_filter_failed", { err: errMsg });
+      }
+    }
+  },
+
+  async onListSortTap(event) {
+    const sortValue = String(event.currentTarget.dataset.value || HOUSE_SORT_BY.LATEST);
+    if (sortValue === this.data.selectedListSort) {
+      return;
+    }
+
+    this.setData({ selectedListSort: sortValue });
+    if (sortValue === "areaAsc") {
+      this.syncDisplayLists();
+      return;
+    }
+
+    await this.refreshList();
   },
 
   onGoDetail(event) {

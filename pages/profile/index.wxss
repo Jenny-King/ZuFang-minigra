@@ -1,35 +1,41 @@
 .profile-page {
   min-height: 100vh;
   padding-bottom: 24rpx;
+  background: #f5f5f7;
 }
 
 .hero-card {
-  padding: 28rpx;
+  padding: 28rpx 0 0;
   margin-bottom: 24rpx;
-  border-radius: 32rpx;
+  border-radius: 28rpx;
+  overflow: hidden;
   background: linear-gradient(160deg, #2f64f5 0%, #1f4fd7 100%);
   color: #ffffff;
   box-shadow: 0 24rpx 48rpx rgba(31, 79, 215, 0.24);
 }
 
+.hero-top {
+  padding: 0 28rpx;
+}
+
 .hero-main {
   display: flex;
   align-items: center;
+  gap: 20rpx;
 }
 
 .hero-avatar-wrap {
   position: relative;
-  width: 136rpx;
-  height: 136rpx;
-  margin-right: 22rpx;
+  width: 108rpx;
+  height: 108rpx;
   flex-shrink: 0;
 }
 
 .hero-avatar {
   width: 100%;
   height: 100%;
-  border-radius: 68rpx;
-  border: 4rpx solid rgba(255, 255, 255, 0.22);
+  border-radius: 54rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.34);
   background: rgba(255, 255, 255, 0.12);
 }
 
@@ -38,11 +44,11 @@
   left: 8rpx;
   right: 8rpx;
   bottom: 8rpx;
-  height: 40rpx;
-  line-height: 40rpx;
+  height: 34rpx;
+  line-height: 34rpx;
   border-radius: 999rpx;
   text-align: center;
-  font-size: 20rpx;
+  font-size: 18rpx;
   color: #ffffff;
   background: rgba(17, 25, 67, 0.45);
 }
@@ -52,35 +58,24 @@
   min-width: 0;
 }
 
-.hero-name-wrap {
-  display: inline-flex;
-  flex-direction: column;
-  max-width: 100%;
-}
-
 .hero-name {
-  font-size: 40rpx;
+  font-size: 34rpx;
   font-weight: 700;
   line-height: 1.2;
-}
-
-.hero-name-hint {
-  margin-top: 8rpx;
-  font-size: 20rpx;
-  color: rgba(255, 255, 255, 0.72);
+  color: #ffffff;
 }
 
 .hero-subline {
-  margin-top: 10rpx;
+  margin-top: 8rpx;
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.86);
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .hero-badges {
-  margin-top: 18rpx;
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
+  padding: 18rpx 28rpx 16rpx;
 }
 
 .badge {
@@ -89,88 +84,106 @@
   gap: 8rpx;
   padding: 8rpx 16rpx;
   border-radius: 999rpx;
-  font-size: 22rpx;
+  font-size: 20rpx;
   line-height: 1;
-  background: rgba(255, 255, 255, 0.14);
   color: #ffffff;
 }
 
 .badge.role.landlord {
-  background: rgba(255, 197, 61, 0.24);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .badge.role.tenant {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .badge.role.admin {
-  background: rgba(255, 120, 117, 0.22);
+  background: rgba(255, 120, 117, 0.24);
 }
 
 .badge.identity.verified {
-  background: rgba(43, 201, 110, 0.2);
+  background: rgba(251, 191, 36, 0.22);
+  color: #fbbf24;
 }
 
 .badge.identity.pending {
-  background: rgba(255, 196, 61, 0.22);
+  background: rgba(251, 191, 36, 0.22);
+  color: #fbbf24;
 }
 
 .badge.identity.idle {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .badge.wechat.bound {
   background: rgba(91, 219, 143, 0.18);
+  color: #c9ffd8;
 }
 
 .badge.wechat.unbound {
   background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.66);
 }
 
 .badge-icon {
-  width: 28rpx;
-  height: 28rpx;
-  line-height: 28rpx;
-  border-radius: 14rpx;
-  text-align: center;
   font-size: 18rpx;
-  background: rgba(255, 255, 255, 0.18);
+}
+
+.badge-dot {
+  font-size: 16rpx;
 }
 
 .hero-stats {
-  margin-top: 28rpx;
   display: flex;
-  gap: 16rpx;
+  background: rgba(0, 0, 0, 0.14);
 }
 
 .stat-card {
+  position: relative;
   flex: 1;
   min-width: 0;
-  padding: 24rpx 12rpx 20rpx;
-  border-radius: 24rpx;
+  padding: 22rpx 12rpx 18rpx;
   text-align: center;
-  background: rgba(255, 255, 255, 0.12);
-  border: 2rpx solid rgba(255, 255, 255, 0.06);
+}
+
+.stat-card + .stat-card {
+  border-left: 1rpx solid rgba(255, 255, 255, 0.12);
 }
 
 .stat-card.active {
-  background: #3f78ff;
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 16rpx 32rpx rgba(20, 53, 154, 0.22);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .stat-number {
   display: block;
-  font-size: 42rpx;
+  font-size: 38rpx;
   font-weight: 700;
   line-height: 1;
+  color: #ffffff;
 }
 
 .stat-label {
   display: block;
-  margin-top: 12rpx;
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.9);
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.stat-badge {
+  position: absolute;
+  top: 12rpx;
+  right: 50%;
+  transform: translateX(34rpx);
+  min-width: 24rpx;
+  padding: 0 6rpx;
+  height: 24rpx;
+  line-height: 24rpx;
+  border-radius: 999rpx;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 16rpx;
+  font-weight: 700;
 }
 
 .guest-card {
@@ -210,8 +223,9 @@
   color: #ffffff;
 }
 
-.menu-card {
-  padding: 0 20rpx;
+.section-card {
+  margin-top: 10rpx;
+  background: #ffffff;
   border-radius: 28rpx;
   overflow: hidden;
 }
@@ -220,8 +234,8 @@
   display: flex;
   align-items: center;
   min-height: 108rpx;
-  padding: 22rpx 4rpx;
-  border-bottom: 2rpx solid #f4f5f8;
+  padding: 22rpx 24rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
 }
 
 .menu-item:last-child {
@@ -239,24 +253,19 @@
   flex-shrink: 0;
 }
 
-.menu-icon.blue {
-  background: #edf3ff;
-  color: #3c76f6;
+.menu-icon.amber {
+  background: #fffbeb;
+  color: #d97706;
 }
 
-.menu-icon.green {
-  background: #eaf9ef;
-  color: #2fbe6a;
+.menu-icon.purple {
+  background: #f3f0ff;
+  color: #7c3aed;
 }
 
-.menu-icon.teal {
-  background: #ebf9f6;
-  color: #13a58b;
-}
-
-.menu-icon.gray {
-  background: #f3f5f9;
-  color: #586074;
+.menu-icon.red {
+  background: #fff1f0;
+  color: #ef4444;
 }
 
 .menu-icon-text {
@@ -269,72 +278,136 @@
   min-width: 0;
 }
 
-.menu-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
 .menu-title {
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #1f1f1f;
   font-weight: 600;
 }
 
 .menu-subtitle {
   display: block;
-  margin-top: 8rpx;
+  margin-top: 6rpx;
   font-size: 22rpx;
-  color: #8a8f99;
-  line-height: 1.6;
-}
-
-.menu-badge {
-  min-width: 36rpx;
-  height: 36rpx;
-  padding: 0 10rpx;
-  border-radius: 18rpx;
-  text-align: center;
-  line-height: 36rpx;
-  font-size: 20rpx;
-  color: #ffffff;
-  background: #ff5a5f;
+  color: #9ca3af;
+  line-height: 1.5;
 }
 
 .arrow {
   margin-left: 12rpx;
-  color: #c4c7ce;
+  color: #c7c7cc;
   font-size: 28rpx;
 }
 
-.action-area {
-  margin-top: 24rpx;
+.account-section {
+  margin-top: 20rpx;
+  padding: 20rpx 24rpx;
+  background: #ffffff;
+  border-radius: 28rpx;
 }
 
-.action-btn {
+.account-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+}
+
+.account-section-label {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.account-section-action {
+  font-size: 22rpx;
+  color: #2563eb;
+}
+
+.account-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.account-inline-list {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 18rpx;
+}
+
+.account-inline-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  width: 96rpx;
+}
+
+.account-inline-avatar,
+.account-inline-add {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 40rpx;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-inline-avatar {
+  background: #eff6ff;
+  border: 4rpx solid transparent;
+}
+
+.account-inline-avatar.active {
+  border-color: #2563eb;
+}
+
+.account-inline-image {
+  width: 100%;
+  height: 100%;
+}
+
+.account-inline-add {
+  border: 2rpx dashed #d1d5db;
+  background: #f5f5f7;
+  color: #9ca3af;
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.account-inline-name {
+  width: 100%;
+  font-size: 18rpx;
+  color: #374151;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-inline-name.active {
+  color: #2563eb;
+}
+
+.account-inline-name.dim {
+  color: #c4c4c6;
+}
+
+.logout-wrap {
+  margin-top: 20rpx;
+}
+
+.logout-btn {
+  width: 100%;
   height: 84rpx;
   line-height: 84rpx;
-  border-radius: 20rpx;
+  margin: 0;
+  border: none;
+  border-radius: 24rpx;
+  background: #fff1f0;
+  color: #ef4444;
   font-size: 28rpx;
-  margin-bottom: 16rpx;
-}
-
-.action-btn.switch {
-  background: #ffffff;
-  color: #1f1f1f;
-  border: 2rpx solid #dfe3eb;
-}
-
-.action-btn.account {
-  background: #eef4ff;
-  color: #2f64f5;
-  border: 2rpx solid #cddcff;
-}
-
-.action-btn.logout {
-  background: #ffffff;
-  color: #1f1f1f;
-  border: 2rpx solid #dfe3eb;
+  font-weight: 600;
 }
 
 .account-switcher-mask {

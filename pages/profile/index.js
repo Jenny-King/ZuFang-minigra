@@ -49,8 +49,10 @@ function buildQuickStats(favoriteCount = 0, historyCount = 0) {
   return {
     favoriteCount,
     historyCount,
+    notificationCount: 0,
     favoriteLabel: formatCountLabel(favoriteCount),
-    historyLabel: formatCountLabel(historyCount)
+    historyLabel: formatCountLabel(historyCount),
+    notificationLabel: "0"
   };
 }
 
@@ -248,7 +250,11 @@ Page({
       : 0;
 
     this.setData({
-      quickStats: buildQuickStats(favoriteCount, historyCount),
+      quickStats: {
+        ...buildQuickStats(favoriteCount, historyCount),
+        notificationCount: unreadNotificationCount,
+        notificationLabel: formatCountLabel(unreadNotificationCount)
+      },
       unreadNotificationCount,
       unreadNotificationBadge: formatCountLabel(unreadNotificationCount)
     });
@@ -386,6 +392,10 @@ Page({
 
     if (action === "history") {
       this.onGoHistory({ highlight: true });
+    }
+
+    if (action === "notifications") {
+      this.onGoNotifications();
     }
 
     logger.info("profile_quick_action_end", { action });

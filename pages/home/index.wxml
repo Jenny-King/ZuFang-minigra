@@ -1,64 +1,145 @@
 <view class="container home-page">
-  <view class="search-row">
-    <view class="search-location-chip" bindtap="onCityTap">
-      <view class="search-location-dot"></view>
-      <text class="search-location-city">{{selectedCityLabel || (locationLoading ? '定位中' : currentCityLabel)}}</text>
-      <text class="search-location-arrow">˅</text>
-    </view>
-
-    <view class="search-bar card">
-      <input
-        class="search-input"
-        placeholder="搜索小区、地铁、房源关键词"
-        value="{{keywordDraft}}"
-        bindinput="onKeywordInput"
-        confirm-type="search"
-      />
-      <button class="search-btn" size="mini" bindtap="onSearchTap">搜索</button>
+  <view class="search-panel">
+    <view class="search-capsule">
+      <view class="search-capsule-city" bindtap="onCityTap">
+        <view class="city-dot"></view>
+        <text class="search-capsule-city-label">{{selectedCityLabel || (locationLoading ? "定位中" : currentCityLabel)}}</text>
+        <text class="city-entry-arrow">▾</text>
+      </view>
+      <view class="search-capsule-input">
+        <text class="search-capsule-icon">⌕</text>
+        <input
+          class="search-input"
+          placeholder="搜索小区、地铁、房源关键词"
+          value="{{keywordDraft}}"
+          bindinput="onKeywordInput"
+          confirm-type="search"
+          bindconfirm="onSearchTap"
+        />
+      </view>
+      <button class="search-submit-btn" bindtap="onSearchTap">搜索</button>
     </view>
   </view>
 
-  <view class="filter-bar card">
-    <picker mode="selector" range="{{regionOptions}}" range-key="label" value="{{selectedRegionIndex}}" bindchange="onRegionChange">
-      <view class="filter-item">区域：{{regionOptions[selectedRegionIndex].label}}</view>
-    </picker>
-    <picker mode="selector" range="{{typeOptions}}" range-key="label" value="{{selectedTypeIndex}}" bindchange="onTypeChange">
-      <view class="filter-item">户型：{{typeOptions[selectedTypeIndex].label}}</view>
-    </picker>
-    <picker mode="selector" range="{{sortOptions}}" range-key="label" value="{{selectedSortIndex}}" bindchange="onSortChange">
-      <view class="filter-item">排序：{{sortOptions[selectedSortIndex].label}}</view>
-    </picker>
-  </view>
+  <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
+    <view
+      class="filter-chip {{selectedRegionIndex > 0 ? 'filter-chip-active' : ''}}"
+      bindtap="onOpenRegionFilter"
+    >
+      区域 · {{regionOptions[selectedRegionIndex].label || "全部"}}
+      <text class="filter-chip-arrow">▾</text>
+    </view>
+    <view
+      class="filter-chip {{selectedTypeIndex > 0 ? 'filter-chip-active' : ''}}"
+      bindtap="onOpenTypeFilter"
+    >
+      户型
+      <text class="filter-chip-arrow">▾</text>
+    </view>
+    <view
+      class="filter-chip {{selectedPriceIndex > 0 ? 'filter-chip-active' : ''}}"
+      bindtap="onOpenPriceFilter"
+    >
+      租金
+      <text class="filter-chip-arrow">▾</text>
+    </view>
+    <view class="filter-chip" bindtap="onOpenMoreFilter">
+      更多
+      <text class="filter-chip-arrow">▾</text>
+    </view>
+  </scroll-view>
 
   <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
 
-  <view wx:if="{{!loading && houseList.length === 0}}" class="empty-tip">
-    暂无房源，试试调整筛选条件
+  <view wx:if="{{featuredList.length > 0}}" class="content-section">
+    <view class="section-heading">
+      <text class="section-heading-title">精选推荐</text>
+      <text class="section-heading-link">为你精选</text>
+    </view>
+    <scroll-view class="featured-row" scroll-x enhanced show-scrollbar="{{false}}">
+      <view
+        class="featured-card"
+        wx:for="{{featuredList}}"
+        wx:key="_id"
+        data-house-id="{{item._id}}"
+        bindtap="onGoDetail"
+      >
+        <view class="featured-thumb-wrap {{item.accentClass}}">
+          <image class="featured-thumb" src="{{item.displayImage}}" mode="aspectFill" />
+          <view class="featured-badge featured-badge-{{item.featuredBadgeType}}">
+            {{item.featuredBadgeLabel}}
+          </view>
+        </view>
+        <view class="featured-body">
+          <view class="featured-price">
+            <text class="featured-price-main">{{item.displayPrice}}</text>
+            <text class="featured-price-unit">/月</text>
+          </view>
+          <view class="featured-title text-ellipsis">{{item.displayTitle}}</view>
+          <view class="featured-tags">
+            <text class="featured-tag">{{item.displayType}}</text>
+            <text class="featured-tag">{{item.displayArea}}</text>
+            <text class="featured-tag featured-tag-highlight">{{item.displayRegion}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 
-  <view class="house-list">
-    <view
-      class="house-card card"
-      wx:for="{{houseList}}"
-      wx:key="_id"
-      data-house-id="{{item._id}}"
-      bindtap="onGoDetail"
-    >
-      <image class="house-image" src="{{item.displayImage}}" mode="aspectFill" />
-      <view class="house-main">
-        <view class="house-title text-ellipsis">{{item.displayTitle}}</view>
-        <view class="house-meta-row">
-          <text class="house-type">{{item.displayType}}</text>
-          <text class="house-address text-ellipsis">{{item.displayAddress}}</text>
+  <view class="divider"></view>
+
+  <view class="latest-section">
+    <view class="section-heading latest-heading">
+      <text class="section-heading-title">最新发布</text>
+      <text class="section-heading-count">共 {{total}} 套</text>
+    </view>
+
+    <view class="sort-row">
+      <view
+        wx:for="{{listSortTabs}}"
+        wx:key="value"
+        class="sort-tab {{selectedListSort === item.value ? 'sort-tab-active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onListSortTap"
+      >
+        {{item.label}}
+      </view>
+    </view>
+
+    <view wx:if="{{!loading && latestList.length === 0}}" class="empty-panel">
+      <text class="empty-panel-title">暂时还没有合适房源</text>
+      <text class="empty-panel-desc">试试切换城市或调整筛选条件</text>
+    </view>
+
+    <view class="latest-list">
+      <view
+        class="latest-card"
+        wx:for="{{latestList}}"
+        wx:key="_id"
+        data-house-id="{{item._id}}"
+        bindtap="onGoDetail"
+      >
+        <view class="latest-card-thumb-wrap {{item.accentClass}}">
+          <image class="latest-card-thumb" src="{{item.displayImage}}" mode="aspectFill" />
         </view>
-        <view class="house-footer">
-          <text class="house-price">{{item.displayPrice}}</text>
-          <text class="house-time">{{item.displayCreateTime}}</text>
+        <view class="latest-card-body">
+          <view class="latest-card-title">{{item.displayTitle}}</view>
+          <view class="latest-card-price">
+            <text class="latest-card-price-main">{{item.displayPrice}}</text>
+            <text class="latest-card-price-unit">/月</text>
+          </view>
+          <view class="latest-card-tags">
+            <text class="latest-card-tag">{{item.displayType}}</text>
+            <text class="latest-card-tag">{{item.displayArea}}</text>
+            <text class="latest-card-tag latest-card-tag-highlight">{{item.displayRegion}}</text>
+          </view>
+          <view class="latest-card-address text-ellipsis">{{item.displayAddress}}</view>
+          <view class="latest-card-time">{{item.displayCreateTime}}</view>
         </view>
       </view>
     </view>
-  </view>
 
-  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
-  <view wx:if="{{!loading && houseList.length > 0 && !hasMore}}" class="loading-tip">没有更多了</view>
+    <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+    <view wx:if="{{!loading && latestList.length > 0 && !hasMore}}" class="loading-tip">没有更多了</view>
+  </view>
 </view>

@@ -79,6 +79,10 @@ function normalizeString(value, maxLength = 500) {
   return String(value || "").trim().slice(0, maxLength);
 }
 
+function genFeedbackId() {
+  return `feedback_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
+}
+
 async function getUserByUserId(userId) {
   const normalizedUserId = String(userId || "").trim();
   if (!normalizedUserId) {
@@ -157,7 +161,9 @@ async function handleSubmitFeedback(payload, event) {
   }
 
   const now = new Date();
+  const feedbackId = genFeedbackId();
   const feedback = {
+    _id: feedbackId,
     category,
     content,
     contact,
@@ -173,26 +179,34 @@ async function handleSubmitFeedback(payload, event) {
     updateTime: now
   };
 
-  const addRes = await db.collection(COLLECTION.SUPPORT_FEEDBACKS).add({
-    data: feedback
-  });
+  try {
+    await db.collection(COLLECTION.SUPPORT_FEEDBACKS).add({
+      data: feedback
+    });
 
-  await db.collection(COLLECTION.MESSAGES).add({
-    data: {
-      userId: authState.user.userId,
-      type: NOTIFICATION_TYPE.SYSTEM,
-      title: "反馈提交成功",
-      content: "我们已收到你的反馈，客服会尽快跟进处理。",
-      relatedId: addRes?._id || "",
-      relatedType: "supportFeedback",
-      read: false,
-      createTime: now,
-      updateTime: now
-    }
-  });
+    await db.collection(COLLECTION.MESSAGES).add({
+      data: {
+        userId: authState.user.userId,
+        type: NOTIFICATION_TYPE.SYSTEM,
+        title: "反馈提交成功",
+        content: "我们已收到你的反馈，客服会尽快跟进处理。",
+        relatedId: feedbackId,
+        relatedType: "supportFeedback",
+        read: false,
+        createTime: now,
+        updateTime: now
+      }
+    });
+  } catch (error) {
+    await db.collection(COLLECTION.SUPPORT_FEEDBACKS)
+      .doc(feedbackId)
+      .remove()
+      .catch(() => null);
+    throw error;
+  }
 
   return success({
-    feedbackId: addRes?._id || "",
+    feedbackId,
     status: FEEDBACK_STATUS.SUBMITTED,
     submittedAt: now
   });

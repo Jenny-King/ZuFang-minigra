@@ -46,7 +46,8 @@ Page({
       content: "",
       contact: ""
     },
-    feedbackSubmitting: false
+    feedbackSubmitting: false,
+    feedbackOwnerUserId: ""
   },
 
   onLoad(options) {
@@ -68,8 +69,18 @@ Page({
 
   syncDefaultContact() {
     const userInfo = userStore.getState().userInfo || {};
+    const nextUserId = String(userInfo.userId || "").trim();
     const fallbackContact = String(userInfo.email || userInfo.phone || "").trim();
     const currentContact = String(this.data.feedbackForm?.contact || "").trim();
+    const currentOwnerUserId = String(this.data.feedbackOwnerUserId || "").trim();
+
+    if (nextUserId && nextUserId !== currentOwnerUserId) {
+      this.setData({
+        feedbackOwnerUserId: nextUserId,
+        "feedbackForm.contact": fallbackContact
+      });
+      return;
+    }
 
     if (!currentContact && fallbackContact) {
       this.setData({

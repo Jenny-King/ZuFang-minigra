@@ -435,19 +435,25 @@ async function handleChangePhone(payload, event) {
     return fail("验证码错误或已过期");
   }
 
-  await db.collection(USERS)
-    .doc(authState.user._id)
-    .update({
-      data: {
-        phone,
-        updateTime: new Date()
-      }
-    });
+  try {
+    await createOrReactivateIdentity(IDENTITY_TYPE.PHONE, phone, authState.user.userId);
+
+    await db.collection(USERS)
+      .doc(authState.user._id)
+      .update({
+        data: {
+          phone,
+          updateTime: new Date()
+        }
+      });
+  } catch (error) {
+    await disableIdentity(IDENTITY_TYPE.PHONE, phone).catch(() => null);
+    throw error;
+  }
 
   if (currentPhone) {
     await disableIdentity(IDENTITY_TYPE.PHONE, currentPhone);
   }
-  await createOrReactivateIdentity(IDENTITY_TYPE.PHONE, phone, authState.user.userId);
 
   const latest = await getUserByUserId(authState.user.userId);
   return success(await buildUserResult(latest));

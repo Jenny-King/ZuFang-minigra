@@ -1,62 +1,113 @@
 <view class="container profile-page">
-  <view class="card profile-header">
-    <view class="avatar-wrap">
-      <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/avatar-placeholder.png'}}" mode="aspectFill" />
+  <view class="card hero-card" wx:if="{{isLoggedIn && userInfo}}">
+    <view class="hero-main">
+      <view class="hero-avatar-wrap" bindtap="onAvatarTap">
+        <image class="hero-avatar" src="{{userInfo.avatarUrl || '/assets/images/avatar-placeholder.png'}}" mode="aspectFill" />
+        <view class="avatar-mask">{{avatarUploading ? '上传中' : '更换头像'}}</view>
+      </view>
+
+      <view class="hero-content">
+        <view class="hero-name">{{userInfo.displayName}}</view>
+        <view class="hero-subline">{{userInfo.displayPhone}}</view>
+
+        <view class="hero-badges">
+          <view class="badge role {{userInfo.roleBadgeClass}}">
+            <text>{{userInfo.displayRole}}</text>
+          </view>
+          <view class="badge identity {{userInfo.identityBadgeClass}}">
+            <text class="badge-icon">{{userInfo.identityBadgeIcon}}</text>
+            <text>{{userInfo.identityBadgeText}}</text>
+          </view>
+          <view class="badge wechat {{userInfo.wechatBadgeClass}}">
+            <text>{{userInfo.displayWechatStatus}}</text>
+          </view>
+        </view>
+      </view>
     </view>
-    <view class="profile-main" wx:if="{{isLoggedIn}}">
-      <view class="name">{{userInfo.displayName}}</view>
-      <view class="sub-text">{{userInfo.displayPhone}}</view>
-      <view class="sub-text">当前角色：{{userInfo.displayRole}}</view>
-      <view class="sub-text">{{userInfo.displayVerifyStatus}}</view>
-      <view class="sub-text">{{userInfo.displayWechatStatus}}</view>
-    </view>
-    <view class="profile-main" wx:else>
-      <view class="name">未登录</view>
-      <view class="sub-text">登录后可查看收藏、历史和消息</view>
-      <view class="auth-actions">
-        <button size="mini" class="auth-btn primary" bindtap="onGoLogin">登录</button>
-        <button size="mini" class="auth-btn" bindtap="onGoRegister">注册</button>
+
+    <view class="hero-stats">
+      <view class="stat-card {{activeQuickAction === 'favorites' ? 'active' : ''}}" data-action="favorites" bindtap="onQuickActionTap">
+        <text class="stat-number">{{quickStats.favoriteLabel}}</text>
+        <text class="stat-label">我的收藏</text>
+      </view>
+      <view class="stat-card {{activeQuickAction === 'history' ? 'active' : ''}}" data-action="history" bindtap="onQuickActionTap">
+        <text class="stat-number">{{quickStats.historyLabel}}</text>
+        <text class="stat-label">浏览历史</text>
       </view>
     </view>
   </view>
 
-  <view class="card menu-card" wx:if="{{isLoggedIn}}">
-    <view class="menu-item" bindtap="onGoEditProfile">
-      <text>编辑资料</text>
-      <text class="arrow">></text>
+  <view class="card guest-card" wx:else>
+    <view class="guest-title">未登录</view>
+    <view class="guest-subtitle">登录后可查看收藏、历史、通知与个人资料</view>
+    <view class="auth-actions">
+      <button size="mini" class="auth-btn primary" bindtap="onGoLogin">登录</button>
+      <button size="mini" class="auth-btn" bindtap="onGoRegister">注册</button>
     </view>
+  </view>
+
+  <view class="card menu-card" wx:if="{{isLoggedIn && userInfo}}">
     <view class="menu-item" bindtap="onGoNotifications">
-      <text>消息通知</text>
+      <view class="menu-icon blue">
+        <text class="menu-icon-text">信</text>
+      </view>
+      <view class="menu-main">
+        <view class="menu-title-row">
+          <text class="menu-title">消息通知</text>
+          <text class="menu-badge" wx:if="{{unreadNotificationCount > 0}}">{{unreadNotificationBadge}}</text>
+        </view>
+        <text class="menu-subtitle">系统与业务消息</text>
+      </view>
       <text class="arrow">></text>
     </view>
-    <view class="menu-item" bindtap="onGoFavorites">
-      <text>我的收藏</text>
+
+    <view class="menu-item" bindtap="onGoEditProfile">
+      <view class="menu-icon purple">
+        <text class="menu-icon-text">编</text>
+      </view>
+      <view class="menu-main">
+        <text class="menu-title">编辑资料</text>
+        <text class="menu-subtitle">头像、昵称、地区等基础信息</text>
+      </view>
       <text class="arrow">></text>
     </view>
-    <view class="menu-item" bindtap="onGoHistory">
-      <text>浏览历史</text>
-      <text class="arrow">></text>
-    </view>
+
     <view class="menu-item" bindtap="onGoVerify">
-      <text>身份资料</text>
+      <view class="menu-icon orange">
+        <text class="menu-icon-text">证</text>
+      </view>
+      <view class="menu-main">
+        <text class="menu-title">身份资料</text>
+        <text class="menu-subtitle">{{userInfo.displayIdentityStatus}}</text>
+      </view>
       <text class="arrow">></text>
     </view>
-    <view class="menu-item" wx:if="{{userInfo && userInfo.wechatBound}}" bindtap="onUnbindWechatTap">
-      <text>解绑微信</text>
+
+    <view class="menu-item" bindtap="onWechatEntryTap">
+      <view class="menu-icon green">
+        <text class="menu-icon-text">微</text>
+      </view>
+      <view class="menu-main">
+        <text class="menu-title">绑定微信</text>
+        <text class="menu-subtitle">{{userInfo.wechatMenuSubtitle}}</text>
+      </view>
       <text class="arrow">></text>
     </view>
-    <view class="menu-item" wx:else bindtap="onBindWechatTap">
-      <text>绑定微信</text>
-      <text class="arrow">></text>
-    </view>
-    <view class="menu-item" wx:if="{{userInfo && userInfo.role === 'landlord'}}" bindtap="onGoPublish">
-      <text>发布房源</text>
-      <text class="arrow">></text>
+
+    <view class="menu-item danger" bindtap="onAccountSecurityTap">
+      <view class="menu-icon red">
+        <text class="menu-icon-text">安</text>
+      </view>
+      <view class="menu-main">
+        <text class="menu-title">账号与安全</text>
+        <text class="menu-subtitle">注销账号等高危操作</text>
+      </view>
+      <text class="arrow danger-arrow">></text>
     </view>
   </view>
 
   <view class="action-area" wx:if="{{isLoggedIn}}">
-    <button class="action-btn switch" bindtap="onSwitchRoleTap">切换角色（租客/房东）</button>
+    <button class="action-btn switch" bindtap="onSwitchRoleTap">切换角色（租客 / 房东）</button>
     <button class="action-btn logout" bindtap="onLogoutTap">退出登录</button>
   </view>
 </view>

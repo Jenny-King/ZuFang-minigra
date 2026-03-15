@@ -1,0 +1,28 @@
+<view class="container my-houses-page">
+  <view class="toolbar">
+    <button class="publish-btn" size="mini" bindtap="onGoPublish">发布新房源</button>
+  </view>
+
+  <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
+  <view wx:if="{{empty && !loading}}" class="empty-tip">暂无发布的房源</view>
+
+  <view class="house-list">
+    <view class="house-item card" wx:for="{{list}}" wx:key="houseId">
+      <view class="main">
+        <view class="title text-ellipsis">{{item.displayTitle}}</view>
+        <view class="meta">
+          <text class="price">{{item.displayPrice}}</text>
+          <text class="status">状态：{{item.displayStatus}}</text>
+        </view>
+        <view class="time">发布时间：{{item.displayCreateTime || '--'}}</view>
+      </view>
+      <view class="actions">
+        <button class="edit-btn" size="mini" data-house-id="{{item.houseId}}" bindtap="onGoEdit">编辑</button>
+        <button class="delete-btn" size="mini" data-house-id="{{item.houseId}}" bindtap="onDeleteHouse">删除</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+  <view wx:if="{{!loading && list.length > 0 && !hasMore}}" class="loading-tip">没有更多了</view>
+</view>

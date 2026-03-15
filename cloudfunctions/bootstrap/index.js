@@ -419,6 +419,6 @@ exports.main = async (event, context) => {
     return result;
   } catch (err) {
     logger.error("fail", { action, err: err.message, stack: err.stack });
-    return fail(err.message || "服务异常", 500);
+    return fail(err.message || "服务异常");
   }
 };

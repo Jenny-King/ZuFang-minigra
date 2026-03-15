@@ -18,6 +18,7 @@ const USER_STATUS = {
 const SESSION_STATUS = {
   ACTIVE: "active"
 };
+const CHAT_NOTIFICATION_TYPE = "chat";
 
 function createLogger(context) {
   const prefix = `[chat][${context?.requestId || "local"}]`;
@@ -294,18 +295,6 @@ async function handleSendMessage(payload, event) {
     }
   });
 
-  await db.collection(MESSAGES).add({
-    data: {
-      userId: receiverId,
-      type: "chat",
-      title: "新消息",
-      content,
-      relatedId: conversationId,
-      read: false,
-      createTime: now
-    }
-  });
-
   return success({ messageId: addRes._id });
 }
 
@@ -346,8 +335,17 @@ async function handleGetNotifications(payload, event) {
 
   const page = Math.max(1, Number(payload.page || 1));
   const pageSize = Math.max(1, Math.min(20, Number(payload.pageSize || 10)));
-  const where = { userId: authState.user.userId };
+  const where = {
+    userId: authState.user.userId,
+    type: _.neq(CHAT_NOTIFICATION_TYPE)
+  };
   const countRes = await db.collection(MESSAGES).where(where).count();
+  const unreadCountRes = await db.collection(MESSAGES)
+    .where({
+      ...where,
+      read: false
+    })
+    .count();
   const res = await db.collection(MESSAGES)
     .where(where)
     .orderBy("createTime", "desc")
@@ -355,7 +353,13 @@ async function handleGetNotifications(payload, event) {
     .limit(pageSize)
     .get();
 
-  return success({ list: res.data || [], page, pageSize, total: countRes.total || 0 });
+  return success({
+    list: res.data || [],
+    page,
+    pageSize,
+    total: countRes.total || 0,
+    unreadCount: unreadCountRes.total || 0
+  });
 }
 
 async function handleMarkNotificationRead(payload, event) {

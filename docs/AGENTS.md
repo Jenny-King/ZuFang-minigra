@@ -10,7 +10,7 @@
 
 - 租客浏览房源、查看详情、收藏、浏览历史、与房东聊天
 - 房东发布房源、编辑房源、删除房源、接收消息
-- 用户通过微信或手机号登录，并在个人中心进行实名认证、角色切换、微信绑定管理
+- 用户通过微信或手机号登录，并在个人中心进行身份资料登记、角色切换、微信绑定管理
 
 ---
 
@@ -33,7 +33,6 @@ coding4-1/
 │  ├─ icons/
 │  └─ images/
 ├─ behaviors/
-│  ├─ auth-required.js
 │  └─ pagination.js
 ├─ cloudfunctions/
 │  ├─ auth/
@@ -49,16 +48,20 @@ coding4-1/
 │  ├─ env.js
 │  └─ routes.js
 ├─ docs/
+├─ scripts/
 ├─ package-auth/pages/
 │  ├─ login/
 │  ├─ register/
+│  ├─ reset-password/
 │  └─ verify/
 ├─ package-chat/pages/detail/
 ├─ package-house/pages/detail/
 ├─ package-profile/pages/
+│  ├─ edit-profile/
 │  ├─ favorites/
 │  ├─ history/
-│  └─ my-houses/
+│  ├─ my-houses/
+│  └─ notifications/
 ├─ pages/
 │  ├─ home/
 │  ├─ publish/
@@ -66,6 +69,8 @@ coding4-1/
 │  └─ profile/
 ├─ services/
 │  ├─ cloud/
+│  │  ├─ call.js
+│  │  └─ upload.js
 │  ├─ auth.service.js
 │  ├─ bootstrap.service.js
 │  ├─ chat.service.js
@@ -171,11 +176,14 @@ function getHouseList(params) {
 - `pages/profile/index`：个人中心，包含微信绑定 / 解绑、角色切换、退出登录
 - `package-auth/pages/login/index`：微信登录 / 手机号登录
 - `package-auth/pages/register/index`：注册
-- `package-auth/pages/verify/index`：实名认证
+- `package-auth/pages/reset-password/index`：重置密码
+- `package-auth/pages/verify/index`：身份资料登记
+- `package-profile/pages/edit-profile/index`：资料编辑
+- `package-profile/pages/notifications/index`：通知列表
 
 主要云函数：
 
-- `auth`：登录、注册、验证码、实名认证、微信绑定、退出登录
+- `auth`：登录、注册、验证码、重置密码、身份资料登记、微信绑定、退出登录
 - `user`：当前用户资料、资料更新、修改密码、切换角色、注销账号
 - `house`：房源 CRUD、我的房源
 - `favorite`：收藏

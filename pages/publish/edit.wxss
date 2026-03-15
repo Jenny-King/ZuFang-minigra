@@ -10,6 +10,16 @@
   font-size: 32rpx;
   font-weight: 600;
   margin-bottom: 20rpx;
+  color: #1f1f1f;
+  transition: all 0.2s ease;
+}
+
+.form-title.active {
+  padding: 18rpx 22rpx;
+  border-radius: 20rpx;
+  color: #1677ff;
+  background: #eaf3ff;
+  box-shadow: 0 18rpx 36rpx rgba(22, 119, 255, 0.14);
 }
 
 .form-item {

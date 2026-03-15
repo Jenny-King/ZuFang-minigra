@@ -1,6 +1,6 @@
 <view class="container publish-page">
   <view class="card form-card">
-    <view class="form-title">{{isEdit ? '编辑房源' : '发布房源'}}</view>
+    <view class="form-title {{titleHighlight ? 'active' : ''}}">{{isEdit ? '编辑房源' : '发布房源'}}</view>
     <view wx:if="{{loadingDetail}}" class="helper-text">正在加载房源信息...</view>
     <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
 

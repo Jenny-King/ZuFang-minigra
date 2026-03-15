@@ -2,6 +2,37 @@
   min-height: 100vh;
 }
 
+.page-title-bar {
+  margin-bottom: 20rpx;
+  padding: 24rpx 26rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  border: 2rpx solid #eef1f5;
+  transition: all 0.2s ease;
+}
+
+.page-title-bar.active {
+  background: #eaf3ff;
+  border-color: #5c8dff;
+  box-shadow: 0 18rpx 36rpx rgba(22, 119, 255, 0.16);
+}
+
+.page-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.page-title-bar.active .page-title {
+  color: #1677ff;
+}
+
+.page-subtitle {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #7f8793;
+}
+
 .error-box {
   padding: 20rpx;
   margin-bottom: 20rpx;

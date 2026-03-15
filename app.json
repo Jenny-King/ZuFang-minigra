@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/home/index",
+    "pages/publish/index",
     "pages/publish/edit",
     "pages/chat/index",
     "pages/profile/index"
@@ -27,8 +28,7 @@
         "pages/edit-profile/index",
         "pages/favorites/index",
         "pages/history/index",
-        "pages/notifications/index",
-        "pages/my-houses/index"
+        "pages/notifications/index"
       ]
     },
     {
@@ -58,7 +58,7 @@
         "selectedIconPath": "assets/icons/home-active.png"
       },
       {
-        "pagePath": "pages/publish/edit",
+        "pagePath": "pages/publish/index",
         "text": "发布",
         "iconPath": "assets/icons/publish.png",
         "selectedIconPath": "assets/icons/publish-active.png"

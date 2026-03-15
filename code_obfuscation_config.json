@@ -7,6 +7,10 @@
 			"sub_switch": true
 		},
 		{
+			"path": "pages/publish/index.js",
+			"sub_switch": true
+		},
+		{
 			"path": "pages/publish/edit.js",
 			"sub_switch": true
 		},

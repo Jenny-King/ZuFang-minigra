@@ -1,5 +1,9 @@
 <view class="container history-page">
-  <view class="toolbar">
+  <view class="page-title-bar {{titleHighlight ? 'active' : ''}}">
+    <view class="page-title-main">
+      <view class="page-title">浏览历史</view>
+      <view class="page-subtitle">最近看过的房源记录</view>
+    </view>
     <button class="clear-btn" size="mini" bindtap="onClearTap">清空历史</button>
   </view>
 

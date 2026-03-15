@@ -13,11 +13,14 @@ Page({
     total: 0,
     hasMore: true,
     list: [],
-    errorText: ""
+    errorText: "",
+    titleHighlight: false
   },
 
   onLoad(options) {
     logger.info("page_load", { page: "profile/history", query: options || {} });
+    this.shouldHighlightTitle = Boolean(options && options.highlight === "1");
+    this.titleHighlightTimer = null;
     if (!authUtils.requireLogin({ redirect: true })) {
       logger.info("history_onload_end", { blocked: "not_login" });
       return;
@@ -32,7 +35,15 @@ Page({
       return;
     }
     await this.refreshList();
+    if (this.shouldHighlightTitle) {
+      this.shouldHighlightTitle = false;
+      this.applyTitleHighlight();
+    }
     logger.info("history_onshow_end", {});
+  },
+
+  onUnload() {
+    this.clearTitleHighlightTimer();
   },
 
   async onPullDownRefresh() {
@@ -179,5 +190,29 @@ Page({
     }
     navigateTo(ROUTES.HOUSE_DETAIL, { houseId });
     logger.info("history_go_detail_end", { houseId });
+  },
+
+  applyTitleHighlight() {
+    logger.info("history_title_highlight_start", {});
+    this.clearTitleHighlightTimer();
+    this.setData({ titleHighlight: true });
+    wx.nextTick(() => {
+      wx.pageScrollTo({
+        scrollTop: 0,
+        duration: 260
+      });
+    });
+    this.titleHighlightTimer = setTimeout(() => {
+      this.setData({ titleHighlight: false });
+      this.titleHighlightTimer = null;
+    }, 1800);
+    logger.info("history_title_highlight_end", {});
+  },
+
+  clearTitleHighlightTimer() {
+    if (this.titleHighlightTimer) {
+      clearTimeout(this.titleHighlightTimer);
+      this.titleHighlightTimer = null;
+    }
   }
 });

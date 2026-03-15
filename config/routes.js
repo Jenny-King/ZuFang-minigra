@@ -1,8 +1,12 @@
 const TAB_ROUTES = {
   HOME: "/pages/home/index",
-  PUBLISH_EDIT: "/pages/publish/edit",
+  PUBLISH: "/pages/publish/index",
   CHAT: "/pages/chat/index",
   PROFILE: "/pages/profile/index"
+};
+
+const ROOT_ROUTES = {
+  PUBLISH_EDIT: "/pages/publish/edit"
 };
 
 const SUBPACKAGE_ROUTES = {
@@ -15,12 +19,12 @@ const SUBPACKAGE_ROUTES = {
   PROFILE_HISTORY: "/package-profile/pages/history/index",
   PROFILE_EDIT: "/package-profile/pages/edit-profile/index",
   PROFILE_NOTIFICATIONS: "/package-profile/pages/notifications/index",
-  MY_HOUSES: "/package-profile/pages/my-houses/index",
   CHAT_DETAIL: "/package-chat/pages/detail/index"
 };
 
 const ROUTES = {
   ...TAB_ROUTES,
+  ...ROOT_ROUTES,
   ...SUBPACKAGE_ROUTES
 };
 
@@ -60,6 +64,7 @@ function reLaunch(path, query = {}) {
 
 module.exports = {
   TAB_ROUTES,
+  ROOT_ROUTES,
   SUBPACKAGE_ROUTES,
   ROUTES,
   buildUrl,

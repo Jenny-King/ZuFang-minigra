@@ -6,6 +6,7 @@ const { logger } = require("../../utils/logger");
 const { ROUTES, switchTab } = require("../../config/routes");
 
 const PENDING_PUBLISH_CONTEXT_KEY = "pendingPublishContext";
+const PROFILE_ENTRY_HIGHLIGHT_KEY = "profileEntryHighlight";
 const PAYMENT_OPTIONS = ["月付", "季付", "半年付", "年付"];
 const MIN_RENT_PERIOD_OPTIONS = [1, 3, 6, 12];
 const ORIENTATION_OPTIONS = ["东", "南", "西", "北", "东南", "东北", "西南", "西北"];
@@ -62,6 +63,13 @@ function consumePendingPublishContext() {
   const app = getApp();
   app.globalData[PENDING_PUBLISH_CONTEXT_KEY] = null;
   return context;
+}
+
+function consumeProfileEntryHighlight() {
+  const app = getApp();
+  const highlightKey = String(app.globalData[PROFILE_ENTRY_HIGHLIGHT_KEY] || "");
+  app.globalData[PROFILE_ENTRY_HIGHLIGHT_KEY] = "";
+  return highlightKey;
 }
 
 function createInitialForm() {
@@ -142,7 +150,8 @@ Page({
     selectedPaymentIndex: 0,
     selectedMinRentPeriodIndex: 0,
     selectedOrientationIndex: 0,
-    selectedRegionIndex: 0
+    selectedRegionIndex: 0,
+    titleHighlight: false
   },
 
   async onLoad(options) {
@@ -191,12 +200,18 @@ Page({
     }
 
     await this.applyPendingPublishContext();
+    this.applyProfileEntryHighlight();
     logger.info("publish_edit_onshow_end", {});
+  },
+
+  onUnload() {
+    this.clearTitleHighlightTimer();
   },
 
   resetPublishState() {
     logger.info("publish_reset_state_start", {});
     const formData = createInitialForm();
+    this.clearTitleHighlightTimer();
     this.setData({
       isEdit: false,
       houseId: "",
@@ -208,9 +223,40 @@ Page({
       selectedPaymentIndex: getPickerIndex(PAYMENT_OPTIONS, formData.paymentMethod),
       selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
       selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
-      selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region)
+      selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region),
+      titleHighlight: false
     });
     logger.info("publish_reset_state_end", {});
+  },
+
+  applyProfileEntryHighlight() {
+    const highlightKey = consumeProfileEntryHighlight();
+    logger.info("publish_title_highlight_start", { highlightKey });
+    if (highlightKey !== "publish") {
+      logger.info("publish_title_highlight_end", { blocked: "not_matched" });
+      return;
+    }
+
+    this.clearTitleHighlightTimer();
+    this.setData({ titleHighlight: true });
+    wx.nextTick(() => {
+      wx.pageScrollTo({
+        scrollTop: 0,
+        duration: 260
+      });
+    });
+    this.titleHighlightTimer = setTimeout(() => {
+      this.setData({ titleHighlight: false });
+      this.titleHighlightTimer = null;
+    }, 1800);
+    logger.info("publish_title_highlight_end", { matched: true });
+  },
+
+  clearTitleHighlightTimer() {
+    if (this.titleHighlightTimer) {
+      clearTimeout(this.titleHighlightTimer);
+      this.titleHighlightTimer = null;
+    }
   },
 
   async applyPendingPublishContext() {
@@ -662,7 +708,7 @@ Page({
       logger.info("api_resp", { func: this.data.isEdit ? "house.update" : "house.create", code: 0 });
       wx.showToast({ title: this.data.isEdit ? "修改成功" : "发布成功", icon: "success" });
       setTimeout(() => {
-        switchTab(ROUTES.HOME);
+        switchTab(ROUTES.PUBLISH);
       }, 600);
     } catch (error) {
       logger.error("api_error", {

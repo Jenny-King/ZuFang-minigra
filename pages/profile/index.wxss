@@ -1,80 +1,311 @@
 .profile-page {
   min-height: 100vh;
+  padding-bottom: 24rpx;
 }
 
-.profile-header {
+.hero-card {
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(160deg, #2f64f5 0%, #1f4fd7 100%);
+  color: #ffffff;
+  box-shadow: 0 24rpx 48rpx rgba(31, 79, 215, 0.24);
+}
+
+.hero-main {
   display: flex;
   align-items: center;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
 }
 
-.avatar-wrap {
-  margin-right: 20rpx;
+.hero-avatar-wrap {
+  position: relative;
+  width: 136rpx;
+  height: 136rpx;
+  margin-right: 22rpx;
+  flex-shrink: 0;
 }
 
-.avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 60rpx;
-  background: #f0f2f5;
+.hero-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 68rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
 }
 
-.profile-main {
+.avatar-mask {
+  position: absolute;
+  left: 8rpx;
+  right: 8rpx;
+  bottom: 8rpx;
+  height: 40rpx;
+  line-height: 40rpx;
+  border-radius: 999rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: #ffffff;
+  background: rgba(17, 25, 67, 0.45);
+}
+
+.hero-content {
   flex: 1;
+  min-width: 0;
 }
 
-.name {
-  font-size: 32rpx;
-  font-weight: 600;
+.hero-name {
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.hero-subline {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.hero-badges {
+  margin-top: 18rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.badge.role.landlord {
+  background: rgba(255, 197, 61, 0.24);
+}
+
+.badge.role.tenant {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.badge.role.admin {
+  background: rgba(255, 120, 117, 0.22);
+}
+
+.badge.identity.verified {
+  background: rgba(43, 201, 110, 0.2);
+}
+
+.badge.identity.pending {
+  background: rgba(255, 196, 61, 0.22);
+}
+
+.badge.identity.idle {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.badge.wechat.bound {
+  background: rgba(91, 219, 143, 0.18);
+}
+
+.badge.wechat.unbound {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.badge-icon {
+  width: 28rpx;
+  height: 28rpx;
+  line-height: 28rpx;
+  border-radius: 14rpx;
+  text-align: center;
+  font-size: 18rpx;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.hero-stats {
+  margin-top: 28rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 0;
+  padding: 24rpx 12rpx 20rpx;
+  border-radius: 24rpx;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2rpx solid rgba(255, 255, 255, 0.06);
+}
+
+.stat-card.active {
+  background: #3f78ff;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 16rpx 32rpx rgba(20, 53, 154, 0.22);
+}
+
+.stat-number {
+  display: block;
+  font-size: 42rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.guest-card {
+  padding: 32rpx 28rpx;
+  margin-bottom: 24rpx;
+  border-radius: 28rpx;
+}
+
+.guest-title {
+  font-size: 36rpx;
+  font-weight: 700;
   color: #1f1f1f;
 }
 
-.sub-text {
-  margin-top: 8rpx;
+.guest-subtitle {
+  margin-top: 12rpx;
   font-size: 24rpx;
+  line-height: 1.7;
   color: #666666;
 }
 
 .auth-actions {
-  margin-top: 16rpx;
+  margin-top: 20rpx;
   display: flex;
   gap: 12rpx;
 }
 
 .auth-btn {
   margin: 0;
-  border-radius: 6rpx;
-  background: #f5f5f5;
+  border-radius: 999rpx;
+  background: #f2f4f8;
   color: #333333;
 }
 
 .auth-btn.primary {
-  background: #1677ff;
+  background: #2f64f5;
   color: #ffffff;
 }
 
 .menu-card {
-  padding: 0 24rpx;
+  padding: 0 20rpx;
+  border-radius: 28rpx;
+  overflow: hidden;
 }
 
 .menu-item {
-  height: 92rpx;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 28rpx;
-  color: #333333;
-  border-bottom: 2rpx solid #f3f3f3;
+  min-height: 108rpx;
+  padding: 22rpx 4rpx;
+  border-bottom: 2rpx solid #f4f5f8;
 }
 
 .menu-item:last-child {
   border-bottom: none;
 }
 
-.arrow {
-  color: #bfbfbf;
+.menu-icon {
+  width: 64rpx;
+  height: 64rpx;
+  margin-right: 18rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu-icon.blue {
+  background: #edf3ff;
+  color: #3c76f6;
+}
+
+.menu-icon.purple {
+  background: #f1ecff;
+  color: #7553ff;
+}
+
+.menu-icon.orange {
+  background: #fff2e8;
+  color: #ff8a34;
+}
+
+.menu-icon.green {
+  background: #eaf9ef;
+  color: #2fbe6a;
+}
+
+.menu-icon.red {
+  background: #fff0f0;
+  color: #ff6161;
+}
+
+.menu-icon-text {
   font-size: 26rpx;
+  font-weight: 700;
+}
+
+.menu-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.menu-title {
+  font-size: 30rpx;
+  color: #1f1f1f;
+  font-weight: 600;
+}
+
+.menu-subtitle {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #8a8f99;
+  line-height: 1.6;
+}
+
+.menu-badge {
+  min-width: 36rpx;
+  height: 36rpx;
+  padding: 0 10rpx;
+  border-radius: 18rpx;
+  text-align: center;
+  line-height: 36rpx;
+  font-size: 20rpx;
+  color: #ffffff;
+  background: #ff5a5f;
+}
+
+.menu-item.danger .menu-title {
+  color: #ff5a5f;
+}
+
+.arrow {
+  margin-left: 12rpx;
+  color: #c4c7ce;
+  font-size: 28rpx;
+}
+
+.danger-arrow {
+  color: #ffb0b0;
 }
 
 .action-area {
@@ -82,19 +313,21 @@
 }
 
 .action-btn {
-  height: 80rpx;
-  line-height: 80rpx;
-  border-radius: 8rpx;
+  height: 84rpx;
+  line-height: 84rpx;
+  border-radius: 20rpx;
   font-size: 28rpx;
   margin-bottom: 16rpx;
 }
 
 .action-btn.switch {
-  background: #1677ff;
-  color: #ffffff;
+  background: #ffffff;
+  color: #1f1f1f;
+  border: 2rpx solid #dfe3eb;
 }
 
 .action-btn.logout {
-  background: #ff4d4f;
-  color: #ffffff;
+  background: #ffffff;
+  color: #1f1f1f;
+  border: 2rpx solid #dfe3eb;
 }

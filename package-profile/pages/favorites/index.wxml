@@ -1,4 +1,9 @@
 <view class="container favorites-page">
+  <view class="page-title-bar {{titleHighlight ? 'active' : ''}}">
+    <view class="page-title">我的收藏</view>
+    <view class="page-subtitle">快速查看你标记过的房源</view>
+  </view>
+
   <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
 
   <view wx:if="{{!loading && list.length === 0}}" class="empty-tip">暂无收藏房源</view>

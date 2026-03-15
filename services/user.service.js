@@ -1,4 +1,5 @@
 const { callCloud } = require("./cloud/call");
+const { uploadToCloud } = require("./cloud/upload");
 const { USER_ROLE } = require("../config/constants");
 
 function assertNonEmptyString(value, fieldName) {
@@ -49,10 +50,17 @@ async function deleteAccount() {
   return callCloud("user", "deleteAccount", {});
 }
 
+async function uploadAvatar(filePath, cloudPath) {
+  assertNonEmptyString(filePath, "filePath");
+  assertNonEmptyString(cloudPath, "cloudPath");
+  return uploadToCloud(filePath, cloudPath);
+}
+
 module.exports = {
   getCurrentUser,
   updateProfile,
   changePassword,
   switchRole,
-  deleteAccount
+  deleteAccount,
+  uploadAvatar
 };

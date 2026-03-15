@@ -289,4 +289,95 @@ describe("cloudfunction/house", () => {
       db.collection.mockImplementation(originalImplementation);
     }
   });
+
+  it("update allows changing house status to hidden", async () => {
+    const accessToken = "house_update_status_token";
+    const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");
+    const updateMock = jest.fn().mockResolvedValue({ stats: { updated: 1 } });
+    const userDoc = {
+      _id: "user_doc_2",
+      userId: "user_2",
+      role: "landlord",
+      status: "active"
+    };
+    const houseDoc = {
+      _id: "house_2",
+      landlordUserId: userDoc.userId,
+      status: "active"
+    };
+    const db = cloud.database();
+    const originalImplementation = db.collection.getMockImplementation();
+
+    db.collection.mockImplementation((name) => {
+      if (name === "user_sessions") {
+        return {
+          doc: jest.fn((id) => ({
+            get: jest.fn().mockResolvedValue(id === tokenHash
+              ? {
+                  data: {
+                    _id: tokenHash,
+                    userId: userDoc.userId,
+                    status: "active",
+                    expireAt: new Date(Date.now() + 60 * 1000).toISOString()
+                  }
+                }
+              : { data: null })
+          }))
+        };
+      }
+
+      if (name === "users") {
+        return {
+          where: jest.fn(() => ({
+            limit: jest.fn(() => ({
+              get: jest.fn().mockResolvedValue({ data: [userDoc] })
+            }))
+          }))
+        };
+      }
+
+      if (name === "houses") {
+        return {
+          doc: jest.fn(() => ({
+            get: jest.fn().mockResolvedValue({ data: houseDoc }),
+            update: updateMock
+          }))
+        };
+      }
+
+      return {
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        get: jest.fn().mockResolvedValue({ data: [] }),
+        count: jest.fn().mockResolvedValue({ total: 0 }),
+        add: jest.fn().mockResolvedValue({ _id: "mock_id" }),
+        doc: jest.fn(() => ({
+          get: jest.fn().mockResolvedValue({ data: null }),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        }))
+      };
+    });
+
+    try {
+      const res = await main({
+        action: "update",
+        payload: {
+          houseId: "house_2",
+          status: "hidden"
+        },
+        auth: { accessToken }
+      }, {});
+
+      expect(res.code).toBe(0);
+      expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          status: "hidden"
+        })
+      }));
+    } finally {
+      db.collection.mockImplementation(originalImplementation);
+    }
+  });
 });

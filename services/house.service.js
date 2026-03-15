@@ -50,6 +50,16 @@ async function updateHouse(houseId, formData = {}) {
   });
 }
 
+async function updateHouseStatus(houseId, status) {
+  assertNonEmptyString(houseId, "houseId");
+  assertNonEmptyString(status, "status");
+
+  return callCloud("house", "update", {
+    houseId: houseId.trim(),
+    status: status.trim()
+  });
+}
+
 async function deleteHouse(houseId) {
   assertNonEmptyString(houseId, "houseId");
   return callCloud("house", "remove", { houseId: houseId.trim() });
@@ -72,6 +82,7 @@ module.exports = {
   getHouseDetail,
   createHouse,
   updateHouse,
+  updateHouseStatus,
   deleteHouse,
   getMyHouseList,
   uploadHouseImage

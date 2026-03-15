@@ -1,126 +1,163 @@
 <view class="container publish-page">
-  <view class="card form-card">
-    <view class="form-title {{titleHighlight ? 'active' : ''}}">{{isEdit ? '编辑房源' : '发布房源'}}</view>
-    <view wx:if="{{loadingDetail}}" class="helper-text">正在加载房源信息...</view>
+  <view class="publish-shell">
+    <view class="publish-hero card">
+      <view class="form-title {{titleHighlight ? 'active' : ''}}">{{isEdit ? '编辑房源' : '发布房源'}}</view>
+      <view class="step-subtitle">三步完成房源发布，提交后自动返回房源管理页并刷新列表</view>
+
+      <view class="stepper">
+        <view
+          wx:for="{{stepList}}"
+          wx:key="key"
+          class="step-item {{currentStep === index ? 'active' : ''}} {{currentStep > index ? 'done' : ''}}"
+          data-step="{{index}}"
+          bindtap="onStepTap"
+        >
+          <view class="step-dot">{{index + 1}}</view>
+          <view class="step-label">{{item.label}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{loadingDetail}}" class="helper-banner">正在加载房源信息...</view>
     <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
 
-    <view class="form-item">
-      <view class="label-row">
-        <text class="label">房源图片（最多9张）</text>
-        <text class="helper-text">{{imageList.length}}/9</text>
-      </view>
-      <view class="image-grid image-grid-top">
-        <view class="image-item" wx:for="{{imageList}}" wx:key="index">
-          <image class="preview-image" src="{{item.url}}" mode="aspectFill" />
-          <view class="remove-btn" data-index="{{index}}" bindtap="onRemoveImage">x</view>
-        </view>
-        <view wx:if="{{imageList.length < 9}}" class="image-add" bindtap="onChooseImages">+ 添加</view>
-      </view>
-    </view>
+    <view wx:if="{{currentStep === 0}}" class="card form-card">
+      <view class="section-title">Step 1 / 基础信息</view>
 
-    <view class="form-item">
-      <text class="label">标题</text>
-      <input class="input" data-field="title" value="{{formData.title}}" placeholder="如：地铁口精装一室一厅" bindinput="onInputChange" />
-    </view>
-
-    <view class="form-item">
-      <text class="label">户型</text>
-      <view class="layout-picker-row">
-        <picker mode="selector" range="{{roomOptions}}" range-key="label" value="{{selectedRoomIndex}}" bindchange="onRoomChange">
-          <view class="input layout-picker">{{roomOptions[selectedRoomIndex].label}}</view>
-        </picker>
-        <picker mode="selector" range="{{hallOptions}}" range-key="label" value="{{selectedHallIndex}}" bindchange="onHallChange">
-          <view class="input layout-picker">{{hallOptions[selectedHallIndex].label}}</view>
-        </picker>
-        <picker mode="selector" range="{{bathOptions}}" range-key="label" value="{{selectedBathIndex}}" bindchange="onBathChange">
-          <view class="input layout-picker">{{bathOptions[selectedBathIndex].label}}</view>
-        </picker>
+      <view class="form-item">
+        <view class="label-row">
+          <text class="label">房源图片（最多9张）</text>
+          <text class="helper-text">{{imageList.length}}/9</text>
+        </view>
+        <view class="image-grid image-grid-top">
+          <view class="image-item" wx:for="{{imageList}}" wx:key="index">
+            <image class="preview-image" src="{{item.url}}" mode="aspectFill" />
+            <view class="remove-btn" data-index="{{index}}" bindtap="onRemoveImage">x</view>
+          </view>
+          <view wx:if="{{imageList.length < 9}}" class="image-add" bindtap="onChooseImages">+ 添加</view>
+        </view>
       </view>
-      <view class="helper-text">当前户型：{{formData.layoutText || '请选择室 / 厅 / 卫'}}</view>
-    </view>
 
-    <view class="form-item">
-      <text class="label">房源基础信息</text>
-      <view class="meta-grid">
-        <view class="meta-tag">
-          <text class="meta-tag-label">月租金（元）</text>
-          <input class="input meta-tag-control" type="number" data-field="price" value="{{formData.price}}" placeholder="请输入月租金" bindinput="onInputChange" />
-        </view>
-        <view class="meta-tag">
-          <text class="meta-tag-label">面积（㎡）</text>
-          <input class="input meta-tag-control" type="number" data-field="area" value="{{formData.area}}" placeholder="请输入面积" bindinput="onInputChange" />
-        </view>
-        <view class="meta-tag">
-          <text class="meta-tag-label">最短租期</text>
-          <picker mode="selector" range="{{minRentPeriodOptions}}" value="{{selectedMinRentPeriodIndex}}" bindchange="onMinRentPeriodChange">
-            <view class="input meta-tag-control meta-picker">{{minRentPeriodOptions[selectedMinRentPeriodIndex]}}个月</view>
+      <view class="form-item">
+        <text class="label">标题</text>
+        <input class="input" data-field="title" value="{{formData.title}}" placeholder="如：地铁口精装一室一厅" bindinput="onInputChange" />
+      </view>
+
+      <view class="form-item">
+        <text class="label">户型</text>
+        <view class="layout-picker-row">
+          <picker mode="selector" range="{{roomOptions}}" range-key="label" value="{{selectedRoomIndex}}" bindchange="onRoomChange">
+            <view class="input layout-picker">{{roomOptions[selectedRoomIndex].label}}</view>
+          </picker>
+          <picker mode="selector" range="{{hallOptions}}" range-key="label" value="{{selectedHallIndex}}" bindchange="onHallChange">
+            <view class="input layout-picker">{{hallOptions[selectedHallIndex].label}}</view>
+          </picker>
+          <picker mode="selector" range="{{bathOptions}}" range-key="label" value="{{selectedBathIndex}}" bindchange="onBathChange">
+            <view class="input layout-picker">{{bathOptions[selectedBathIndex].label}}</view>
           </picker>
         </view>
-        <view class="meta-tag">
-          <text class="meta-tag-label">楼层</text>
-          <input class="input meta-tag-control" data-field="floor" value="{{formData.floor}}" placeholder="如：12/30层" bindinput="onInputChange" />
+        <view class="helper-text">当前户型：{{formData.layoutText || '请选择室 / 厅 / 卫'}}</view>
+      </view>
+
+      <view class="form-item">
+        <text class="label">房源基础信息</text>
+        <view class="meta-grid">
+          <view class="meta-tag">
+            <text class="meta-tag-label">月租金（元）</text>
+            <input class="input meta-tag-control" type="number" data-field="price" value="{{formData.price}}" placeholder="请输入月租金" bindinput="onInputChange" />
+          </view>
+          <view class="meta-tag">
+            <text class="meta-tag-label">面积（㎡）</text>
+            <input class="input meta-tag-control" type="number" data-field="area" value="{{formData.area}}" placeholder="请输入面积" bindinput="onInputChange" />
+          </view>
+          <view class="meta-tag">
+            <text class="meta-tag-label">最短租期</text>
+            <picker mode="selector" range="{{minRentPeriodOptions}}" value="{{selectedMinRentPeriodIndex}}" bindchange="onMinRentPeriodChange">
+              <view class="input meta-tag-control meta-picker">{{minRentPeriodOptions[selectedMinRentPeriodIndex]}}个月</view>
+            </picker>
+          </view>
+          <view class="meta-tag">
+            <text class="meta-tag-label">楼层</text>
+            <input class="input meta-tag-control" data-field="floor" value="{{formData.floor}}" placeholder="如：12/30层" bindinput="onInputChange" />
+          </view>
+          <view class="meta-tag">
+            <text class="meta-tag-label">朝向</text>
+            <picker mode="selector" range="{{orientationOptions}}" value="{{selectedOrientationIndex}}" bindchange="onOrientationChange">
+              <view class="input meta-tag-control meta-picker">{{formData.orientation || '请选择朝向'}}</view>
+            </picker>
+          </view>
         </view>
-        <view class="meta-tag">
-          <text class="meta-tag-label">朝向</text>
-          <picker mode="selector" range="{{orientationOptions}}" value="{{selectedOrientationIndex}}" bindchange="onOrientationChange">
-            <view class="input meta-tag-control meta-picker">{{formData.orientation || '请选择朝向'}}</view>
-          </picker>
+      </view>
+    </view>
+
+    <view wx:if="{{currentStep === 1}}" class="card form-card">
+      <view class="section-title">Step 2 / 位置描述</view>
+
+      <view class="form-item">
+        <text class="label">地址信息</text>
+        <view class="location-panel">
+          <button class="location-btn" size="mini" bindtap="onChooseLocation">地图定位并回填</button>
         </view>
+        <input class="input location-address" data-field="address" value="{{formData.address}}" placeholder="请输入详细地址" bindinput="onInputChange" />
+        <view class="helper-text">可先地图定位自动带出城市、区域和地址，也可手动补充详细地址</view>
+        <view wx:if="{{formData.city || formData.region}}" class="helper-text">
+          已识别位置：{{formData.city || '未知城市'}}{{formData.region ? ' · ' + formData.region : ''}}
+        </view>
+        <map
+          wx:if="{{formData.latitude}}"
+          latitude="{{formData.latitude}}"
+          longitude="{{formData.longitude}}"
+          scale="15"
+          style="width:100%;height:260rpx;margin-top:16rpx;border-radius:18rpx;"
+        />
+        <view class="helper-text">{{formData.address || '未选择位置'}}</view>
+      </view>
+
+      <view class="form-item">
+        <text class="label">房源描述</text>
+        <textarea class="textarea" data-field="description" value="{{formData.description}}" placeholder="描述房源亮点、配套、通勤和入住建议" bindinput="onInputChange" />
       </view>
     </view>
 
-    <view class="form-item">
-      <text class="label">地址信息</text>
-      <view class="location-panel">
-        <button class="location-btn" size="mini" bindtap="onChooseLocation">地图定位并回填</button>
+    <view wx:if="{{currentStep === 2}}" class="card form-card">
+      <view class="section-title">Step 3 / 联系与提交</view>
+
+      <view class="form-item">
+        <text class="label">配套设施</text>
+        <view class="facility-grid">
+          <view
+            wx:for="{{facilityOptions}}"
+            wx:key="key"
+            class="facility-tag {{formData.facilities[item.key] ? 'active' : ''}}"
+            data-key="{{item.key}}"
+            bindtap="onFacilityToggle"
+          >{{item.label}}</view>
+        </view>
+        <view class="helper-text">点击标签可多选</view>
       </view>
-      <input class="input location-address" data-field="address" value="{{formData.address}}" placeholder="请输入详细地址" bindinput="onInputChange" />
-      <view class="helper-text">可先地图定位自动带出区域与地址，也可手动补充详细地址</view>
-      <view wx:if="{{formData.city || formData.region}}" class="helper-text">
-        已识别位置：{{formData.city || '未知城市'}}{{formData.region ? ' · ' + formData.region : ''}}
+
+      <view class="form-item">
+        <text class="label">联系人</text>
+        <input class="input" data-field="contactName" value="{{formData.contactName}}" placeholder="请输入联系人姓名" bindinput="onInputChange" />
       </view>
-      <map
-        wx:if="{{formData.latitude}}"
-        latitude="{{formData.latitude}}"
-        longitude="{{formData.longitude}}"
-        scale="15"
-        style="width:100%;height:240rpx;margin-top:16rpx;border-radius:8rpx;"
-      />
-      <view class="helper-text">{{formData.address || '未选择位置'}}</view>
-      <view class="helper-text">坐标：{{formData.latitude}}, {{formData.longitude}}</view>
-    </view>
 
-    <view class="form-item">
-      <text class="label">房源描述</text>
-      <textarea class="textarea" data-field="description" value="{{formData.description}}" placeholder="描述房源亮点、配套与交通" bindinput="onInputChange" />
-    </view>
-
-    <view class="form-item">
-      <text class="label">配套设施</text>
-      <view class="facility-grid">
-        <view
-          wx:for="{{facilityOptions}}"
-          wx:key="key"
-          class="facility-tag {{formData.facilities[item.key] ? 'active' : ''}}"
-          data-key="{{item.key}}"
-          bindtap="onFacilityToggle"
-        >{{item.label}}</view>
+      <view class="form-item">
+        <text class="label">联系电话</text>
+        <input class="input" type="number" data-field="contactPhone" value="{{formData.contactPhone}}" placeholder="请输入手机号" bindinput="onInputChange" />
       </view>
-      <view class="helper-text">点击标签可多选</view>
+
+      <view class="submit-preview">
+        <view class="submit-preview-title">{{isEdit ? '保存后将返回房源管理页' : '发布后将返回房源管理页'}}</view>
+        <view class="submit-preview-subtitle">新房源会自动出现在列表顶部，编辑也会刷新为最新状态。</view>
+      </view>
     </view>
 
-    <view class="form-item">
-      <text class="label">联系人</text>
-      <input class="input" data-field="contactName" value="{{formData.contactName}}" placeholder="请输入联系人姓名" bindinput="onInputChange" />
+    <view class="step-actions">
+      <button wx:if="{{currentStep > 0}}" class="step-btn secondary" bindtap="onPrevStepTap">上一步</button>
+      <button wx:if="{{currentStep < 2}}" class="step-btn primary" bindtap="onNextStepTap">下一步</button>
+      <button wx:if="{{currentStep === 2}}" class="step-btn primary" loading="{{submitting}}" bindtap="onSubmitTap">
+        {{isEdit ? '保存修改' : '发布房源'}}
+      </button>
     </view>
-
-    <view class="form-item">
-      <text class="label">联系电话</text>
-      <input class="input" type="number" data-field="contactPhone" value="{{formData.contactPhone}}" placeholder="请输入手机号" bindinput="onInputChange" />
-    </view>
-
-    <button class="submit-btn" loading="{{submitting}}" bindtap="onSubmitTap">
-      {{isEdit ? '保存修改' : '发布房源'}}
-    </button>
   </view>
 </view>

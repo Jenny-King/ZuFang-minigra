@@ -18,6 +18,12 @@ const SESSION_STATUS = {
   ACTIVE: "active"
 };
 
+const HOUSE_STATUS = {
+  ACTIVE: "active",
+  HIDDEN: "hidden",
+  DELETED: "deleted"
+};
+
 const PAYMENT_METHOD_OPTIONS = ["月付", "季付", "半年付", "年付"];
 const PHONE_REGEXP = /^1\d{10}$/;
 
@@ -242,6 +248,14 @@ function buildUpdateData(payload) {
     updateData.layoutText = normalizeString(payload.layoutText);
   }
 
+  if (payload.status !== undefined) {
+    const status = normalizeString(payload.status);
+    if (![HOUSE_STATUS.ACTIVE, HOUSE_STATUS.HIDDEN].includes(status)) {
+      throw new Error("status 不合法");
+    }
+    updateData.status = status;
+  }
+
   if (payload.city !== undefined) {
     updateData.city = normalizeString(payload.city);
   }
@@ -343,7 +357,7 @@ function canManageHouse(user, house) {
 }
 
 function buildListWhere(payload) {
-  const where = { status: "active" };
+  const where = { status: HOUSE_STATUS.ACTIVE };
   if (payload.keyword) {
     where.title = db.RegExp({ regexp: String(payload.keyword).trim(), options: "i" });
   }
@@ -391,8 +405,8 @@ async function handleGetDetail(payload, event) {
   if (!houseId) return fail("houseId 不能为空");
   const detail = await db.collection(HOUSES).doc(houseId).get().catch(() => null);
   const house = detail?.data;
-  if (!house || house.status === "deleted") return fail("房源不存在", 404);
-  if (house.status === "active") return success(house);
+  if (!house || house.status === HOUSE_STATUS.DELETED) return fail("房源不存在", 404);
+  if (house.status === HOUSE_STATUS.ACTIVE) return success(house);
 
   const authState = await resolveCurrentUser(event);
   if (!authState.ok || !canManageHouse(authState.user, house)) {
@@ -432,7 +446,7 @@ async function handleCreate(payload, event) {
     data = {
       ...buildCreateData(payload),
       landlordUserId: authState.user.userId,
-      status: "active",
+      status: HOUSE_STATUS.ACTIVE,
       createTime: now,
       updateTime: now
     };
@@ -457,7 +471,7 @@ async function handleUpdate(payload, event) {
 
   const detail = await db.collection(HOUSES).doc(houseId).get().catch(() => null);
   const house = detail?.data;
-  if (!house || house.status === "deleted") {
+  if (!house || house.status === HOUSE_STATUS.DELETED) {
     return fail("房源不存在", 404);
   }
   if (!canManageHouse(authState.user, house)) {
@@ -491,7 +505,7 @@ async function handleRemove(payload, event) {
 
   const detail = await db.collection(HOUSES).doc(houseId).get().catch(() => null);
   const house = detail?.data;
-  if (!house || house.status === "deleted") {
+  if (!house || house.status === HOUSE_STATUS.DELETED) {
     return fail("房源不存在", 404);
   }
   if (!canManageHouse(authState.user, house)) {
@@ -499,7 +513,7 @@ async function handleRemove(payload, event) {
   }
 
   await db.collection(HOUSES).doc(houseId).update({
-    data: { status: "deleted", updateTime: new Date() }
+    data: { status: HOUSE_STATUS.DELETED, updateTime: new Date() }
   });
 
   return success({ removed: true, houseId });
@@ -513,7 +527,7 @@ async function handleGetMine(payload, event) {
 
   const page = Math.max(1, Number(payload.page || 1));
   const pageSize = Math.max(1, Math.min(20, Number(payload.pageSize || 10)));
-  const where = { landlordUserId: authState.user.userId, status: _.neq("deleted") };
+  const where = { landlordUserId: authState.user.userId, status: _.neq(HOUSE_STATUS.DELETED) };
 
   const countRes = await db.collection(HOUSES).where(where).count();
   const listRes = await db.collection(HOUSES)

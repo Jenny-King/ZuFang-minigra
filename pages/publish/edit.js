@@ -11,6 +11,11 @@ const PROFILE_ENTRY_HIGHLIGHT_KEY = "profileEntryHighlight";
 const MIN_RENT_PERIOD_OPTIONS = [1, 3, 6, 12];
 const ORIENTATION_OPTIONS = ["东", "南", "西", "北", "东南", "东北", "西南", "西北"];
 const FALLBACK_REGION_OPTIONS = [{ label: "全部区域", value: "" }];
+const STEP_LIST = [
+  { key: "base", label: "基础信息" },
+  { key: "location", label: "位置描述" },
+  { key: "contact", label: "联系与提交" }
+];
 const ROOM_OPTIONS = [
   { label: "请选择室", value: 0 },
   { label: "1室", value: 1 },
@@ -116,6 +121,43 @@ function createInitialForm() {
     contactName: "",
     contactPhone: ""
   };
+}
+
+function getStepValidationResult(stepIndex, formData = {}, imageCount = 0) {
+  if (stepIndex === 0) {
+    if (!imageCount) {
+      return { valid: false, message: "请至少上传1张图片" };
+    }
+    if (!String(formData.title || "").trim()) {
+      return { valid: false, message: "房源标题不能为空" };
+    }
+    if (!Number(formData.price)) {
+      return { valid: false, message: "请填写月租金" };
+    }
+    if (!String(formData.layoutText || formData.type || "").trim()) {
+      return { valid: false, message: "请选择户型" };
+    }
+    if (!Number(formData.area)) {
+      return { valid: false, message: "请填写面积" };
+    }
+  }
+
+  if (stepIndex === 1) {
+    if (!String(formData.address || "").trim()) {
+      return { valid: false, message: "请输入详细地址" };
+    }
+  }
+
+  if (stepIndex === 2) {
+    if (!String(formData.contactName || "").trim()) {
+      return { valid: false, message: "请输入联系人" };
+    }
+    if (!isPhone(String(formData.contactPhone || "").trim())) {
+      return { valid: false, message: "联系电话格式错误" };
+    }
+  }
+
+  return { valid: true, message: "" };
 }
 
 function buildRegionOptions(regions = []) {
@@ -317,6 +359,8 @@ Page({
   data: {
     isEdit: false,
     houseId: "",
+    stepList: STEP_LIST,
+    currentStep: 0,
     submitting: false,
     loadingDetail: false,
     errorText: "",
@@ -411,6 +455,7 @@ Page({
       selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
       selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
       selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
+      currentStep: 0,
       titleHighlight: false
     });
     logger.info("publish_reset_state_end", {});
@@ -515,11 +560,12 @@ Page({
       imageList: [],
       selectedRoomIndex: layoutState.selectedRoomIndex,
       selectedHallIndex: layoutState.selectedHallIndex,
-      selectedBathIndex: layoutState.selectedBathIndex,
-      selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
-      selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
-      selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city)
-    };
+        selectedBathIndex: layoutState.selectedBathIndex,
+        selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
+        selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
+        selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
+        currentStep: 0
+      };
   },
 
   async loadHouseDetail(houseId, options = {}) {
@@ -595,7 +641,8 @@ Page({
         selectedBathIndex: layoutState.selectedBathIndex,
         selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
         selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
-        selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city)
+        selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
+        currentStep: 0
       });
     } catch (error) {
       if (requestId !== this.detailRequestId) {
@@ -852,6 +899,56 @@ Page({
     logger.info("publish_remove_image_end", { count: nextList.length });
   },
 
+  validateStep(stepIndex = this.data.currentStep) {
+    return getStepValidationResult(stepIndex, this.data.formData, this.data.imageList.length);
+  },
+
+  onStepTap(event) {
+    const nextStep = Number(event.currentTarget.dataset.step);
+    if (Number.isNaN(nextStep)) {
+      return;
+    }
+
+    if (nextStep <= this.data.currentStep) {
+      this.setData({ currentStep: nextStep });
+      return;
+    }
+
+    const validationResult = this.validateStep(this.data.currentStep);
+    if (!validationResult.valid) {
+      wx.showToast({ title: validationResult.message, icon: "none" });
+      return;
+    }
+
+    this.setData({ currentStep: nextStep });
+  },
+
+  onPrevStepTap() {
+    if (this.data.currentStep <= 0) {
+      return;
+    }
+
+    this.setData({
+      currentStep: this.data.currentStep - 1
+    });
+  },
+
+  onNextStepTap() {
+    const validationResult = this.validateStep(this.data.currentStep);
+    if (!validationResult.valid) {
+      wx.showToast({ title: validationResult.message, icon: "none" });
+      return;
+    }
+
+    if (this.data.currentStep >= STEP_LIST.length - 1) {
+      return;
+    }
+
+    this.setData({
+      currentStep: this.data.currentStep + 1
+    });
+  },
+
   buildSubmitPayload(images) {
     logger.debug("publish_build_payload_start", {});
     const form = this.data.formData;
@@ -916,7 +1013,7 @@ Page({
     return uploaded;
   },
 
-  async onSubmitTap() {
+  async submitHouse() {
     logger.info("publish_submit_start", { isEdit: this.data.isEdit });
     if (this.data.submitting) {
       logger.info("publish_submit_end", { blocked: "submitting" });
@@ -974,5 +1071,20 @@ Page({
       this.setData({ submitting: false });
       logger.info("publish_submit_end", {});
     }
+  },
+
+  async onSubmitTap() {
+    if (this.data.currentStep < STEP_LIST.length - 1) {
+      this.onNextStepTap();
+      return;
+    }
+
+    const validationResult = this.validateStep(this.data.currentStep);
+    if (!validationResult.valid) {
+      wx.showToast({ title: validationResult.message, icon: "none" });
+      return;
+    }
+
+    await this.submitHouse();
   }
 });

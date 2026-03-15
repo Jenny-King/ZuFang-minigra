@@ -1,28 +1,134 @@
-<view class="container my-houses-page">
-  <view class="toolbar">
-    <button class="publish-btn" size="mini" bindtap="onGoPublish">发布新房源</button>
+<view class="container listings-page" bindtap="onPageTap">
+  <view class="listings-head" catchtap="noop">
+    <view class="head-copy">
+      <view class="page-title">房源管理</view>
+      <view class="page-subtitle">默认展示我的房源，可继续发布、编辑、下架与删除</view>
+    </view>
+    <button class="publish-entry-btn" size="mini" bindtap="onGoPublish">发布新房源</button>
+  </view>
+
+  <view class="stats-bar" catchtap="noop">
+    <view class="stat-card blue">
+      <view class="stat-number">{{stats.all}}</view>
+      <view class="stat-label">全部</view>
+    </view>
+    <view class="stat-card green">
+      <view class="stat-number">{{stats.active}}</view>
+      <view class="stat-label">在租中</view>
+    </view>
+    <view class="stat-card amber">
+      <view class="stat-number">{{stats.pending}}</view>
+      <view class="stat-label">审核中</view>
+    </view>
+    <view class="stat-card gray">
+      <view class="stat-number">{{stats.hidden}}</view>
+      <view class="stat-label">已下架</view>
+    </view>
+  </view>
+
+  <scroll-view class="filter-bar" scroll-x enable-flex show-scrollbar="{{false}}" catchtap="noop">
+    <view
+      wx:for="{{filterTabs}}"
+      wx:key="key"
+      class="filter-chip {{activeFilter === item.key ? 'active' : ''}}"
+      data-filter="{{item.key}}"
+      bindtap="onFilterTap"
+    >
+      {{item.label}}
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{hintVisible}}" class="hint-bar" catchtap="noop">
+    <text class="hint-icon">👈</text>
+    <text class="hint-text">左滑卡片可快速下架或删除，也可通过右下角更多按钮操作</text>
+    <text class="hint-close" bindtap="onCloseHintTap">×</text>
   </view>
 
   <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
-  <view wx:if="{{empty && !loading}}" class="empty-tip">暂无发布的房源</view>
 
-  <view class="house-list">
-    <view class="house-item card" wx:for="{{list}}" wx:key="houseId">
-      <view class="main">
-        <view class="title text-ellipsis">{{item.displayTitle}}</view>
-        <view class="meta">
-          <text class="price">{{item.displayPrice}}</text>
-          <text class="status">状态：{{item.displayStatus}}</text>
+  <view wx:if="{{empty && !loading}}" class="empty-state" catchtap="noop">
+    <view class="empty-icon">🏠</view>
+    <view class="empty-title">还没有发布的房源</view>
+    <view class="empty-subtitle">从这里开始创建第一套房源，发布成功后会自动回到此页面</view>
+    <button class="empty-action-btn" bindtap="onGoPublish">发布新房源</button>
+  </view>
+
+  <view wx:elif="{{!loading && visibleList.length === 0}}" class="empty-state slim" catchtap="noop">
+    <view class="empty-icon">🔎</view>
+    <view class="empty-title">暂无符合当前筛选条件的房源</view>
+    <view class="empty-subtitle">试试切换到其他状态或按价格排序查看</view>
+  </view>
+
+  <view wx:else class="listing-list">
+    <view
+      wx:for="{{visibleList}}"
+      wx:key="houseId"
+      class="listing-card {{openActionHouseId === item.houseId ? 'swiped' : ''}}"
+      data-house-id="{{item.houseId}}"
+      bindtouchstart="onCardTouchStart"
+      bindtouchend="onCardTouchEnd"
+      catchtap="noop"
+    >
+      <view class="card-inner">
+        <view class="card-body">
+          <view class="thumb-box">
+            <image wx:if="{{item.displayImage}}" class="thumb-image" src="{{item.displayImage}}" mode="aspectFill" />
+            <view wx:else class="thumb-fallback">房</view>
+          </view>
+
+          <view class="card-info">
+            <view class="card-title">{{item.displayTitle}}</view>
+            <view class="card-price">{{item.displayPrice}}<text class="price-unit"> /月</text></view>
+            <view class="card-tags">
+              <text class="tag neutral">{{item.displayLayout}}</text>
+              <text class="tag neutral">{{item.displayArea}}</text>
+              <text class="tag neutral">{{item.displayFloor}}</text>
+              <text class="tag {{item.statusBadgeClass}}">{{item.displayStatus}}</text>
+            </view>
+          </view>
         </view>
-        <view class="time">发布时间：{{item.displayCreateTime || '--'}}</view>
+
+        <view class="card-footer">
+          <text class="card-time">发布于 {{item.displayCreateTime || '--'}}</text>
+          <view class="card-actions">
+            <button class="action-btn edit" size="mini" data-house-id="{{item.houseId}}" bindtap="onGoEdit">编辑</button>
+            <button class="action-btn more" size="mini" data-house-id="{{item.houseId}}" bindtap="onToggleActionsTap">···</button>
+          </view>
+        </view>
       </view>
-      <view class="actions">
-        <button class="edit-btn" size="mini" data-house-id="{{item.houseId}}" bindtap="onGoEdit">编辑</button>
-        <button class="delete-btn" size="mini" data-house-id="{{item.houseId}}" bindtap="onDeleteHouse">删除</button>
+
+      <view class="swipe-actions">
+        <button
+          class="swipe-btn swipe-offline"
+          size="mini"
+          data-house-id="{{item.houseId}}"
+          data-status="{{item.actionStatus}}"
+          bindtap="onToggleStatusTap"
+        >
+          {{item.actionLabel}}
+        </button>
+        <button
+          class="swipe-btn swipe-delete"
+          size="mini"
+          data-house-id="{{item.houseId}}"
+          data-title="{{item.displayTitle}}"
+          bindtap="onDeleteHouseTap"
+        >
+          删除
+        </button>
       </view>
     </view>
   </view>
 
   <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
-  <view wx:if="{{!loading && list.length > 0 && !hasMore}}" class="loading-tip">没有更多了</view>
+  <view wx:if="{{!loading && visibleList.length > 0 && !hasMore}}" class="loading-tip">— 没有更多了 —</view>
+
+  <view wx:if="{{showDeleteModal}}" class="delete-modal-mask" bindtap="onCloseDeleteModal">
+    <view class="delete-modal-panel" catchtap="noop">
+      <view class="delete-modal-title">确认删除房源？</view>
+      <view class="delete-modal-subtitle">《{{pendingDeleteTitle || '未命名房源'}}》删除后不可恢复，该房源将从平台永久下线。</view>
+      <button class="delete-confirm-btn" bindtap="onConfirmDeleteTap">确认删除</button>
+      <button class="delete-cancel-btn" bindtap="onCloseDeleteModal">取消</button>
+    </view>
+  </view>
 </view>

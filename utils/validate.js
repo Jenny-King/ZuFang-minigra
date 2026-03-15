@@ -3,6 +3,7 @@ const { USER_ROLE } = require("../config/constants");
 const PHONE_REGEXP = /^1\d{10}$/;
 const PASSWORD_REGEXP = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d\W_]{6,20}$/;
 const IDCARD_REGEXP = /(^\d{15}$)|(^\d{17}[\dXx]$)/;
+const EMAIL_REGEXP = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim() !== "";
@@ -18,6 +19,10 @@ function isPassword(value) {
 
 function isIdCard(value) {
   return isNonEmptyString(value) && IDCARD_REGEXP.test(value.trim());
+}
+
+function isEmail(value) {
+  return isNonEmptyString(value) && EMAIL_REGEXP.test(value.trim());
 }
 
 function isUserRole(value) {
@@ -63,6 +68,7 @@ function validateHouseForm(formData = {}) {
 module.exports = {
   isNonEmptyString,
   isPhone,
+  isEmail,
   isPassword,
   isIdCard,
   isUserRole,

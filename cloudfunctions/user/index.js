@@ -9,6 +9,7 @@ const _ = db.command;
 const USERS = "users";
 const USER_IDENTITIES = "user_identities";
 const USER_SESSIONS = "user_sessions";
+const SMS_CODES = "sms_codes";
 
 const USER_STATUS = {
   ACTIVE: "active",
@@ -18,6 +19,11 @@ const USER_STATUS = {
 const IDENTITY_STATUS = {
   ACTIVE: "active",
   DISABLED: "disabled"
+};
+
+const IDENTITY_TYPE = {
+  PHONE: "phone",
+  WECHAT_OPENID: "wechat_openid"
 };
 
 const IDENTITY_PROFILE_STATUS = {
@@ -31,8 +37,9 @@ const SESSION_STATUS = {
   REVOKED: "revoked"
 };
 
-const IDENTITY_TYPE = {
-  WECHAT_OPENID: "wechat_openid"
+const SMS_CODE_STATUS = {
+  ACTIVE: "active",
+  USED: "used"
 };
 
 function createLogger(context) {
@@ -71,6 +78,21 @@ function hashPassword(password) {
   return crypto.createHash("sha256").update(String(password || "")).digest("hex");
 }
 
+function buildIdentityDocId(type, identifier) {
+  return crypto
+    .createHash("sha256")
+    .update(`${String(type || "").trim()}:${String(identifier || "").trim()}`)
+    .digest("hex");
+}
+
+function isPhone(phone) {
+  return /^1\d{10}$/.test(String(phone || "").trim());
+}
+
+function isEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
 function getIdentityProfileStatus(user) {
   if (user?.verified) {
     return IDENTITY_PROFILE_STATUS.APPROVED;
@@ -99,6 +121,7 @@ function sanitizeUser(user, wechatBound = false) {
     identityStatus: getIdentityProfileStatus(user),
     identitySubmittedAt: user.identitySubmittedAt || null,
     wechatId: user.wechatId || "",
+    email: user.email || "",
     province: user.province || "",
     city: user.city || "",
     district: user.district || "",
@@ -123,6 +146,136 @@ async function getUserByUserId(userId) {
     .get();
 
   return res.data[0] || null;
+}
+
+async function getIdentityDocByTypeAndIdentifier(type, identifier) {
+  const normalizedType = String(type || "").trim();
+  const normalizedIdentifier = String(identifier || "").trim();
+  if (!normalizedType || !normalizedIdentifier) {
+    return null;
+  }
+
+  const detail = await db.collection(USER_IDENTITIES)
+    .doc(buildIdentityDocId(normalizedType, normalizedIdentifier))
+    .get()
+    .catch(() => null);
+
+  return detail?.data || null;
+}
+
+async function getIdentityByTypeAndIdentifier(type, identifier) {
+  const identity = await getIdentityDocByTypeAndIdentifier(type, identifier);
+  if (!identity || identity.status === IDENTITY_STATUS.DISABLED) {
+    return null;
+  }
+  return identity;
+}
+
+async function createOrReactivateIdentity(type, identifier, userId) {
+  const normalizedType = String(type || "").trim();
+  const normalizedIdentifier = String(identifier || "").trim();
+  const normalizedUserId = String(userId || "").trim();
+  if (!normalizedType || !normalizedIdentifier || !normalizedUserId) {
+    throw new Error("身份信息不完整");
+  }
+
+  const existing = await getIdentityDocByTypeAndIdentifier(normalizedType, normalizedIdentifier);
+  if (existing && existing.status !== IDENTITY_STATUS.DISABLED && existing.userId !== normalizedUserId) {
+    throw new Error("该身份已绑定其他账号");
+  }
+
+  if (existing && existing.status !== IDENTITY_STATUS.DISABLED) {
+    return existing;
+  }
+
+  if (existing && existing.status === IDENTITY_STATUS.DISABLED) {
+    await db.collection(USER_IDENTITIES)
+      .doc(existing._id)
+      .update({
+        data: {
+          userId: normalizedUserId,
+          status: IDENTITY_STATUS.ACTIVE,
+          updateTime: new Date()
+        }
+      });
+    return {
+      ...existing,
+      userId: normalizedUserId,
+      status: IDENTITY_STATUS.ACTIVE
+    };
+  }
+
+  const now = new Date();
+  const identity = {
+    _id: buildIdentityDocId(normalizedType, normalizedIdentifier),
+    type: normalizedType,
+    identifier: normalizedIdentifier,
+    userId: normalizedUserId,
+    status: IDENTITY_STATUS.ACTIVE,
+    createTime: now,
+    updateTime: now
+  };
+
+  await db.collection(USER_IDENTITIES).add({ data: identity });
+  return identity;
+}
+
+async function disableIdentity(type, identifier) {
+  const identity = await getIdentityByTypeAndIdentifier(type, identifier);
+  if (!identity) {
+    return;
+  }
+
+  await db.collection(USER_IDENTITIES)
+    .doc(identity._id)
+    .update({
+      data: {
+        status: IDENTITY_STATUS.DISABLED,
+        updateTime: new Date()
+      }
+    });
+}
+
+async function getAvailableSmsCodeRecord(phone, code) {
+  const res = await db.collection(SMS_CODES)
+    .where({
+      phone,
+      code,
+      status: _.neq(SMS_CODE_STATUS.USED)
+    })
+    .orderBy("createTime", "desc")
+    .limit(1)
+    .get();
+
+  const record = res.data[0];
+  if (!record) {
+    return null;
+  }
+
+  if (new Date(record.expireAt).getTime() <= Date.now()) {
+    return null;
+  }
+
+  return record;
+}
+
+async function consumeSmsCode(phone, code) {
+  const record = await getAvailableSmsCodeRecord(phone, code);
+  if (!record?._id) {
+    return { valid: false };
+  }
+
+  await db.collection(SMS_CODES)
+    .doc(record._id)
+    .update({
+      data: {
+        status: SMS_CODE_STATUS.USED,
+        usedAt: new Date(),
+        updateTime: new Date()
+      }
+    });
+
+  return { valid: true, record };
 }
 
 async function getSessionByAccessToken(accessToken) {
@@ -252,6 +405,95 @@ async function handleChangePassword(payload, event) {
   return success({ updated: true });
 }
 
+async function handleChangePhone(payload, event) {
+  const authState = await resolveCurrentUser(event);
+  if (!authState.ok) {
+    return authState.result;
+  }
+
+  const phone = String(payload.phone || "").trim();
+  const code = String(payload.code || "").trim();
+  const currentPhone = String(authState.user.phone || "").trim();
+
+  if (!isPhone(phone)) {
+    return fail("手机号格式错误");
+  }
+  if (!code) {
+    return fail("验证码不能为空");
+  }
+  if (phone === currentPhone) {
+    return fail("新手机号不能与当前手机号相同", 400);
+  }
+
+  const occupiedIdentity = await getIdentityByTypeAndIdentifier(IDENTITY_TYPE.PHONE, phone);
+  if (occupiedIdentity && occupiedIdentity.userId !== authState.user.userId) {
+    return fail("手机号已被其他账号绑定", 409);
+  }
+
+  const consumeResult = await consumeSmsCode(phone, code);
+  if (!consumeResult.valid) {
+    return fail("验证码错误或已过期");
+  }
+
+  await db.collection(USERS)
+    .doc(authState.user._id)
+    .update({
+      data: {
+        phone,
+        updateTime: new Date()
+      }
+    });
+
+  if (currentPhone) {
+    await disableIdentity(IDENTITY_TYPE.PHONE, currentPhone);
+  }
+  await createOrReactivateIdentity(IDENTITY_TYPE.PHONE, phone, authState.user.userId);
+
+  const latest = await getUserByUserId(authState.user.userId);
+  return success(await buildUserResult(latest));
+}
+
+async function handleBindEmail(payload, event) {
+  const authState = await resolveCurrentUser(event);
+  if (!authState.ok) {
+    return authState.result;
+  }
+
+  const email = String(payload.email || "").trim().toLowerCase();
+  if (!isEmail(email)) {
+    return fail("邮箱格式错误");
+  }
+
+  if (email === String(authState.user.email || "").trim().toLowerCase()) {
+    return success(await buildUserResult(authState.user), "邮箱已绑定");
+  }
+
+  const duplicateRes = await db.collection(USERS)
+    .where({
+      email,
+      status: _.neq(USER_STATUS.DISABLED),
+      userId: _.neq(authState.user.userId)
+    })
+    .limit(1)
+    .get();
+
+  if (duplicateRes.data[0]) {
+    return fail("邮箱已被其他账号绑定", 409);
+  }
+
+  await db.collection(USERS)
+    .doc(authState.user._id)
+    .update({
+      data: {
+        email,
+        updateTime: new Date()
+      }
+    });
+
+  const latest = await getUserByUserId(authState.user.userId);
+  return success(await buildUserResult(latest));
+}
+
 async function handleSwitchRole(payload, event) {
   const authState = await resolveCurrentUser(event);
   if (!authState.ok) {
@@ -330,6 +572,8 @@ exports.main = async (event, context) => {
     if (action === "getCurrentUser") result = await handleGetCurrentUser(event);
     if (action === "updateProfile") result = await handleUpdateProfile(payload, event);
     if (action === "changePassword") result = await handleChangePassword(payload, event);
+    if (action === "changePhone") result = await handleChangePhone(payload, event);
+    if (action === "bindEmail") result = await handleBindEmail(payload, event);
     if (action === "switchRole") result = await handleSwitchRole(payload, event);
     if (action === "deleteAccount") result = await handleDeleteAccount(event);
     logger.info("success", { action, code: result.code });

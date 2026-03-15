@@ -25,6 +25,8 @@
     {
       "root": "package-profile",
       "pages": [
+        "pages/support-center/index",
+        "pages/settings/index",
         "pages/edit-profile/index",
         "pages/favorites/index",
         "pages/history/index",

@@ -7,7 +7,10 @@
       </view>
 
       <view class="hero-content">
-        <view class="hero-name">{{userInfo.displayName}}</view>
+        <view class="hero-name-wrap" bindtap="onEditNicknameTap">
+          <view class="hero-name">{{userInfo.displayName}}</view>
+          <view class="hero-name-hint">点击修改昵称</view>
+        </view>
         <view class="hero-subline">{{userInfo.displayPhone}}</view>
 
         <view class="hero-badges">
@@ -61,53 +64,72 @@
       <text class="arrow">></text>
     </view>
 
-    <view class="menu-item" bindtap="onGoEditProfile">
-      <view class="menu-icon purple">
-        <text class="menu-icon-text">编</text>
+    <view class="menu-item" bindtap="onGoSupportCenter">
+      <view class="menu-icon teal">
+        <text class="menu-icon-text">客</text>
       </view>
       <view class="menu-main">
-        <text class="menu-title">编辑资料</text>
-        <text class="menu-subtitle">头像、昵称、地区等基础信息</text>
+        <text class="menu-title">客服中心</text>
+        <text class="menu-subtitle">常见问题、帮助入口与客服说明</text>
       </view>
       <text class="arrow">></text>
     </view>
 
-    <view class="menu-item" bindtap="onGoVerify">
-      <view class="menu-icon orange">
-        <text class="menu-icon-text">证</text>
+    <view class="menu-item" bindtap="onOpenSettingsTap">
+      <view class="menu-icon gray">
+        <text class="menu-icon-text">设</text>
       </view>
       <view class="menu-main">
-        <text class="menu-title">身份资料</text>
-        <text class="menu-subtitle">{{userInfo.displayIdentityStatus}}</text>
+        <text class="menu-title">设置</text>
+        <text class="menu-subtitle">换绑手机号、密码、微信、邮箱与身份资料</text>
       </view>
       <text class="arrow">></text>
-    </view>
-
-    <view class="menu-item" bindtap="onWechatEntryTap">
-      <view class="menu-icon green">
-        <text class="menu-icon-text">微</text>
-      </view>
-      <view class="menu-main">
-        <text class="menu-title">绑定微信</text>
-        <text class="menu-subtitle">{{userInfo.wechatMenuSubtitle}}</text>
-      </view>
-      <text class="arrow">></text>
-    </view>
-
-    <view class="menu-item danger" bindtap="onAccountSecurityTap">
-      <view class="menu-icon red">
-        <text class="menu-icon-text">安</text>
-      </view>
-      <view class="menu-main">
-        <text class="menu-title">账号与安全</text>
-        <text class="menu-subtitle">注销账号等高危操作</text>
-      </view>
-      <text class="arrow danger-arrow">></text>
     </view>
   </view>
 
   <view class="action-area" wx:if="{{isLoggedIn}}">
     <button class="action-btn switch" bindtap="onSwitchRoleTap">切换角色（租客 / 房东）</button>
-    <button class="action-btn logout" bindtap="onLogoutTap">退出登录</button>
+    <button class="action-btn account" bindtap="onSwitchAccountTap">切换账号（已缓存{{cachedAccountCount}}个）</button>
+    <button class="action-btn logout" bindtap="onLogoutTap">退出当前账号</button>
+  </view>
+
+  <view class="account-switcher-mask" wx:if="{{accountSwitcherVisible}}" bindtap="onCloseAccountSwitcher">
+    <view class="account-switcher-panel" catchtap="noop">
+      <view class="account-switcher-header">
+        <view class="account-switcher-title">切换账号</view>
+        <view class="account-switcher-subtitle">已缓存的账号可直接切换，无需重复输入登录信息</view>
+      </view>
+
+      <view class="account-card-list">
+        <view
+          class="account-card {{item.isActive ? 'active' : ''}}"
+          wx:for="{{cachedAccounts}}"
+          wx:key="userId"
+          data-user-id="{{item.userId}}"
+          bindtap="onSelectAccountTap"
+        >
+          <view class="account-card-remove" data-user-id="{{item.userId}}" catchtap="onRemoveAccountTap">
+            {{removingAccountId === item.userId ? '处理中' : '删除记录'}}
+          </view>
+          <image class="account-card-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+          <view class="account-card-main">
+            <view class="account-card-title-row">
+              <text class="account-card-name">{{item.displayName}}</text>
+              <text class="account-card-role">{{item.displayRole}}</text>
+            </view>
+            <view class="account-card-subline">{{item.displayPhone}}</view>
+            <view class="account-card-tags">
+              <text class="account-card-tag {{item.isActive ? 'active' : ''}}">{{item.isActive ? '当前账号' : '点击切换'}}</text>
+              <text class="account-card-tag">{{item.wechatBound ? '微信已绑定' : '微信未绑定'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="account-switcher-actions">
+        <button class="account-switcher-btn primary" bindtap="onAddAccountTap">添加账号</button>
+        <button class="account-switcher-btn" bindtap="onCloseAccountSwitcher">取消</button>
+      </view>
+    </view>
   </view>
 </view>

@@ -124,4 +124,58 @@ describe("cloudfunction/bootstrap", () => {
       db.collection = originalCollection;
     }
   });
+
+  it("cleanupHouses removes all house documents", async () => {
+    const db = cloud.database();
+    const originalCollection = db.collection;
+    const removeMocks = {};
+    const dataset = {
+      houses: [
+        { _id: "house_1", title: "测试房源1" },
+        { _id: "house_2", title: "测试房源2" },
+        { _id: "house_3", title: "测试房源3" }
+      ]
+    };
+
+    db.collection = jest.fn((name) => {
+      return {
+        where() {
+          return this;
+        },
+        skip() {
+          return this;
+        },
+        limit() {
+          return this;
+        },
+        get: jest.fn(async () => ({
+          data: dataset[name] || []
+        })),
+        doc: jest.fn((id) => {
+          if (!removeMocks[name]) {
+            removeMocks[name] = {};
+          }
+          if (!removeMocks[name][id]) {
+            removeMocks[name][id] = jest.fn(async () => ({ stats: { removed: 1 } }));
+          }
+          return {
+            remove: removeMocks[name][id]
+          };
+        })
+      };
+    });
+
+    try {
+      const res = await main({ action: "cleanupHouses", payload: { allowBootstrap: true } }, {});
+      expect(res.code).toBe(0);
+      expect(res.data.removed).toEqual({
+        houses: 3
+      });
+      expect(removeMocks.houses.house_1).toHaveBeenCalledTimes(1);
+      expect(removeMocks.houses.house_2).toHaveBeenCalledTimes(1);
+      expect(removeMocks.houses.house_3).toHaveBeenCalledTimes(1);
+    } finally {
+      db.collection = originalCollection;
+    }
+  });
 });

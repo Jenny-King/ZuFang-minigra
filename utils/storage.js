@@ -95,6 +95,42 @@ function clearAccessToken() {
   return removeStorageSync(STORAGE_KEY.ACCESS_TOKEN);
 }
 
+function getAccountSessions() {
+  return getStorageSync(STORAGE_KEY.ACCOUNT_SESSIONS, []);
+}
+
+function setAccountSessions(accountSessions) {
+  return setStorageSync(STORAGE_KEY.ACCOUNT_SESSIONS, Array.isArray(accountSessions) ? accountSessions : []);
+}
+
+function clearAccountSessions() {
+  return removeStorageSync(STORAGE_KEY.ACCOUNT_SESSIONS);
+}
+
+function getActiveAccountUserId() {
+  return getStorageSync(STORAGE_KEY.ACTIVE_ACCOUNT_USER_ID, "");
+}
+
+function setActiveAccountUserId(userId) {
+  return setStorageSync(STORAGE_KEY.ACTIVE_ACCOUNT_USER_ID, String(userId || ""));
+}
+
+function clearActiveAccountUserId() {
+  return removeStorageSync(STORAGE_KEY.ACTIVE_ACCOUNT_USER_ID);
+}
+
+function getSettingsPreferences() {
+  return getStorageSync(STORAGE_KEY.SETTINGS_PREFERENCES, null);
+}
+
+function setSettingsPreferences(preferences) {
+  return setStorageSync(STORAGE_KEY.SETTINGS_PREFERENCES, preferences || {});
+}
+
+function clearSettingsPreferences() {
+  return removeStorageSync(STORAGE_KEY.SETTINGS_PREFERENCES);
+}
+
 module.exports = {
   getStorageSync,
   setStorageSync,
@@ -108,5 +144,14 @@ module.exports = {
   clearUserInfo,
   getAccessToken,
   setAccessToken,
-  clearAccessToken
+  clearAccessToken,
+  getAccountSessions,
+  setAccountSessions,
+  clearAccountSessions,
+  getActiveAccountUserId,
+  setActiveAccountUserId,
+  clearActiveAccountUserId,
+  getSettingsPreferences,
+  setSettingsPreferences,
+  clearSettingsPreferences
 };

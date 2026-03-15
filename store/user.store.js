@@ -1,21 +1,27 @@
 const userService = require("../services/user.service");
 const authUtils = require("../utils/auth");
-const storage = require("../utils/storage");
 const { logger } = require("../utils/logger");
 
-const userState = {
-  userInfo: authUtils.getLoginUser(),
-  accessToken: authUtils.getAccessToken(),
-  loading: false
-};
+function getInitialState() {
+  const snapshot = authUtils.getAuthSnapshot();
+  return {
+    userInfo: snapshot.userInfo,
+    accessToken: snapshot.accessToken,
+    accountSessions: snapshot.accountSessions,
+    activeUserId: snapshot.activeUserId,
+    loading: false
+  };
+}
 
+const userState = getInitialState();
 const listeners = new Set();
 
 function getState() {
   return {
     ...userState,
     isLoggedIn: authUtils.hasValidUserId(userState.userInfo)
-      && authUtils.hasValidAccessToken(userState.accessToken)
+      && authUtils.hasValidAccessToken(userState.accessToken),
+    cachedAccountCount: Array.isArray(userState.accountSessions) ? userState.accountSessions.length : 0
   };
 }
 
@@ -35,6 +41,18 @@ function setState(patch = {}) {
   notify();
 }
 
+function syncStateFromAuth(loading = userState.loading) {
+  const snapshot = authUtils.getAuthSnapshot();
+  setState({
+    userInfo: snapshot.userInfo,
+    accessToken: snapshot.accessToken,
+    accountSessions: snapshot.accountSessions,
+    activeUserId: snapshot.activeUserId,
+    loading: Boolean(loading)
+  });
+  return snapshot.userInfo || null;
+}
+
 function subscribe(listener) {
   if (typeof listener !== "function") {
     throw new Error("listener 必须是函数");
@@ -50,54 +68,41 @@ function setLoading(loading) {
 
 function setUserInfo(userInfo) {
   if (userInfo) {
-    storage.setUserInfo(userInfo);
+    authUtils.updateCurrentUserInfo(userInfo);
   } else {
-    storage.clearUserInfo();
+    authUtils.clearActiveLoginState();
   }
 
-  setState({ userInfo: userInfo || null });
+  return syncStateFromAuth();
 }
 
 function setSession(session = {}) {
-  const userInfo = session.userInfo || null;
-  const accessToken = String(session.accessToken || "");
+  authUtils.saveLoginSession(session);
+  return syncStateFromAuth();
+}
 
-  if (userInfo) {
-    storage.setUserInfo(userInfo);
-  } else {
-    storage.clearUserInfo();
-  }
+function switchAccount(userId) {
+  authUtils.switchAccount(userId);
+  return syncStateFromAuth();
+}
 
-  if (accessToken) {
-    storage.setAccessToken(accessToken);
-  } else {
-    storage.clearAccessToken();
-  }
-
-  setState({
-    userInfo,
-    accessToken
-  });
+function removeAccount(userId) {
+  authUtils.removeAccount(userId);
+  return syncStateFromAuth(false);
 }
 
 function clearUser() {
-  storage.clearUserInfo();
-  storage.clearAccessToken();
-  setState({
-    userInfo: null,
-    accessToken: "",
-    loading: false
-  });
+  authUtils.clearActiveLoginState();
+  return syncStateFromAuth(false);
+}
+
+function clearAllUsers() {
+  authUtils.clearLoginState();
+  return syncStateFromAuth(false);
 }
 
 function restoreFromStorage() {
-  const userInfo = storage.getUserInfo();
-  const accessToken = storage.getAccessToken();
-  setState({
-    userInfo: userInfo || null,
-    accessToken: accessToken || ""
-  });
-  return userInfo || null;
+  return syncStateFromAuth();
 }
 
 async function refreshCurrentUser() {
@@ -106,7 +111,8 @@ async function refreshCurrentUser() {
 
   try {
     const userInfo = await userService.getCurrentUser();
-    setUserInfo(userInfo || null);
+    authUtils.updateCurrentUserInfo(userInfo || null);
+    syncStateFromAuth(true);
     logger.info("user_store_refresh_success", {
       hasUser: authUtils.hasValidUserId(userInfo)
     });
@@ -129,7 +135,10 @@ module.exports = {
   setLoading,
   setUserInfo,
   setSession,
+  switchAccount,
+  removeAccount,
   clearUser,
+  clearAllUsers,
   restoreFromStorage,
   refreshCurrentUser
 };

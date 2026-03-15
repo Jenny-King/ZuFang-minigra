@@ -54,16 +54,49 @@ function buildQuickStats(favoriteCount = 0, historyCount = 0) {
   };
 }
 
+function formatRoleText(role) {
+  const roleTextMap = {
+    [USER_ROLE.TENANT]: "租客",
+    [USER_ROLE.LANDLORD]: "房东",
+    [USER_ROLE.ADMIN]: "管理员"
+  };
+  return roleTextMap[role] || "未知角色";
+}
+
+function buildCachedAccountOptions(accountSessions = [], activeUserId = "") {
+  return accountSessions.map((session) => {
+    const userInfo = session.userInfo || {};
+    const displayName = fallbackText(userInfo.nickName, "未命名账号");
+    const displayPhone = userInfo.phone ? maskPhone(String(userInfo.phone)) : "未绑定手机号";
+    return {
+      userId: session.userId,
+      avatarUrl: userInfo.avatarUrl || "/assets/images/avatar-placeholder.png",
+      displayName,
+      displayPhone,
+      displayRole: formatRoleText(userInfo.role),
+      wechatBound: Boolean(userInfo.wechatBound),
+      isActive: session.userId === activeUserId,
+      label: session.userId === activeUserId
+        ? `${displayName}（当前）`
+        : `${displayName} · ${displayPhone}`
+    };
+  });
+}
+
 Page({
   data: {
     loading: false,
     avatarUploading: false,
+    removingAccountId: "",
     userInfo: null,
     isLoggedIn: false,
     activeQuickAction: "",
     quickStats: buildQuickStats(),
     unreadNotificationCount: 0,
-    unreadNotificationBadge: "0"
+    unreadNotificationBadge: "0",
+    cachedAccounts: [],
+    cachedAccountCount: 0,
+    accountSwitcherVisible: false
   },
 
   onLoad(options) {
@@ -111,13 +144,21 @@ Page({
 
   restoreUserInfo() {
     logger.info("profile_restore_start", {});
-    const userInfo = userStore.restoreFromStorage();
+    userStore.restoreFromStorage();
+    this.syncAccountSnapshot();
     const isLoggedIn = authUtils.isLoggedIn();
-    this.setData({
-      userInfo: this.normalizeUser(userInfo),
-      isLoggedIn
-    });
     logger.info("profile_restore_end", { isLoggedIn });
+  },
+
+  syncAccountSnapshot() {
+    const state = userStore.getState();
+    this.setData({
+      userInfo: this.normalizeUser(state.userInfo),
+      isLoggedIn: state.isLoggedIn,
+      cachedAccounts: buildCachedAccountOptions(state.accountSessions, state.activeUserId),
+      cachedAccountCount: Number(state.cachedAccountCount || 0)
+    });
+    return state;
   },
 
   normalizeUser(userInfo) {
@@ -154,12 +195,7 @@ Page({
 
   formatRole(role) {
     logger.debug("profile_format_role_start", { role });
-    const roleTextMap = {
-      [USER_ROLE.TENANT]: "租客",
-      [USER_ROLE.LANDLORD]: "房东",
-      [USER_ROLE.ADMIN]: "管理员"
-    };
-    const text = roleTextMap[role] || "未知角色";
+    const text = formatRoleText(role);
     logger.debug("profile_format_role_end", { text });
     return text;
   },
@@ -169,14 +205,15 @@ Page({
     this.setData({ loading: true });
     try {
       logger.info("api_call", { func: "user.getCurrentUser", params: {} });
-      const userInfo = await userStore.refreshCurrentUser();
+      await userStore.refreshCurrentUser();
       logger.info("api_resp", { func: "user.getCurrentUser", code: 0 });
-      this.setData({
-        userInfo: this.normalizeUser(userInfo),
-        isLoggedIn: authUtils.isLoggedIn()
-      });
+      this.syncAccountSnapshot();
     } catch (error) {
       logger.error("api_error", { func: "user.getCurrentUser", err: error.message });
+      this.syncAccountSnapshot();
+      if (!authUtils.isLoggedIn()) {
+        this.resetDashboardStats();
+      }
       wx.showToast({ title: error.message || "用户信息刷新失败", icon: "none" });
     } finally {
       this.setData({ loading: false });
@@ -234,6 +271,59 @@ Page({
     logger.info("profile_go_register_end", {});
   },
 
+  noop() {},
+
+  async onEditNicknameTap() {
+    logger.info("profile_edit_nickname_start", {});
+    if (!authUtils.requireLogin({ redirect: true })) {
+      logger.info("profile_edit_nickname_end", { blocked: "not_login" });
+      return;
+    }
+
+    const currentName = String(this.data.userInfo?.nickName || this.data.userInfo?.displayName || "").trim();
+
+    try {
+      const modalRes = await wx.showModal({
+        title: "修改昵称",
+        editable: true,
+        placeholderText: "请输入新的昵称",
+        content: currentName,
+        confirmText: "保存",
+        confirmColor: "#2f64f5"
+      });
+
+      if (!modalRes.confirm) {
+        logger.info("profile_edit_nickname_end", { blocked: "cancelled" });
+        return;
+      }
+
+      const nickName = String(modalRes.content || "").trim();
+      if (!nickName) {
+        wx.showToast({ title: "昵称不能为空", icon: "none" });
+        logger.info("profile_edit_nickname_end", { blocked: "empty_name" });
+        return;
+      }
+
+      if (nickName === currentName) {
+        wx.showToast({ title: "昵称未变化", icon: "none" });
+        logger.info("profile_edit_nickname_end", { blocked: "same_name" });
+        return;
+      }
+
+      logger.info("api_call", { func: "user.updateProfile", params: { nickName } });
+      const nextUser = await userService.updateProfile({ nickName });
+      logger.info("api_resp", { func: "user.updateProfile", code: 0 });
+      userStore.setUserInfo(nextUser);
+      this.syncAccountSnapshot();
+      wx.showToast({ title: "昵称已更新", icon: "success" });
+    } catch (error) {
+      logger.error("profile_edit_nickname_failed", { error: error.message });
+      wx.showToast({ title: error.message || "昵称修改失败", icon: "none" });
+    } finally {
+      logger.info("profile_edit_nickname_end", {});
+    }
+  },
+
   async onAvatarTap() {
     logger.info("profile_avatar_upload_start", {});
     if (!authUtils.requireLogin({ redirect: true })) {
@@ -264,10 +354,7 @@ Page({
       const avatarUrl = await userService.uploadAvatar(tempFilePath, cloudPath);
       const nextUser = await userService.updateProfile({ avatarUrl });
       userStore.setUserInfo(nextUser);
-      this.setData({
-        userInfo: this.normalizeUser(nextUser),
-        isLoggedIn: authUtils.isLoggedIn()
-      });
+      this.syncAccountSnapshot();
       wx.showToast({ title: "头像已更新", icon: "success" });
     } catch (error) {
       const message = error?.errMsg || error?.message || "";
@@ -304,16 +391,6 @@ Page({
     logger.info("profile_quick_action_end", { action });
   },
 
-  onGoVerify() {
-    logger.info("profile_go_verify_start", {});
-    if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("profile_go_verify_end", { blocked: "not_login" });
-      return;
-    }
-    navigateTo(ROUTES.AUTH_VERIFY);
-    logger.info("profile_go_verify_end", {});
-  },
-
   onGoFavorites(options = {}) {
     logger.info("profile_go_favorites_start", {});
     if (!authUtils.requireLogin({ redirect: true })) {
@@ -334,16 +411,6 @@ Page({
     logger.info("profile_go_history_end", {});
   },
 
-  onGoEditProfile() {
-    logger.info("profile_go_edit_profile_start", {});
-    if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("profile_go_edit_profile_end", { blocked: "not_login" });
-      return;
-    }
-    navigateTo(ROUTES.PROFILE_EDIT);
-    logger.info("profile_go_edit_profile_end", {});
-  },
-
   onGoNotifications() {
     logger.info("profile_go_notifications_start", {});
     if (!authUtils.requireLogin({ redirect: true })) {
@@ -352,6 +419,16 @@ Page({
     }
     navigateTo(ROUTES.PROFILE_NOTIFICATIONS);
     logger.info("profile_go_notifications_end", {});
+  },
+
+  onGoSupportCenter() {
+    logger.info("profile_go_support_center_start", {});
+    if (!authUtils.requireLogin({ redirect: true })) {
+      logger.info("profile_go_support_center_end", { blocked: "not_login" });
+      return;
+    }
+    navigateTo(ROUTES.PROFILE_SUPPORT);
+    logger.info("profile_go_support_center_end", {});
   },
 
   async onDeleteAccountTap() {
@@ -376,13 +453,16 @@ Page({
       logger.info("api_call", { func: "user.deleteAccount", params: {} });
       await userService.deleteAccount();
       logger.info("api_resp", { func: "user.deleteAccount", code: 0 });
-      userStore.clearUser();
-      this.setData({
-        userInfo: null,
-        isLoggedIn: false
-      });
-      this.resetDashboardStats();
-      wx.showToast({ title: "账号已注销", icon: "success" });
+      const nextUser = userStore.clearUser();
+      this.syncAccountSnapshot();
+      if (nextUser && authUtils.isLoggedIn()) {
+        await this.refreshCurrentUser();
+        await this.refreshDashboardStats();
+        wx.showToast({ title: "账号已注销，已切换其他账号", icon: "success" });
+      } else {
+        this.resetDashboardStats();
+        wx.showToast({ title: "账号已注销", icon: "success" });
+      }
     } catch (error) {
       logger.error("api_error", { func: "user.deleteAccount", err: error.message });
       wx.showToast({ title: error.message || "账号注销失败", icon: "none" });
@@ -391,33 +471,14 @@ Page({
     }
   },
 
-  async onAccountSecurityTap() {
-    logger.info("profile_account_security_start", {});
+  async onOpenSettingsTap() {
+    logger.info("profile_settings_start", {});
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("profile_account_security_end", { blocked: "not_login" });
+      logger.info("profile_settings_end", { blocked: "not_login" });
       return;
     }
-
-    try {
-      const sheetRes = await wx.showActionSheet({
-        itemList: ["注销账号"],
-        itemColor: "#ff4d4f"
-      });
-
-      if (sheetRes.tapIndex === 0) {
-        await this.onDeleteAccountTap();
-      }
-    } catch (error) {
-      const message = error?.errMsg || "";
-      if (message.includes("cancel")) {
-        logger.info("profile_account_security_end", { blocked: "cancelled" });
-        return;
-      }
-      logger.error("profile_account_security_failed", { err: message || error.message });
-      wx.showToast({ title: error.message || "操作失败", icon: "none" });
-    } finally {
-      logger.info("profile_account_security_end", {});
-    }
+    navigateTo(ROUTES.PROFILE_SETTINGS);
+    logger.info("profile_settings_end", {});
   },
 
   async onWechatEntryTap() {
@@ -447,10 +508,7 @@ Page({
       logger.info("api_resp", { func: "auth.bindWechat", code: 0 });
       const nextUser = result && result.userInfo ? result.userInfo : await userStore.refreshCurrentUser();
       userStore.setUserInfo(nextUser);
-      this.setData({
-        userInfo: this.normalizeUser(nextUser),
-        isLoggedIn: authUtils.isLoggedIn()
-      });
+      this.syncAccountSnapshot();
       wx.showToast({ title: "微信绑定成功", icon: "success" });
     } catch (error) {
       logger.error("api_error", { func: "auth.bindWechat", err: error.message });
@@ -479,10 +537,7 @@ Page({
       logger.info("api_resp", { func: "auth.unbindWechat", code: 0 });
       const nextUser = result && result.userInfo ? result.userInfo : await userStore.refreshCurrentUser();
       userStore.setUserInfo(nextUser);
-      this.setData({
-        userInfo: this.normalizeUser(nextUser),
-        isLoggedIn: authUtils.isLoggedIn()
-      });
+      this.syncAccountSnapshot();
       wx.showToast({ title: "微信解绑成功", icon: "success" });
     } catch (error) {
       logger.error("api_error", { func: "auth.unbindWechat", err: error.message });
@@ -507,10 +562,7 @@ Page({
       const userInfo = await userService.switchRole(nextRole);
       logger.info("api_resp", { func: "user.switchRole", code: 0 });
       userStore.setUserInfo(userInfo);
-      this.setData({
-        userInfo: this.normalizeUser(userInfo),
-        isLoggedIn: authUtils.isLoggedIn()
-      });
+      this.syncAccountSnapshot();
       await this.refreshDashboardStats();
       wx.showToast({ title: "角色切换成功", icon: "success" });
     } catch (error) {
@@ -518,6 +570,137 @@ Page({
       wx.showToast({ title: error.message || "角色切换失败", icon: "none" });
     } finally {
       logger.info("profile_switch_role_end", {});
+    }
+  },
+
+  async onSwitchAccountTap() {
+    logger.info("profile_switch_account_start", {});
+    if (!authUtils.requireLogin({ redirect: true })) {
+      logger.info("profile_switch_account_end", { blocked: "not_login" });
+      return;
+    }
+
+    const accountOptions = this.data.cachedAccounts || [];
+    if (!accountOptions.length) {
+      navigateTo(ROUTES.AUTH_LOGIN);
+      logger.info("profile_switch_account_end", { blocked: "empty_accounts" });
+      return;
+    }
+
+    this.setData({ accountSwitcherVisible: true });
+    logger.info("profile_switch_account_end", { opened: true });
+  },
+
+  onCloseAccountSwitcher() {
+    logger.info("profile_close_account_switcher", {});
+    this.setData({
+      accountSwitcherVisible: false,
+      removingAccountId: ""
+    });
+  },
+
+  onAddAccountTap() {
+    logger.info("profile_add_account_start", {});
+    this.setData({ accountSwitcherVisible: false });
+    navigateTo(ROUTES.AUTH_LOGIN);
+    logger.info("profile_add_account_end", {});
+  },
+
+  async onSelectAccountTap(event) {
+    const targetUserId = String(event.currentTarget.dataset.userId || "").trim();
+    logger.info("profile_select_account_start", { userId: targetUserId });
+    if (!targetUserId) {
+      logger.info("profile_select_account_end", { blocked: "empty_user_id" });
+      return;
+    }
+
+    const targetAccount = (this.data.cachedAccounts || []).find((item) => item.userId === targetUserId);
+    if (!targetAccount) {
+      logger.info("profile_select_account_end", { blocked: "account_not_found" });
+      return;
+    }
+
+    const currentUserId = this.data.userInfo?.userId || "";
+    if (targetAccount.userId === currentUserId) {
+      this.setData({ accountSwitcherVisible: false });
+      wx.showToast({ title: "已是当前账号", icon: "none" });
+      logger.info("profile_select_account_end", { blocked: "same_account" });
+      return;
+    }
+
+    try {
+      userStore.switchAccount(targetAccount.userId);
+      this.setData({ accountSwitcherVisible: false });
+      await this.refreshCurrentUser();
+      await this.refreshDashboardStats();
+      wx.showToast({ title: `已切换到${targetAccount.displayName}`, icon: "success" });
+    } catch (error) {
+      this.syncAccountSnapshot();
+      if (!authUtils.isLoggedIn()) {
+        this.resetDashboardStats();
+      }
+      logger.error("profile_select_account_failed", { error: error.message });
+      wx.showToast({ title: error.message || "切换账号失败", icon: "none" });
+    } finally {
+      logger.info("profile_select_account_end", { userId: targetUserId });
+    }
+  },
+
+  async onRemoveAccountTap(event) {
+    const targetUserId = String(event.currentTarget.dataset.userId || "").trim();
+    logger.info("profile_remove_account_start", { userId: targetUserId });
+    if (!targetUserId) {
+      logger.info("profile_remove_account_end", { blocked: "empty_user_id" });
+      return;
+    }
+
+    const targetAccount = (this.data.cachedAccounts || []).find((item) => item.userId === targetUserId);
+    if (!targetAccount) {
+      logger.info("profile_remove_account_end", { blocked: "account_not_found" });
+      return;
+    }
+
+    const modalRes = await wx.showModal({
+      title: "删除登记记录",
+      content: `将从本机移除“${targetAccount.displayName}”的快捷切换记录，云端账号本身不会被注销，是否继续？`,
+      confirmColor: "#ff4d4f"
+    });
+
+    if (!modalRes.confirm) {
+      logger.info("profile_remove_account_end", { blocked: "cancelled" });
+      return;
+    }
+
+    this.setData({ removingAccountId: targetUserId });
+
+    try {
+      const currentUserId = this.data.userInfo?.userId || "";
+      if (currentUserId === targetUserId && authUtils.isLoggedIn()) {
+        try {
+          logger.info("api_call", { func: "auth.logout", params: { reason: "remove_cached_account" } });
+          await authService.logout();
+          logger.info("api_resp", { func: "auth.logout", code: 0 });
+        } catch (error) {
+          logger.warn("profile_remove_account_remote_logout_failed", { error: error.message });
+        }
+      }
+
+      const nextUser = userStore.removeAccount(targetUserId);
+      this.syncAccountSnapshot();
+      if (targetUserId === currentUserId && nextUser && authUtils.isLoggedIn()) {
+        await this.refreshCurrentUser();
+        await this.refreshDashboardStats();
+      } else if (!authUtils.isLoggedIn()) {
+        this.resetDashboardStats();
+      }
+
+      wx.showToast({ title: "登记记录已删除", icon: "success" });
+    } catch (error) {
+      logger.error("profile_remove_account_failed", { error: error.message });
+      wx.showToast({ title: error.message || "删除失败", icon: "none" });
+    } finally {
+      this.setData({ removingAccountId: "" });
+      logger.info("profile_remove_account_end", { userId: targetUserId });
     }
   },
 
@@ -533,13 +716,16 @@ Page({
       logger.warn("profile_logout_remote_failed", { error: error.message });
     }
 
-    userStore.clearUser();
-    this.setData({
-      userInfo: null,
-      isLoggedIn: false
-    });
-    this.resetDashboardStats();
-    wx.showToast({ title: "已退出登录", icon: "success" });
+    const nextUser = userStore.clearUser();
+    this.syncAccountSnapshot();
+    if (nextUser && authUtils.isLoggedIn()) {
+      await this.refreshCurrentUser();
+      await this.refreshDashboardStats();
+      wx.showToast({ title: "已退出当前账号，并切换到其他账号", icon: "success" });
+    } else {
+      this.resetDashboardStats();
+      wx.showToast({ title: "已退出当前账号", icon: "success" });
+    }
     logger.info("profile_logout_end", {});
   }
 });

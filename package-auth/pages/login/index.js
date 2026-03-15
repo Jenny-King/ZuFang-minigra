@@ -1,6 +1,8 @@
 const authService = require("../../../services/auth.service");
 const userStore = require("../../../store/user.store");
+const authUtils = require("../../../utils/auth");
 const { ROUTES, redirectTo, switchTab } = require("../../../config/routes");
+const { maskPhone, fallbackText } = require("../../../utils/format");
 const { isPhone, isNonEmptyString } = require("../../../utils/validate");
 const { logger } = require("../../../utils/logger");
 
@@ -44,6 +46,23 @@ function requestWechatUserProfile() {
   });
 }
 
+function buildCachedAccounts() {
+  const snapshot = authUtils.getAuthSnapshot();
+  return (snapshot.accountSessions || []).map((session) => {
+    const userInfo = session.userInfo || {};
+    const displayName = fallbackText(userInfo.nickName, "未命名账号");
+    const displayPhone = userInfo.phone ? maskPhone(String(userInfo.phone)) : "未绑定手机号";
+
+    return {
+      userId: session.userId,
+      avatarUrl: userInfo.avatarUrl || "/assets/images/avatar-placeholder.png",
+      displayName,
+      displayPhone,
+      isActive: session.userId === snapshot.activeUserId
+    };
+  });
+}
+
 Page({
   data: {
     mode: LOGIN_MODE.CODE,
@@ -51,12 +70,24 @@ Page({
     code: "",
     password: "",
     sendingCode: false,
-    submitLoading: false
+    submitLoading: false,
+    cachedAccounts: []
   },
 
   onLoad(options) {
     logger.info("page_load", { page: "auth/login", query: options || {} });
+    this.loadCachedAccounts();
     logger.info("auth_login_onload_end", {});
+  },
+
+  onShow() {
+    this.loadCachedAccounts();
+  },
+
+  loadCachedAccounts() {
+    this.setData({
+      cachedAccounts: buildCachedAccounts()
+    });
   },
 
   onModeChange(event) {
@@ -115,6 +146,7 @@ Page({
       logger.info("api_resp", { func: "auth.wechatLogin", code: 0 });
 
       userStore.setSession(session);
+      this.loadCachedAccounts();
       wx.showToast({ title: "登录成功", icon: "success" });
       switchTab(ROUTES.HOME);
     } catch (error) {
@@ -195,6 +227,7 @@ Page({
       }
 
       userStore.setSession(session);
+      this.loadCachedAccounts();
       wx.showToast({ title: "登录成功", icon: "success" });
       switchTab(ROUTES.HOME);
     } catch (error) {
@@ -219,5 +252,28 @@ Page({
     logger.info("auth_login_go_reset_password_start", {});
     redirectTo(ROUTES.AUTH_RESET_PASSWORD);
     logger.info("auth_login_go_reset_password_end", {});
+  },
+
+  async onQuickAccountTap(event) {
+    const userId = String(event.currentTarget.dataset.userId || "").trim();
+    logger.info("auth_login_quick_account_start", { userId });
+    if (!userId) {
+      logger.info("auth_login_quick_account_end", { blocked: "empty_user_id" });
+      return;
+    }
+
+    try {
+      userStore.switchAccount(userId);
+      await userStore.refreshCurrentUser();
+      this.loadCachedAccounts();
+      wx.showToast({ title: "已切换账号", icon: "success" });
+      switchTab(ROUTES.HOME);
+      logger.info("auth_login_quick_account_end", { userId });
+    } catch (error) {
+      this.loadCachedAccounts();
+      logger.error("auth_login_quick_account_failed", { userId, error: error.message });
+      wx.showToast({ title: error.message || "账号状态已失效，请重新登录", icon: "none" });
+      logger.info("auth_login_quick_account_end", { blocked: "refresh_failed", userId });
+    }
   }
 });

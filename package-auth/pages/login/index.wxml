@@ -2,6 +2,28 @@
   <view class="card auth-card">
     <view class="title">登录</view>
 
+    <view class="quick-accounts" wx:if="{{cachedAccounts.length > 0}}">
+      <view class="quick-title">快捷切换</view>
+      <view class="quick-subtitle">已缓存的账号可直接切换，无需重新输入登录信息</view>
+      <view class="quick-account-list">
+        <view
+          class="quick-account-item {{item.isActive ? 'active' : ''}}"
+          wx:for="{{cachedAccounts}}"
+          wx:key="userId"
+          data-user-id="{{item.userId}}"
+          bindtap="onQuickAccountTap"
+        >
+          <image class="quick-account-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+          <view class="quick-account-main">
+            <view class="quick-account-name">{{item.displayName}}</view>
+            <view class="quick-account-phone">{{item.displayPhone}}</view>
+          </view>
+          <text class="quick-account-badge" wx:if="{{item.isActive}}">当前</text>
+          <text class="quick-account-arrow" wx:else>切换</text>
+        </view>
+      </view>
+    </view>
+
     <button class="wechat-btn" loading="{{submitLoading}}" bindtap="onWechatLoginTap">
       微信一键登录
     </button>

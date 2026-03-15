@@ -454,21 +454,30 @@ async function listAllDocuments(collectionName, whereClause) {
 
 async function removeDocuments(collectionName, docs) {
   const removedIds = [];
+  const removableDocs = Array.isArray(docs)
+    ? docs.filter((item) => item && item._id)
+    : [];
 
-  for (const item of docs) {
-    if (!item?._id) {
-      continue;
-    }
-
-    // eslint-disable-next-line no-await-in-loop
+  await runInBatches(removableDocs, REGION_WRITE_BATCH_SIZE, async (item) => {
     await db.collection(collectionName).doc(item._id).remove();
     removedIds.push(item._id);
-  }
+  });
 
   return {
     count: removedIds.length,
     ids: removedIds
   };
+}
+
+async function handleCleanupHouses() {
+  const houses = await listAllDocuments("houses", {});
+  const removedHouses = await removeDocuments("houses", houses);
+
+  return success({
+    removed: {
+      houses: removedHouses.count
+    }
+  });
 }
 
 async function handleCleanupTestUsers(payload = {}) {
@@ -537,6 +546,7 @@ exports.main = async (event, context) => {
     if (action === "initCollections") result = await handleInitCollections();
     if (action === "initRegions") result = await handleInitRegions();
     if (action === "initAll") result = await handleInitAll();
+    if (action === "cleanupHouses") result = await handleCleanupHouses();
     if (action === "cleanupTestUsers") result = await handleCleanupTestUsers(event?.payload);
 
     logger.info("success", { action, code: result.code });

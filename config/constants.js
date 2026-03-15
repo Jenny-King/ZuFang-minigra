@@ -62,6 +62,9 @@ const DATA_STATUS = {
 const STORAGE_KEY = {
   USER_INFO: "userInfo",
   ACCESS_TOKEN: "accessToken",
+  ACCOUNT_SESSIONS: "accountSessions",
+  ACTIVE_ACCOUNT_USER_ID: "activeAccountUserId",
+  SETTINGS_PREFERENCES: "settingsPreferences",
   LAST_ROLE: "lastRole",
   CURRENT_LOCATION: "currentLocation"
 };

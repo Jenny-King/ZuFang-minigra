@@ -1,0 +1,103 @@
+<view class="container support-page">
+  <view class="support-hero card">
+    <view class="support-title">客服中心</view>
+    <view class="support-subtitle">先用自助入口快速解决常见问题，再查看客服说明与后续支持方式。</view>
+    <view class="support-tags">
+      <view class="support-tag">常见问题</view>
+      <view class="support-tag">消息通知</view>
+      <view class="support-tag">设置中心</view>
+    </view>
+  </view>
+
+  <view class="section-title">快捷帮助</view>
+  <view class="quick-grid">
+    <view class="quick-card card" bindtap="onGoNotificationsTap">
+      <view class="quick-name">消息通知</view>
+      <view class="quick-desc">查看系统与业务提醒</view>
+    </view>
+
+    <view class="quick-card card" bindtap="onGoSettingsTap">
+      <view class="quick-name">设置中心</view>
+      <view class="quick-desc">账号、通知和隐私设置</view>
+    </view>
+
+    <view class="quick-card card" bindtap="onGoChatTap">
+      <view class="quick-name">消息会话</view>
+      <view class="quick-desc">继续与房东或租客沟通</view>
+    </view>
+
+    <button
+      class="quick-card card quick-card-button"
+      open-type="contact"
+      session-from="page=support-center"
+      bindcontact="onContactTap"
+    >
+      <view class="quick-name">在线人工客服</view>
+      <view class="quick-desc">通过微信原生客服会话联系人工支持</view>
+    </button>
+  </view>
+
+  <view class="section-title">常见问题</view>
+  <view class="faq-list">
+    <view
+      class="faq-card card {{expandedFaqId === item.id ? 'active' : ''}}"
+      wx:for="{{faqList}}"
+      wx:key="id"
+      data-faq-id="{{item.id}}"
+      bindtap="onFaqTap"
+    >
+      <view class="faq-head">
+        <view class="faq-question">{{item.question}}</view>
+        <view class="faq-arrow">{{expandedFaqId === item.id ? '−' : '+'}}</view>
+      </view>
+      <view class="faq-answer" wx:if="{{expandedFaqId === item.id}}">{{item.answer}}</view>
+    </view>
+  </view>
+
+  <view class="section-title">问题反馈</view>
+  <view class="card feedback-card">
+    <view class="feedback-title">告诉我们你遇到的问题</view>
+    <view class="feedback-subtitle">提交后我们会结合你留下的联系方式跟进处理。</view>
+
+    <view class="feedback-label">反馈类型</view>
+    <view class="feedback-tags">
+      <view
+        class="feedback-tag {{feedbackForm.category === item.value ? 'active' : ''}}"
+        wx:for="{{feedbackCategories}}"
+        wx:key="value"
+        data-category="{{item.value}}"
+        bindtap="onFeedbackCategoryTap"
+      >
+        {{item.label}}
+      </view>
+    </view>
+
+    <view class="feedback-label">问题描述</view>
+    <textarea
+      class="feedback-textarea"
+      maxlength="500"
+      placeholder="请尽量描述清楚问题出现的位置、操作步骤和结果"
+      value="{{feedbackForm.content}}"
+      bindinput="onFeedbackContentInput"
+    />
+
+    <view class="feedback-label">联系方式</view>
+    <input
+      class="feedback-input"
+      placeholder="可填写手机号、邮箱或微信号"
+      value="{{feedbackForm.contact}}"
+      bindinput="onFeedbackContactInput"
+    />
+
+    <button class="feedback-btn" loading="{{feedbackSubmitting}}" bindtap="onSubmitFeedbackTap">提交反馈</button>
+  </view>
+
+  <view class="section-title">页面建议</view>
+  <view class="card support-note">
+    <view class="support-note-title">在线人工客服接入说明</view>
+    <view class="support-note-line">1. 当前页面已放置微信原生客服按钮，用户点击后会尝试进入客服会话。</view>
+    <view class="support-note-line">2. 如果没有进入客服，请先在微信公众平台为小程序配置客服接待人员并开启客服能力。</view>
+    <view class="support-note-line">3. 常见问题、自助设置和消息入口仍然保留，减少纯人工咨询压力。</view>
+    <button class="support-note-btn" bindtap="onManualSupportTap">查看配置说明</button>
+  </view>
+</view>

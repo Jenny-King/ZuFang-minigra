@@ -33,6 +33,24 @@ async function changePassword(oldPassword, newPassword) {
   });
 }
 
+async function changePhone(phone, code) {
+  assertNonEmptyString(phone, "phone");
+  assertNonEmptyString(code, "code");
+
+  return callCloud("user", "changePhone", {
+    phone: phone.trim(),
+    code: code.trim()
+  });
+}
+
+async function bindEmail(email) {
+  assertNonEmptyString(email, "email");
+
+  return callCloud("user", "bindEmail", {
+    email: email.trim().toLowerCase()
+  });
+}
+
 async function switchRole(role) {
   assertNonEmptyString(role, "role");
 
@@ -60,6 +78,8 @@ module.exports = {
   getCurrentUser,
   updateProfile,
   changePassword,
+  changePhone,
+  bindEmail,
   switchRole,
   deleteAccount,
   uploadAvatar

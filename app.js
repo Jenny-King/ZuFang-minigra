@@ -31,14 +31,32 @@ App({
     }
 
     userStore.restoreFromStorage();
-    if (authUtils.isLoggedIn()) {
-      userStore.refreshCurrentUser().catch((error) => {
-        logger.warn("app_restore_session_failed", { error: error.message });
-        userStore.clearUser();
-      });
-    }
+    this.restoreCachedSessionChain();
     appStore.setInitialized(true);
     logger.info("app_launch_end", {});
+  },
+
+  async restoreCachedSessionChain() {
+    if (!authUtils.isLoggedIn()) {
+      return;
+    }
+
+    try {
+      await userStore.refreshCurrentUser();
+    } catch (error) {
+      logger.warn("app_restore_session_failed", { error: error.message });
+      const nextUser = userStore.clearUser();
+      if (!nextUser || !authUtils.isLoggedIn()) {
+        return;
+      }
+
+      try {
+        await userStore.refreshCurrentUser();
+      } catch (retryError) {
+        logger.warn("app_restore_session_retry_failed", { error: retryError.message });
+        userStore.clearUser();
+      }
+    }
   },
 
   async manualBootstrap() {

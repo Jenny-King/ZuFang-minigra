@@ -13,6 +13,86 @@
   margin-bottom: 24rpx;
 }
 
+.quick-accounts {
+  margin-bottom: 28rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(180deg, #f7faff 0%, #eef4ff 100%);
+}
+
+.quick-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.quick-subtitle {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #7a8393;
+}
+
+.quick-account-list {
+  margin-top: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.quick-account-item {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 20rpx;
+  border-radius: 18rpx;
+  background: #ffffff;
+  border: 2rpx solid transparent;
+}
+
+.quick-account-item.active {
+  border-color: #b8cdfd;
+  box-shadow: 0 12rpx 24rpx rgba(47, 100, 245, 0.08);
+}
+
+.quick-account-avatar {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 38rpx;
+  background: #eef2f8;
+  flex-shrink: 0;
+}
+
+.quick-account-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: 16rpx;
+}
+
+.quick-account-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.quick-account-phone {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #7a8393;
+}
+
+.quick-account-badge {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  color: #2f64f5;
+  background: #edf3ff;
+}
+
+.quick-account-arrow {
+  font-size: 22rpx;
+  color: #2f64f5;
+}
+
 .wechat-btn {
   height: 84rpx;
   line-height: 84rpx;

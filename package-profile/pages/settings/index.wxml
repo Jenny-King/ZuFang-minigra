@@ -1,0 +1,110 @@
+<view class="container settings-page">
+  <view class="settings-hero card" wx:if="{{userInfo}}">
+    <view class="settings-title">设置</view>
+    <view class="settings-subtitle">统一管理账号、通知和隐私偏好</view>
+    <view class="settings-summary">
+      <view class="summary-chip">{{userInfo.displayPhone}}</view>
+      <view class="summary-chip">{{userInfo.displayEmail}}</view>
+      <view class="summary-chip">{{userInfo.displayIdentityStatus}}</view>
+    </view>
+  </view>
+
+  <view class="section-title">账号设置</view>
+  <view class="card settings-card">
+    <view class="settings-item" bindtap="onChangePhoneTap">
+      <view class="settings-main">
+        <view class="settings-name">换绑手机号</view>
+        <view class="settings-desc">{{userInfo.displayPhone}}</view>
+      </view>
+      <view class="settings-arrow">></view>
+    </view>
+
+    <view class="settings-item" bindtap="onChangePasswordTap">
+      <view class="settings-main">
+        <view class="settings-name">修改登录密码</view>
+        <view class="settings-desc">更新账号登录密码</view>
+      </view>
+      <view class="settings-arrow">></view>
+    </view>
+
+    <view class="settings-item" bindtap="onWechatEntryTap">
+      <view class="settings-main">
+        <view class="settings-name">绑定微信</view>
+        <view class="settings-desc">{{userInfo.displayWechatStatus}}</view>
+      </view>
+      <view class="settings-arrow">></view>
+    </view>
+
+    <view class="settings-item" bindtap="onBindEmailTap">
+      <view class="settings-main">
+        <view class="settings-name">绑定邮箱</view>
+        <view class="settings-desc">{{userInfo.displayEmail}}</view>
+      </view>
+      <view class="settings-arrow">></view>
+    </view>
+
+    <view class="settings-item" bindtap="onGoVerifyTap">
+      <view class="settings-main">
+        <view class="settings-name">身份资料</view>
+        <view class="settings-desc">{{userInfo.displayIdentityStatus}}</view>
+      </view>
+      <view class="settings-arrow">></view>
+    </view>
+  </view>
+
+  <view class="section-title">通知设置</view>
+  <view class="card settings-card">
+    <view class="settings-item" bindtap="onNotificationSettingsTap">
+      <view class="settings-main">
+        <view class="settings-name">通知设置</view>
+        <view class="settings-desc">控制聊天提醒和系统通知</view>
+      </view>
+      <view class="settings-tag">本地生效</view>
+    </view>
+
+    <view class="toggle-item">
+      <view class="settings-main">
+        <view class="settings-name">聊天消息提醒</view>
+        <view class="settings-desc">接收新的聊天消息提示</view>
+      </view>
+      <switch color="#2f64f5" checked="{{preferences.notification.chatNotice}}" data-field="chatNotice" bindchange="onNotificationToggle" />
+    </view>
+
+    <view class="toggle-item">
+      <view class="settings-main">
+        <view class="settings-name">系统通知提醒</view>
+        <view class="settings-desc">接收审核、系统消息提示</view>
+      </view>
+      <switch color="#2f64f5" checked="{{preferences.notification.systemNotice}}" data-field="systemNotice" bindchange="onNotificationToggle" />
+    </view>
+  </view>
+
+  <view class="section-title">隐私设置</view>
+  <view class="card settings-card">
+    <view class="settings-item" bindtap="onPrivacySettingsTap">
+      <view class="settings-main">
+        <view class="settings-name">隐私设置</view>
+        <view class="settings-desc">控制资料展示和个性化推荐</view>
+      </view>
+      <view class="settings-tag">本地生效</view>
+    </view>
+
+    <view class="toggle-item">
+      <view class="settings-main">
+        <view class="settings-name">公开页隐藏手机号</view>
+        <view class="settings-desc">对外展示时优先使用脱敏手机号</view>
+      </view>
+      <switch color="#2f64f5" checked="{{preferences.privacy.maskPhone}}" data-field="maskPhone" bindchange="onPrivacyToggle" />
+    </view>
+
+    <view class="toggle-item">
+      <view class="settings-main">
+        <view class="settings-name">允许定位偏好推荐</view>
+        <view class="settings-desc">根据当前位置优化推荐房源</view>
+      </view>
+      <switch color="#2f64f5" checked="{{preferences.privacy.personalizedLocation}}" data-field="personalizedLocation" bindchange="onPrivacyToggle" />
+    </view>
+  </view>
+
+  <button class="danger-btn" bindtap="onDeleteAccountTap">注销账号</button>
+</view>

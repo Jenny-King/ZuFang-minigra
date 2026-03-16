@@ -1,3 +1,4 @@
+@import "./miniprogram_npm/@vant/weapp/common/index.wxss";
 @import "./styles/variables.wxss";
 @import "./styles/mixins.wxss";
 @import "./styles/common.wxss";

@@ -65,6 +65,19 @@
     </view>
   </view>
 
+  <view class="card vant-demo-card">
+    <view class="vant-demo-title">Vant 组件验证</view>
+    <view class="vant-demo-subtitle">下面这个按钮来自 Vant Weapp，用来确认 npm 组件已成功接入</view>
+    <van-button
+      type="primary"
+      block
+      round
+      bind:click="onVantDemoTap"
+    >
+      Vant 按钮验证
+    </van-button>
+  </view>
+
   <view class="section-card" wx:if="{{isLoggedIn && userInfo}}">
     <view class="menu-item" bindtap="onGoSupportCenter">
       <view class="menu-icon amber">

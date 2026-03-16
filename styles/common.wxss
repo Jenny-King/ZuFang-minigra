@@ -14,7 +14,7 @@ textarea {
 }
 
 .container {
-  padding: var(--space-md);
+  padding: var(--page-padding);
 }
 
 .section-title {

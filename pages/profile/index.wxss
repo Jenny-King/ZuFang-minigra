@@ -175,6 +175,25 @@
   border-radius: var(--radius-2xl);
 }
 
+.vant-demo-card {
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-2xl);
+}
+
+.vant-demo-title {
+  color: var(--color-text-1);
+  font-size: var(--font-title-sm);
+  font-weight: var(--weight-bold);
+}
+
+.vant-demo-subtitle {
+  margin: var(--space-2xs) 0 var(--space-md);
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+  line-height: var(--lh-normal);
+}
+
 .guest-title {
   color: var(--color-text-1);
   font-size: var(--font-xl);

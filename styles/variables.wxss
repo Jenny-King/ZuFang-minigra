@@ -71,8 +71,8 @@ page {
   --space-xl: 32rpx;
   --space-2xl: 40rpx;
   --space-3xl: 48rpx;
-  --page-padding: 24rpx;
-  --card-padding: 24rpx;
+  --page-padding: 32rpx;
+  --card-padding: 32rpx;
   --section-gap: 32rpx;
 
   /* Border radius */

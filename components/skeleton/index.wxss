@@ -1,0 +1,131 @@
+@import "../../styles/variables.wxss";
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+.skeleton-item {
+  width: 100%;
+}
+
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base-color) 0%,
+    var(--skeleton-highlight-color) 50%,
+    var(--skeleton-base-color) 100%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer calc(var(--duration-normal) * 4) var(--easing-standard) infinite;
+}
+
+.skeleton-card__image,
+.skeleton-detail__image {
+  width: 100%;
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-card__image {
+  height: 340rpx;
+}
+
+.skeleton-card__body,
+.skeleton-detail__body,
+.skeleton-profile__body,
+.skeleton-list__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.skeleton-card__body,
+.skeleton-detail__body {
+  margin-top: var(--space-lg);
+}
+
+.skeleton-list {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-lg);
+}
+
+.skeleton-list__thumb {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.skeleton-list__body {
+  flex: 1;
+  justify-content: center;
+}
+
+.skeleton-detail__image {
+  height: 440rpx;
+}
+
+.skeleton-detail__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.skeleton-tag {
+  width: 120rpx;
+  height: 40rpx;
+  border-radius: var(--radius-pill);
+}
+
+.skeleton-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.skeleton-profile__avatar {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.skeleton-profile__body {
+  flex: 1;
+}
+
+.skeleton-line {
+  height: 28rpx;
+  border-radius: var(--radius-pill);
+}
+
+.skeleton-line--long {
+  width: 100%;
+}
+
+.skeleton-line--mid {
+  width: 72%;
+}
+
+.skeleton-line--short {
+  width: 48%;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+  }
+}

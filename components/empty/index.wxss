@@ -1,0 +1,125 @@
+@import "../../styles/variables.wxss";
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-2xl) var(--page-padding);
+  text-align: center;
+}
+
+.empty__icon-wrap {
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.empty__icon-image,
+.empty__illustration {
+  width: 100%;
+  height: 100%;
+}
+
+.empty__illustration {
+  position: relative;
+}
+
+.empty__halo {
+  position: absolute;
+  left: 20rpx;
+  top: 24rpx;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-bg);
+}
+
+.empty__sheet {
+  position: absolute;
+  left: 34rpx;
+  top: 30rpx;
+  width: 92rpx;
+  height: 112rpx;
+  padding: var(--space-md) var(--space-sm);
+  border-radius: var(--radius-lg);
+  background: var(--color-background-card);
+  border: var(--line-width-thin) solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+.empty__sheet-line {
+  height: 14rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-background-muted);
+}
+
+.empty__sheet-line + .empty__sheet-line {
+  margin-top: var(--space-sm);
+}
+
+.empty__sheet-line--long {
+  width: 100%;
+}
+
+.empty__sheet-line--short {
+  width: 64%;
+}
+
+.empty__bubble {
+  position: absolute;
+  right: 18rpx;
+  bottom: 26rpx;
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: var(--color-background-selected);
+  border: var(--line-width-thin) solid var(--color-primary-bg);
+}
+
+.empty__bubble-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+}
+
+.empty__title {
+  margin-top: var(--space-lg);
+  color: var(--color-text-1);
+  font-size: var(--font-lg);
+  font-weight: var(--weight-medium);
+  line-height: var(--lh-tight);
+}
+
+.empty__subtitle {
+  margin-top: var(--space-sm);
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+  line-height: var(--lh-normal);
+}
+
+.empty__button {
+  margin: var(--space-xl) 0 0;
+  min-width: 220rpx;
+  height: var(--button-height);
+  line-height: var(--button-height);
+  padding: 0 var(--space-xl);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+}
+
+.empty__button--primary {
+  color: var(--color-text-inverse);
+  background: var(--color-primary);
+}
+
+.empty__button--ghost {
+  color: var(--color-primary);
+  background: var(--color-background-card);
+  border: var(--line-width-thin) solid var(--color-primary);
+}

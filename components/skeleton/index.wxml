@@ -1,0 +1,48 @@
+<view class="skeleton skeleton--{{normalizedType}}" aria-hidden="true">
+  <block wx:for="{{items}}" wx:key="index">
+    <view class="skeleton-item skeleton-item--{{normalizedType}}">
+      <block wx:if="{{isCard}}">
+        <view class="skeleton-block skeleton-card__image"></view>
+        <view class="skeleton-card__body">
+          <view class="skeleton-block skeleton-line skeleton-line--long"></view>
+          <view class="skeleton-block skeleton-line skeleton-line--short"></view>
+        </view>
+      </block>
+
+      <block wx:elif="{{isListItem}}">
+        <view class="skeleton-list">
+          <view class="skeleton-block skeleton-list__thumb"></view>
+          <view class="skeleton-list__body">
+            <view class="skeleton-block skeleton-line skeleton-line--long"></view>
+            <view class="skeleton-block skeleton-line skeleton-line--mid"></view>
+            <view class="skeleton-block skeleton-line skeleton-line--short"></view>
+          </view>
+        </view>
+      </block>
+
+      <block wx:elif="{{isDetail}}">
+        <view class="skeleton-block skeleton-detail__image"></view>
+        <view class="skeleton-detail__body">
+          <view class="skeleton-block skeleton-line skeleton-line--long"></view>
+          <view class="skeleton-block skeleton-line skeleton-line--mid"></view>
+          <view class="skeleton-block skeleton-line skeleton-line--short"></view>
+          <view class="skeleton-detail__tags">
+            <view class="skeleton-block skeleton-tag"></view>
+            <view class="skeleton-block skeleton-tag"></view>
+            <view class="skeleton-block skeleton-tag"></view>
+          </view>
+        </view>
+      </block>
+
+      <block wx:elif="{{isProfile}}">
+        <view class="skeleton-profile">
+          <view class="skeleton-block skeleton-profile__avatar"></view>
+          <view class="skeleton-profile__body">
+            <view class="skeleton-block skeleton-line skeleton-line--mid"></view>
+            <view class="skeleton-block skeleton-line skeleton-line--short"></view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+</view>

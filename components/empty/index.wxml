@@ -1,0 +1,32 @@
+<view class="empty">
+  <view class="empty__icon-wrap">
+    <image
+      wx:if="{{icon}}"
+      class="empty__icon-image"
+      src="{{icon}}"
+      mode="aspectFit"
+    />
+
+    <view wx:else class="empty__illustration">
+      <view class="empty__halo"></view>
+      <view class="empty__sheet">
+        <view class="empty__sheet-line empty__sheet-line--long"></view>
+        <view class="empty__sheet-line empty__sheet-line--short"></view>
+      </view>
+      <view class="empty__bubble">
+        <view class="empty__bubble-dot"></view>
+      </view>
+    </view>
+  </view>
+
+  <text class="empty__title">{{title}}</text>
+  <text wx:if="{{subtitle}}" class="empty__subtitle">{{subtitle}}</text>
+
+  <button
+    wx:if="{{btnText}}"
+    class="empty__button empty__button--{{normalizedBtnType}}"
+    bindtap="handleBtnTap"
+  >
+    {{btnText}}
+  </button>
+</view>

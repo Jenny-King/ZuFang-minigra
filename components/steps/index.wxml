@@ -1,0 +1,24 @@
+<view class="steps" wx:if="{{stepItems.length}}">
+  <view class="steps__track">
+    <block wx:for="{{stepItems}}" wx:key="index">
+      <view class="steps__track-item">
+        <view class="steps__node steps__node--{{item.status}}">
+          <text class="steps__node-text steps__node-text--{{item.status}}">
+            {{item.displayText}}
+          </text>
+        </view>
+
+        <view wx:if="{{!item.isLast}}" class="steps__line">
+          <view class="steps__line-base"></view>
+          <view class="steps__line-fill steps__line-fill--{{item.lineStatus}}"></view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="steps__labels">
+    <block wx:for="{{stepItems}}" wx:key="index">
+      <text class="steps__label steps__label--{{item.status}}">{{item.label}}</text>
+    </block>
+  </view>
+</view>

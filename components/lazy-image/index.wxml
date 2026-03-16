@@ -1,0 +1,19 @@
+<view class="lazy-image {{heightClass}} {{radiusClass}}">
+  <view wx:if="{{loading}}" class="lazy-image__skeleton"></view>
+
+  <image
+    wx:if="{{hasSource && !error}}"
+    class="lazy-image__img {{loaded ? 'lazy-image__img--loaded' : ''}}"
+    src="{{src}}"
+    mode="{{mode}}"
+    bindload="handleLoad"
+    binderror="handleError"
+  />
+
+  <view wx:if="{{error}}" class="lazy-image__placeholder">
+    <view class="lazy-image__placeholder-frame">
+      <view class="lazy-image__placeholder-mountain"></view>
+      <view class="lazy-image__placeholder-sun"></view>
+    </view>
+  </view>
+</view>

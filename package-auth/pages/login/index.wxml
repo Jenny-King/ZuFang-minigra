@@ -18,6 +18,7 @@
             src="{{item.avatarUrl}}"
             mode="aspectFill"
             radius="var(--radius-pill)"
+            width="76rpx"
             height="76rpx"
           />
           <view class="quick-account-main">

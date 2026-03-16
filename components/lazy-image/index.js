@@ -1,4 +1,8 @@
 const HEIGHT_CLASS_MAP = {
+  "76rpx": "lazy-image--height-76",
+  "80rpx": "lazy-image--height-80",
+  "92rpx": "lazy-image--height-92",
+  "108rpx": "lazy-image--height-108",
   "140rpx": "lazy-image--height-140",
   "148rpx": "lazy-image--height-148",
   "160rpx": "lazy-image--height-160",
@@ -52,6 +56,10 @@ Component({
       type: String,
       value: "var(--radius-md)"
     },
+    width: {
+      type: String,
+      value: ""
+    },
     height: {
       type: String,
       value: "340rpx"
@@ -59,7 +67,8 @@ Component({
   },
 
   data: {
-    heightClass: "lazy-image--height-340",
+    sizeStyle: "",
+    heightClass: "lazy-image--height-92",
     radiusClass: "lazy-image--radius-md",
     hasSource: false,
     loading: false,
@@ -75,7 +84,7 @@ Component({
   },
 
   observers: {
-    "height, radius": function observer() {
+    "height, radius, width": function observer() {
       this.syncShape();
     },
     src(newValue) {
@@ -85,7 +94,9 @@ Component({
 
   methods: {
     syncShape() {
+      const width = typeof this.data.width === "string" ? this.data.width.trim() : "";
       this.setData({
+        sizeStyle: width ? `width: ${width};` : "",
         heightClass: resolveHeightClass(this.data.height),
         radiusClass: resolveRadiusClass(this.data.radius)
       });

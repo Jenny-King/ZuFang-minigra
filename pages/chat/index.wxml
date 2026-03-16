@@ -26,6 +26,7 @@
         src="{{item.displayAvatar || '/assets/images/avatar-placeholder.png'}}"
         mode="aspectFill"
         radius="var(--radius-pill)"
+        width="92rpx"
         height="92rpx"
       />
       <view class="content">

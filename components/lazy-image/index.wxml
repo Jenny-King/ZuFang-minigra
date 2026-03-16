@@ -1,4 +1,4 @@
-<view class="lazy-image {{heightClass}} {{radiusClass}}">
+<view class="lazy-image {{heightClass}} {{radiusClass}}" style="{{sizeStyle}}">
   <view wx:if="{{loading}}" class="lazy-image__skeleton"></view>
 
   <image

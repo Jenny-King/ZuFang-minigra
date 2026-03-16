@@ -1,0 +1,42 @@
+[W 2026-03-16 16:36:27.116 LabApp] 'allow_origin' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2026-03-16 16:36:27.117 LabApp] 'port' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2026-03-16 16:36:27.117 LabApp] 'port_retries' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2026-03-16 16:36:27.117 LabApp] 'port_retries' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 2026-03-16 16:36:27.117 LabApp] 'port_retries' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[W 16:36:27.120 NotebookApp] Error loading server extension jupyterlab
+    Traceback (most recent call last):
+      File "C:\Users\Q12\AppData\Local\Programs\Python\Python313\Lib\site-packages\notebook\notebookapp.py", line 2050, in init_server_extensions
+        func(self)
+        ~~~~^^^^^^
+      File "C:\Users\Q12\AppData\Local\Programs\Python\Python313\Lib\site-packages\jupyterlab\serverextension.py", line 71, in load_jupyter_server_extension
+        extension.initialize()
+        ~~~~~~~~~~~~~~~~~~~~^^
+      File "C:\Users\Q12\AppData\Local\Programs\Python\Python313\Lib\site-packages\jupyterlab\labapp.py", line 926, in initialize
+        super().initialize()
+        ~~~~~~~~~~~~~~~~~~^^
+      File "C:\Users\Q12\AppData\Local\Programs\Python\Python313\Lib\site-packages\jupyter_server\extension\application.py", line 437, in initialize
+        self._prepare_handlers()
+        ~~~~~~~~~~~~~~~~~~~~~~^^
+      File "C:\Users\Q12\AppData\Local\Programs\Python\Python313\Lib\site-packages\jupyter_server\extension\application.py", line 327, in _prepare_handlers
+        self.initialize_handlers()
+        ~~~~~~~~~~~~~~~~~~~~~~~~^^
+      File "C:\Users\Q12\AppData\Local\Programs\Python\Python313\Lib\site-packages\jupyterlab\labapp.py", line 738, in initialize_handlers
+        page_config["token"] = self.serverapp.identity_provider.token
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    AttributeError: 'NotebookApp' object has no attribute 'identity_provider'
+[I 16:36:27.125 NotebookApp] The port 8888 is already in use.
+[C 16:36:27.125 NotebookApp] ERROR: the notebook server could not be started because port 8888 is not available.
+
+  _   _          _      _
+ | | | |_ __  __| |__ _| |_ ___
+ | |_| | '_ \/ _` / _` |  _/ -_)
+  \___/| .__/\__,_\__,_|\__\___|
+       |_|
+                       
+Read the migration plan to Notebook 7 to learn about the new features and the actions to take if you are using extensions.
+
+https://jupyter-notebook.readthedocs.io/en/latest/migrate_to_notebook7.html
+
+Please note that updating to Notebook 7 might break some of your extensions.
+
+jupyter_http_over_ws extension initialized. Listening on /http_over_websocket

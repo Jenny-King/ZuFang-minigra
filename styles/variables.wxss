@@ -1,24 +1,135 @@
-:root,
 page {
-  --color-primary: #1677ff;
-  --color-success: #52c41a;
-  --color-warning: #ff4d4f;
-  --color-bg: #f7f8fa;
-  --color-card: #ffffff;
-  --color-text-main: #1f1f1f;
-  --color-text-secondary: #666666;
-  --color-border: #e8e8e8;
+  /* Color - Brand */
+  --color-primary: #2563eb;
+  --color-primary-bg: #eff6ff;
+  --color-primary-dark: #1d4ed8;
+  --color-link: var(--color-primary);
 
-  --radius-card: 8rpx;
-  --radius-control: 4rpx;
+  /* Color - Semantic */
+  --color-danger: #ef4444;
+  --color-danger-bg: #fff1f0;
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-warning: #d97706;
+  --color-warning-bg: #fffbeb;
+  --color-info: #1677ff;
+  --color-info-bg: #eaf3ff;
 
-  --font-title: 32rpx;
-  --font-body: 28rpx;
-  --font-meta: 24rpx;
+  /* Color - Neutral */
+  --color-text-1: #1f1f1f;
+  --color-text-2: #4b5563;
+  --color-text-3: #9ca3af;
+  --color-text-inverse: #ffffff;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-background-page: #f5f5f7;
+  --color-background-card: #ffffff;
+  --color-background-subtle: #f3f4f6;
+  --color-background-muted: #eef2f7;
+  --color-background-selected: #edf3ff;
 
-  --space-xs: 8rpx;
+  /* Color - Accent */
+  --color-accent-green: #15803d;
+  --color-accent-green-bg: #dcfce7;
+  --color-accent-purple: #7c3aed;
+  --color-accent-purple-bg: #f5f3ff;
+  --color-accent-amber: #f59e0b;
+  --color-accent-amber-bg: #fef3c7;
+  --color-accent-rose: #ef4444;
+  --color-accent-rose-bg: #fdf2f8;
+  --color-accent-teal: #0f8d77;
+  --color-accent-teal-bg: #eff8f6;
+
+  /* Typography */
+  --font-2xl: 40rpx;
+  --font-xl: 36rpx;
+  --font-lg: 32rpx;
+  --font-title-sm: 30rpx;
+  --font-label: 26rpx;
+  --font-md: 28rpx;
+  --font-sm: 24rpx;
+  --font-caption: 22rpx;
+  --font-xs: 20rpx;
+  --font-xxs: 18rpx;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 600;
+  --weight-heavy: 700;
+  --lh-tight: 1.3;
+  --lh-snug: 1.45;
+  --lh-normal: 1.6;
+  --lh-relaxed: 1.7;
+  --lh-loose: 1.8;
+
+  /* Spacing */
+  --space-3xs: 6rpx;
+  --space-2xs: 8rpx;
+  --space-xs: 12rpx;
   --space-sm: 16rpx;
-  --space-md: 24rpx;
-  --space-lg: 32rpx;
-  --space-xl: 40rpx;
+  --space-md: 20rpx;
+  --space-lg: 24rpx;
+  --space-xl: 32rpx;
+  --space-2xl: 40rpx;
+  --space-3xl: 48rpx;
+  --page-padding: 24rpx;
+  --card-padding: 24rpx;
+  --section-gap: 32rpx;
+
+  /* Border radius */
+  --radius-xs: 4rpx;
+  --radius-sm: 8rpx;
+  --radius-md: 12rpx;
+  --radius-lg: 20rpx;
+  --radius-xl: 24rpx;
+  --radius-2xl: 28rpx;
+  --radius-panel: 36rpx;
+  --radius-pill: 999rpx;
+
+  /* Motion */
+  --duration-fast: 0.2s;
+  --duration-normal: 0.28s;
+  --easing-standard: ease;
+
+  /* Effects */
+  --line-width-hairline: 1rpx;
+  --line-width-thin: 2rpx;
+  --opacity-disabled: 0.4;
+  --shadow-card: 0 12rpx 24rpx rgba(15, 23, 42, 0.06);
+  --shadow-float: 0 16rpx 36rpx rgba(15, 41, 114, 0.12);
+  --shadow-focus: 0 0 0 4rpx rgba(37, 99, 235, 0.22);
+  --gradient-brand: linear-gradient(180deg, #2f64f5 0%, #1f4fd7 100%);
+  --gradient-panel: linear-gradient(180deg, #fbfcff 0%, #f4f7ff 100%);
+  --gradient-card-active: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
+
+  /* Component-specific tokens */
+  --skeleton-base-color: #eef2f7;
+  --skeleton-highlight-color: #f7f8fb;
+  --toast-bg: rgba(17, 24, 39, 0.82);
+  --toast-text: #ffffff;
+  --overlay-bg: rgba(11, 19, 43, 0.4);
+  --bottom-bar-height: 112rpx;
+  --control-height-sm: 56rpx;
+  --control-height-md: 76rpx;
+  --control-height-lg: 84rpx;
+  --action-bar-button-height: 80rpx;
+  --input-height: 76rpx;
+  --button-height: 84rpx;
+  --fab-size: 88rpx;
+  --avatar-size-md: 80rpx;
+  --avatar-size-lg: 92rpx;
+  --image-thumb-size: 148rpx;
+  --image-upload-size: 200rpx;
+
+  /* Legacy aliases */
+  --color-primary-background: var(--color-primary-bg);
+  --color-bg: var(--color-background-page);
+  --color-card: var(--color-background-card);
+  --color-text-main: var(--color-text-1);
+  --color-text-secondary: var(--color-text-2);
+  --color-text-muted: var(--color-text-3);
+  --font-title: var(--font-lg);
+  --font-body: var(--font-md);
+  --font-meta: var(--font-sm);
+  --radius-card: var(--radius-sm);
+  --radius-control: var(--radius-xs);
 }

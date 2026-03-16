@@ -16,13 +16,13 @@
           <input
             class="search-input"
             placeholder="搜索小区、地铁、房源关键词"
+            placeholder-class="search-input-placeholder"
             value="{{keywordDraft}}"
             bindinput="onKeywordInput"
             confirm-type="search"
             bindconfirm="onSearchTap"
           />
         </view>
-        <button class="search-submit-btn" bindtap="onSearchTap">搜索</button>
       </view>
     </view>
 
@@ -38,14 +38,14 @@
         class="filter-chip {{selectedTypeIndex > 0 ? 'filter-chip-active' : ''}}"
         bindtap="onOpenTypeFilter"
       >
-        户型
+        {{selectedTypeIndex > 0 ? ('户型 · ' + typeOptions[selectedTypeIndex].label) : '户型'}}
         <text class="filter-chip-arrow">▾</text>
       </view>
       <view
         class="filter-chip {{selectedPriceIndex > 0 ? 'filter-chip-active' : ''}}"
         bindtap="onOpenPriceFilter"
       >
-        租金
+        {{selectedPriceIndex > 0 ? ('租金 · ' + priceOptions[selectedPriceIndex].label) : '租金'}}
         <text class="filter-chip-arrow">▾</text>
       </view>
       <view class="filter-chip" bindtap="onOpenMoreFilter">
@@ -79,7 +79,7 @@
         <view class="content-section">
           <view class="section-heading">
             <text class="section-heading-title">精选推荐</text>
-            <text class="section-heading-link">为你精选</text>
+            <text class="section-heading-link">今日精选</text>
           </view>
           <skeleton type="card" count="{{2}}" />
         </view>
@@ -114,7 +114,7 @@
                   class="featured-thumb"
                   src="{{item.displayImage}}"
                   mode="aspectFill"
-                  radius="var(--radius-md)"
+                  radius="var(--radius-lg)"
                   height="340rpx"
                 />
                 <view class="featured-badge featured-badge-{{item.featuredBadgeType}}">
@@ -142,7 +142,7 @@
         <view class="latest-section">
           <view class="section-heading latest-heading">
             <text class="section-heading-title">最新发布</text>
-            <text class="section-heading-count">共 {{total}} 套</text>
+            <text class="section-heading-count">共 {{total}} 套在租房源</text>
           </view>
 
           <view class="sort-row">
@@ -179,7 +179,7 @@
                   class="latest-card-thumb"
                   src="{{item.displayImage}}"
                   mode="aspectFill"
-                  radius="var(--radius-md)"
+                  radius="var(--radius-lg)"
                   height="148rpx"
                 />
               </view>

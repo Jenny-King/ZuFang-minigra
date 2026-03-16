@@ -39,6 +39,7 @@ page {
   --color-accent-rose-bg: #fdf2f8;
   --color-accent-teal: #0f8d77;
   --color-accent-teal-bg: #eff8f6;
+  --color-price-highlight: #ff5a5f;
 
   /* Typography */
   --font-2xl: 40rpx;
@@ -95,6 +96,7 @@ page {
   --line-width-thin: 2rpx;
   --opacity-disabled: 0.4;
   --shadow-card: 0 12rpx 24rpx rgba(15, 23, 42, 0.06);
+  --shadow-card-soft: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
   --shadow-float: 0 16rpx 36rpx rgba(15, 41, 114, 0.12);
   --shadow-focus: 0 0 0 4rpx rgba(37, 99, 235, 0.22);
   --gradient-brand: linear-gradient(180deg, #2f64f5 0%, #1f4fd7 100%);

@@ -252,6 +252,9 @@ Page({
   async onLoad(options) {
     logger.info("page_load", { page: "home", query: options || {} });
     this.initTopBarMetrics();
+    wx.nextTick(() => {
+      this.measureTopBarHeight();
+    });
     this.restoreCachedLocation();
     await this.initPage();
     this.measureTopBarHeight();
@@ -861,8 +864,8 @@ Page({
 
     this.setData({
       statusBarHeight,
-      topBarStyle: `padding-top:${statusBarHeight}px;`,
-      scrollAreaStyle: `padding-top:${statusBarHeight}px;`
+      topBarStyle: "",
+      scrollAreaStyle: ""
     });
   },
 

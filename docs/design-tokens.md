@@ -54,6 +54,7 @@
 | `--color-accent-rose-bg` | `#fdf2f8` | 红粉装饰卡、功能块浅底和弱提示底使用该色。 |
 | `--color-accent-teal` | `#0f8d77` | 客服、帮助中心和稳重信息型强调使用该色。 |
 | `--color-accent-teal-bg` | `#eff8f6` | 帮助中心卡片底和青绿色弱背景使用该色。 |
+| `--color-price-highlight` | `#ff5a5f` | 首页和列表中的租金数字高亮使用该色。 |
 
 ### Typography
 
@@ -125,6 +126,7 @@
 | `--line-width-thin` | `2rpx` | 输入边框、标签描边和卡片边框使用。 |
 | `--opacity-disabled` | `0.4` | 所有禁用态统一使用该透明度。 |
 | `--shadow-card` | `0 12rpx 24rpx rgba(15, 23, 42, 0.06)` | 默认浮起卡片和弱悬浮块使用该阴影。 |
+| `--shadow-card-soft` | `0 4rpx 16rpx rgba(0, 0, 0, 0.06)` | 首页推荐卡、列表卡和轻量内容块使用该阴影。 |
 | `--shadow-float` | `0 16rpx 36rpx rgba(15, 41, 114, 0.12)` | 底部面板、浮层和更强悬浮态使用该阴影。 |
 | `--shadow-focus` | `0 0 0 4rpx rgba(37, 99, 235, 0.22)` | 主色聚焦环和选中外描边阴影使用该效果。 |
 | `--gradient-brand` | `linear-gradient(180deg, #2f64f5 0%, #1f4fd7 100%)` | 首页或我的页品牌头图和重型品牌区背景使用。 |
@@ -215,6 +217,7 @@
 | `--color-accent-rose-bg` | `#fdf2f8` | 红粉色装饰浅底。 |
 | `--color-accent-teal` | `#0f8d77` | 青绿色装饰强调。 |
 | `--color-accent-teal-bg` | `#eff8f6` | 青绿色装饰浅底。 |
+| `--color-price-highlight` | `#ff5a5f` | 房源租金高亮色。 |
 | `--skeleton-base-color` | `#eef2f7` | 骨架底色。 |
 | `--skeleton-highlight-color` | `#f7f8fb` | 骨架高光色。 |
 | `--toast-text` | `#ffffff` | toast 文字色。 |

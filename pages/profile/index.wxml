@@ -7,20 +7,17 @@
     <view class="hero-top">
       <view class="hero-main">
         <view class="hero-avatar-wrap" bindtap="onAvatarTap">
-          <lazy-image
-            class="hero-avatar"
+          <image
+            class="hero-avatar-image"
             src="{{userInfo.avatarUrl || '/assets/images/avatar-placeholder.png'}}"
             mode="aspectFill"
-            radius="var(--radius-pill)"
-            width="108rpx"
-            height="108rpx"
           />
-          <view class="avatar-mask">{{avatarUploading ? '上传中' : '更换头像'}}</view>
         </view>
 
         <view class="hero-content">
           <view class="hero-name">{{userInfo.displayName}}</view>
           <view class="hero-subline">{{userInfo.displayPhone}}</view>
+          <view class="hero-avatar-tip">{{avatarUploading ? '头像上传中' : '点按头像可更换'}}</view>
         </view>
       </view>
     </view>
@@ -63,19 +60,6 @@
       <button size="mini" class="auth-btn primary" bindtap="onGoLogin">登录</button>
       <button size="mini" class="auth-btn" bindtap="onGoRegister">注册</button>
     </view>
-  </view>
-
-  <view class="card vant-demo-card">
-    <view class="vant-demo-title">Vant 组件验证</view>
-    <view class="vant-demo-subtitle">下面这个按钮来自 Vant Weapp，用来确认 npm 组件已成功接入</view>
-    <van-button
-      type="primary"
-      block
-      round
-      bind:click="onVantDemoTap"
-    >
-      Vant 按钮验证
-    </van-button>
   </view>
 
   <view class="section-card" wx:if="{{isLoggedIn && userInfo}}">

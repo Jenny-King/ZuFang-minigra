@@ -278,11 +278,6 @@ Page({
     logger.info("profile_go_register_end", {});
   },
 
-  async onVantDemoTap() {
-    logger.info("profile_vant_demo_tap", {});
-    await toast.success("Vant Weapp 已成功接入");
-  },
-
   noop() {},
 
   async onEditNicknameTap() {

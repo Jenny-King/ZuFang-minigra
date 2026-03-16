@@ -7,7 +7,7 @@
 | Skeleton | `components/skeleton/` | `type`, `count` | 无 |
 | Empty | `components/empty/` | `icon`, `title`, `subtitle`, `btn-text`, `btn-type` | `btntap` |
 | Steps | `components/steps/` | `steps`, `current` | 无 |
-| Lazy Image | `components/lazy-image/` | `src`, `mode`, `radius`, `height` | `load`, `error` |
+| Lazy Image | `components/lazy-image/` | `src`, `mode`, `radius`, `width`, `height` | `load`, `error` |
 | Toast Utility | `utils/toast.js` | `success(msg)`, `error(msg)`, `info(msg)`, `loading(msg)` | 无 |
 
 ## Skeleton
@@ -119,6 +119,14 @@
   bindload="handleImageLoad"
   binderror="handleImageError"
 />
+
+<lazy-image
+  src="{{user.avatarUrl}}"
+  mode="aspectFill"
+  radius="var(--radius-pill)"
+  width="92rpx"
+  height="92rpx"
+/>
 ```
 
 ### Props
@@ -128,6 +136,7 @@
 | `src` | `String` | `""` | 图片地址；为空时直接显示错误占位。 |
 | `mode` | `String` | `"aspectFill"` | 原生 `<image>` 的展示模式。 |
 | `radius` | `String` | `"var(--radius-md)"` | 圆角值，会映射到组件内置半径类。 |
+| `width` | `String` | `""` | 可选固定宽度；常用于头像等需要精确宽高比的场景。 |
 | `height` | `String` | `"340rpx"` | 高度值，会映射到组件内置高度类。 |
 
 ### Supported radius values
@@ -155,6 +164,10 @@
 
 | Value |
 |---|
+| `76rpx` |
+| `80rpx` |
+| `92rpx` |
+| `108rpx` |
 | `140rpx` |
 | `148rpx` |
 | `160rpx` |

@@ -5,7 +5,6 @@
   "backgroundTextStyle": "dark",
   "usingComponents": {
     "lazy-image": "/components/lazy-image/index",
-    "skeleton": "/components/skeleton/index",
-    "van-button": "@vant/weapp/button/index"
+    "skeleton": "/components/skeleton/index"
   }
 }

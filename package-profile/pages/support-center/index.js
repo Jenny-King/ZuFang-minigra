@@ -2,7 +2,6 @@ const authUtils = require("../../../utils/auth");
 const supportService = require("../../../services/support.service");
 const userStore = require("../../../store/user.store");
 const { ROUTES, navigateTo } = require("../../../config/routes");
-const { fallbackText } = require("../../../utils/format");
 const { logger } = require("../../../utils/logger");
 
 const FAQ_LIST = [
@@ -191,7 +190,7 @@ Page({
       content: "当前页面已接入微信原生客服会话按钮。若点击后未进入人工客服，请先在微信公众平台为小程序配置客服接待人员，并开启客服能力。",
       showCancel: false,
       confirmText: "我知道了",
-      confirmColor: "#2f64f5"
+      confirmColor: "#3c7bfd"
     });
   }
 });

@@ -838,7 +838,9 @@ Page({
         const modalRes = await wx.showModal({
           title: "开启定位权限",
           content: "开启后可自动定位当前城市，是否前往设置？",
-          confirmText: "去设置"
+          confirmText: "去设置",
+          confirmColor: "#3c7bfd",
+          cancelColor: "#999999"
         });
 
         if (modalRes.confirm) {

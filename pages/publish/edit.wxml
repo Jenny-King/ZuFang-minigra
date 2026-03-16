@@ -100,23 +100,25 @@
         <view class="section-title">Step 2 / 位置描述</view>
 
         <view class="form-row">
-          <text class="label">地址信息</text>
+          <view class="label-row label-row--action">
+            <text class="label">地址信息</text>
+            <button class="location-btn" size="mini" bindtap="onChooseLocation">地图回填</button>
+          </view>
           <view class="location-panel">
-            <button class="location-btn" size="mini" bindtap="onChooseLocation">地图定位并回填</button>
+            <input class="input location-address" data-field="address" value="{{formData.address}}" placeholder="请输入详细地址" bindinput="onInputChange" />
+            <view class="helper-text">可先地图定位自动带出城市、区域和地址，也可手动补充详细地址</view>
+            <view wx:if="{{formData.city || formData.region}}" class="helper-text">
+              已识别位置：{{formData.city || '未知城市'}}{{formData.region ? ' · ' + formData.region : ''}}
+            </view>
+            <map
+              wx:if="{{formData.latitude}}"
+              class="location-map"
+              latitude="{{formData.latitude}}"
+              longitude="{{formData.longitude}}"
+              scale="15"
+            />
+            <view class="helper-text">{{formData.address || '未选择位置'}}</view>
           </view>
-          <input class="input location-address" data-field="address" value="{{formData.address}}" placeholder="请输入详细地址" bindinput="onInputChange" />
-          <view class="helper-text">可先地图定位自动带出城市、区域和地址，也可手动补充详细地址</view>
-          <view wx:if="{{formData.city || formData.region}}" class="helper-text">
-            已识别位置：{{formData.city || '未知城市'}}{{formData.region ? ' · ' + formData.region : ''}}
-          </view>
-          <map
-            wx:if="{{formData.latitude}}"
-            class="location-map"
-            latitude="{{formData.latitude}}"
-            longitude="{{formData.longitude}}"
-            scale="15"
-          />
-          <view class="helper-text">{{formData.address || '未选择位置'}}</view>
         </view>
 
         <view class="form-row">

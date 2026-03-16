@@ -296,7 +296,8 @@ Page({
         placeholderText: "请输入新的昵称",
         content: currentName,
         confirmText: "保存",
-        confirmColor: "#2f64f5"
+        confirmColor: "#3c7bfd",
+        cancelColor: "#999999"
       });
 
       if (!modalRes.confirm) {
@@ -452,7 +453,8 @@ Page({
     const modalRes = await wx.showModal({
       title: "确认注销账号",
       content: "注销后将停用当前账号和登录状态，该操作不可恢复，是否继续？",
-      confirmColor: "#ff4d4f"
+      confirmColor: "#ff4d4f",
+      cancelColor: "#999999"
     });
 
     if (!modalRes.confirm) {
@@ -674,7 +676,8 @@ Page({
     const modalRes = await wx.showModal({
       title: "删除登记记录",
       content: `将从本机移除“${targetAccount.displayName}”的快捷切换记录，云端账号本身不会被注销，是否继续？`,
-      confirmColor: "#ff4d4f"
+      confirmColor: "#ff4d4f",
+      cancelColor: "#999999"
     });
 
     if (!modalRes.confirm) {

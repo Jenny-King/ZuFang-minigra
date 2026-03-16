@@ -7,14 +7,6 @@ const { ROUTES, navigateTo } = require("../../config/routes");
 const { formatPrice, formatDate, fallbackText } = require("../../utils/format");
 const { logger } = require("../../utils/logger");
 
-const FILTER_TABS = [
-  { key: "all", label: "全部" },
-  { key: "active", label: "在租中" },
-  { key: "pending", label: "审核中" },
-  { key: "hidden", label: "已下架" },
-  { key: "priceDesc", label: "价格↓" }
-];
-
 function getStatusMeta(status) {
   if (status === "hidden") {
     return {
@@ -53,18 +45,17 @@ function buildStats(list = []) {
   };
 }
 
-function getVisibleList(list = [], activeFilter = "all") {
+function getVisibleList(list = [], activeFilter = "all", sortOrder = "default") {
   const normalizedList = Array.isArray(list) ? list.slice() : [];
+  const filteredList = activeFilter === "all"
+    ? normalizedList
+    : normalizedList.filter((item) => item.statusKey === activeFilter);
 
-  if (activeFilter === "priceDesc") {
-    return normalizedList.sort((left, right) => Number(right.price || 0) - Number(left.price || 0));
+  if (sortOrder === "priceDesc") {
+    return filteredList.sort((left, right) => Number(right.price || 0) - Number(left.price || 0));
   }
 
-  if (activeFilter === "all") {
-    return normalizedList;
-  }
-
-  return normalizedList.filter((item) => item.statusKey === activeFilter);
+  return filteredList;
 }
 
 Page({
@@ -77,8 +68,8 @@ Page({
     list: [],
     visibleList: [],
     pageSize: 50,
-    filterTabs: FILTER_TABS,
     activeFilter: "all",
+    sortOrder: "default",
     stats: buildStats(),
     hintVisible: true,
     openActionHouseId: "",
@@ -151,8 +142,8 @@ Page({
         displayStatus: statusMeta.text,
         statusBadgeClass: statusMeta.badgeClass,
         displayTitle: fallbackText(item.title, "未命名房源"),
-        displayPrice: formatPrice(Number(item.price) || 0),
-        displayCreateTime: item.createTime ? formatDate(item.createTime) : "",
+        displayPrice: formatPrice(Number(item.price) || 0, "元"),
+        displayCreateTime: item.createTime ? formatDate(item.createTime).slice(0, 10) : "",
         displayLayout: fallbackText(item.layoutText || item.type, "户型待完善"),
         displayArea: Number(item.area) > 0 ? `${Number(item.area)}㎡` : "面积待完善",
         displayFloor: fallbackText(item.floor, "楼层待完善"),
@@ -165,9 +156,13 @@ Page({
     return normalized;
   },
 
-  applyDerivedState(list = this.data.list, activeFilter = this.data.activeFilter) {
+  applyDerivedState(
+    list = this.data.list,
+    activeFilter = this.data.activeFilter,
+    sortOrder = this.data.sortOrder
+  ) {
     const stats = buildStats(list);
-    const visibleList = getVisibleList(list, activeFilter);
+    const visibleList = getVisibleList(list, activeFilter, sortOrder);
     const hasRawList = Array.isArray(list) && list.length > 0;
 
     this.setData({
@@ -175,6 +170,7 @@ Page({
       visibleList,
       stats,
       activeFilter,
+      sortOrder,
       empty: !hasRawList,
       openActionHouseId: visibleList.some((item) => item.houseId === this.data.openActionHouseId)
         ? this.data.openActionHouseId
@@ -289,11 +285,18 @@ Page({
     this.setData({ hintVisible: false });
   },
 
-  onFilterTap(event) {
+  onStatCardTap(event) {
     const filterKey = String(event.currentTarget.dataset.filter || "").trim() || "all";
-    logger.info("publish_tab_filter_start", { filterKey });
-    this.applyDerivedState(this.data.list, filterKey);
-    logger.info("publish_tab_filter_end", { filterKey });
+    logger.info("publish_tab_stat_filter_start", { filterKey });
+    this.applyDerivedState(this.data.list, filterKey, this.data.sortOrder);
+    logger.info("publish_tab_stat_filter_end", { filterKey });
+  },
+
+  onToggleSortTap() {
+    const nextSortOrder = this.data.sortOrder === "priceDesc" ? "default" : "priceDesc";
+    logger.info("publish_tab_sort_start", { sortOrder: nextSortOrder });
+    this.applyDerivedState(this.data.list, this.data.activeFilter, nextSortOrder);
+    logger.info("publish_tab_sort_end", { sortOrder: nextSortOrder });
   },
 
   onGoPublish() {

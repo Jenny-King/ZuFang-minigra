@@ -18,12 +18,34 @@ const FACILITY_LABEL_MAP = {
   refrigerator: "冰箱",
   waterHeater: "热水器",
   bed: "床",
+  sofa: "沙发",
+  tv: "电视",
   wardrobe: "衣柜",
   balcony: "阳台",
   security: "门禁",
   gym: "健身房",
-  swimmingPool: "游泳池"
+  swimmingPool: "游泳池",
+  hotWater: "热水器"
 };
+
+function formatFloorValue(floor) {
+  const displayFloor = fallbackText(floor, "--");
+  if (displayFloor === "--") {
+    return displayFloor;
+  }
+  return /层$/.test(displayFloor) ? displayFloor : `${displayFloor}层`;
+}
+
+function formatNearbyDistance(distance) {
+  const numericDistance = Number(distance);
+  if (!Number.isFinite(numericDistance) || numericDistance < 0) {
+    return "--";
+  }
+  if (numericDistance >= 1000) {
+    return `${(numericDistance / 1000).toFixed(1)}km`;
+  }
+  return `${Math.round(numericDistance)}m`;
+}
 
 Page({
   data: {
@@ -82,7 +104,7 @@ Page({
       displayType: fallbackText(detail.layoutText || detail.type, "未知户型"),
       displayAddress: fallbackText(detail.address, "地址待完善"),
       displayArea: detail.area ? `${detail.area}㎡` : "--",
-      displayFloor: fallbackText(detail.floor, "--"),
+      displayFloor: formatFloorValue(detail.floor),
       displayDescription: fallbackText(detail.description, "暂无描述"),
       displayCreateTime: detail.createTime ? formatDate(detail.createTime) : "",
       displayImages: Array.isArray(detail.images) && detail.images.length
@@ -155,7 +177,12 @@ Page({
     try {
       const nearbyList = await mapService.searchNearby(latitude, longitude);
       this.setData({
-        nearbyList: Array.isArray(nearbyList) ? nearbyList : [],
+        nearbyList: Array.isArray(nearbyList)
+          ? nearbyList.map((item) => ({
+            ...item,
+            displayDistance: formatNearbyDistance(item.distance)
+          }))
+          : [],
         mapMarkers
       });
     } catch (error) {

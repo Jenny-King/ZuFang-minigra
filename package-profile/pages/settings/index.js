@@ -133,7 +133,8 @@ Page({
         placeholderText: "请输入新的手机号",
         content: "",
         confirmText: "发送验证码",
-        confirmColor: "#2f64f5"
+        confirmColor: "#3c7bfd",
+        cancelColor: "#999999"
       });
 
       if (!phoneRes.confirm) {
@@ -156,7 +157,8 @@ Page({
         placeholderText: "请输入收到的验证码",
         content: "",
         confirmText: "确认换绑",
-        confirmColor: "#2f64f5"
+        confirmColor: "#3c7bfd",
+        cancelColor: "#999999"
       });
 
       if (!codeRes.confirm) {
@@ -192,7 +194,8 @@ Page({
         placeholderText: "请输入当前密码",
         content: "",
         confirmText: "下一步",
-        confirmColor: "#2f64f5"
+        confirmColor: "#3c7bfd",
+        cancelColor: "#999999"
       });
 
       if (!oldPasswordRes.confirm) {
@@ -213,7 +216,8 @@ Page({
         placeholderText: "请输入新密码",
         content: "",
         confirmText: "保存",
-        confirmColor: "#2f64f5"
+        confirmColor: "#3c7bfd",
+        cancelColor: "#999999"
       });
 
       if (!newPasswordRes.confirm) {
@@ -270,7 +274,8 @@ Page({
         placeholderText: "请输入邮箱地址",
         content: String(this.data.userInfo?.email || ""),
         confirmText: "保存",
-        confirmColor: "#2f64f5"
+        confirmColor: "#3c7bfd",
+        cancelColor: "#999999"
       });
 
       if (!emailRes.confirm) {
@@ -314,7 +319,8 @@ Page({
     const modalRes = await wx.showModal({
       title: "确认注销账号",
       content: "注销后将停用当前账号和登录状态，该操作不可恢复，是否继续？",
-      confirmColor: "#ff4d4f"
+      confirmColor: "#ff4d4f",
+      cancelColor: "#999999"
     });
 
     if (!modalRes.confirm) {

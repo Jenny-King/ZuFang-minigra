@@ -13,9 +13,9 @@ const MIN_RENT_PERIOD_OPTIONS = [1, 3, 6, 12];
 const ORIENTATION_OPTIONS = ["东", "南", "西", "北", "东南", "东北", "西南", "西北"];
 const FALLBACK_REGION_OPTIONS = [{ label: "全部区域", value: "" }];
 const STEP_LIST = [
-  { key: "base", label: "基本信息" },
-  { key: "location", label: "上传图片" },
-  { key: "contact", label: "价格设置" }
+  { key: "base", label: "基础信息" },
+  { key: "location", label: "位置描述" },
+  { key: "contact", label: "联系与提交" }
 ];
 const ROOM_OPTIONS = [
   { label: "请选择室", value: 0 },

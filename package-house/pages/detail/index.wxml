@@ -8,7 +8,7 @@
     <button class="error-box__retry" bindtap="loadPageData">重试</button>
   </view>
 
-  <view wx:if="{{houseDetail}}" class="card detail-card">
+  <view wx:if="{{houseDetail}}" class="detail-card">
     <view class="gallery-wrap">
       <swiper class="image-swiper" circular indicator-dots bindchange="onSwiperChange">
         <swiper-item wx:for="{{houseDetail.displayImages}}" wx:key="index">
@@ -32,42 +32,63 @@
       <view class="meta-row">
         <text class="meta-item">{{houseDetail.displayType}}</text>
         <text class="meta-item">{{houseDetail.displayArea}}</text>
-        <text class="meta-item">{{houseDetail.displayFloor}}层</text>
+        <text class="meta-item">{{houseDetail.displayFloor}}</text>
       </view>
       <view class="address">{{houseDetail.displayAddress}}</view>
     </view>
 
+    <view class="section-divider"></view>
+
     <view class="section">
-      <view class="section-title">房源描述</view>
+      <view class="section-header">
+        <view class="section-marker"></view>
+        <view class="section-title">房源描述</view>
+      </view>
       <view class="section-content">{{houseDetail.displayDescription}}</view>
     </view>
 
-    <view wx:if="{{houseDetail.latitude}}" class="card">
-      <view class="section-title">位置</view>
-      <map
-        class="detail-map"
-        latitude="{{houseDetail.latitude}}"
-        longitude="{{houseDetail.longitude}}"
-        markers="{{mapMarkers}}"
-        scale="15"
-      />
-      <view class="address-text">{{houseDetail.displayAddress}}</view>
-    </view>
+    <view wx:if="{{houseDetail.latitude || nearbyList.length}}" class="section-divider"></view>
 
-    <view wx:if="{{nearbyList.length}}" class="card">
-      <view class="section-title">周边设施</view>
-      <view
-        wx:for="{{nearbyList}}"
-        wx:key="index"
-        class="nearby-item"
-      >
-        <text class="nearby-title">{{item.title}}</text>
-        <text class="nearby-distance">{{item.distance}}m</text>
+    <view wx:if="{{houseDetail.latitude || nearbyList.length}}" class="section">
+      <view wx:if="{{houseDetail.latitude}}">
+        <view class="section-header">
+          <view class="section-marker"></view>
+          <view class="section-title">位置</view>
+        </view>
+        <view class="map-wrap">
+          <map
+            class="detail-map"
+            latitude="{{houseDetail.latitude}}"
+            longitude="{{houseDetail.longitude}}"
+            markers="{{mapMarkers}}"
+            scale="15"
+          />
+        </view>
+      </view>
+
+      <view wx:if="{{nearbyList.length}}" class="nearby-block {{houseDetail.latitude ? 'nearby-block--spaced' : ''}}">
+        <view class="section-header">
+          <view class="section-marker"></view>
+          <view class="section-title">周边设施</view>
+        </view>
+        <view
+          wx:for="{{nearbyList}}"
+          wx:key="index"
+          class="nearby-item"
+        >
+          <text class="nearby-title">{{item.title}}</text>
+          <text class="nearby-distance">{{item.displayDistance}}</text>
+        </view>
       </view>
     </view>
 
+    <view class="section-divider"></view>
+
     <view class="section">
-      <view class="section-title">配套设施</view>
+      <view class="section-header">
+        <view class="section-marker"></view>
+        <view class="section-title">配套设施</view>
+      </view>
       <view wx:if="{{houseDetail.displayFacilities && houseDetail.displayFacilities.length}}" class="facility-list">
         <text
           class="facility-item"
@@ -80,18 +101,22 @@
         title="暂无设施"
         subtitle="房东暂未补充"
       />
-    </view>
 
-    <view class="section">
-      <view class="section-title">联系人</view>
-      <view class="section-content">{{houseDetail.displayContactName}}（{{houseDetail.displayContactPhone}}）</view>
+      <view class="contact-block">
+        <view class="section-header">
+          <view class="section-marker"></view>
+          <view class="section-title">联系人</view>
+        </view>
+        <view class="section-content">{{houseDetail.displayContactName}}（{{houseDetail.displayContactPhone}}）</view>
+      </view>
     </view>
   </view>
 
   <view class="bottom-bar">
-    <button class="bottom-btn ghost" loading="{{favoriteLoading}}" bindtap="onToggleFavoriteTap">
-      {{isFavorite ? '取消收藏' : '收藏'}}
+    <button class="favorite-action {{isFavorite ? 'favorite-action--active' : ''}}" loading="{{favoriteLoading}}" bindtap="onToggleFavoriteTap">
+      <text class="favorite-icon">{{isFavorite ? '♥' : '♡'}}</text>
+      <text class="favorite-label">{{isFavorite ? '已收藏' : '收藏'}}</text>
     </button>
-    <button class="bottom-btn primary" bindtap="onContactTap">联系房东</button>
+    <button class="contact-btn" bindtap="onContactTap">联系房东</button>
   </view>
 </view>

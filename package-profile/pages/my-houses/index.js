@@ -238,7 +238,8 @@ Page({
     const modalRes = await wx.showModal({
       title: "确认删除",
       content: "删除后该房源将不再展示，是否继续？",
-      confirmColor: "#ff4d4f"
+      confirmColor: "#ff4d4f",
+      cancelColor: "#999999"
     });
 
     if (!modalRes.confirm) {

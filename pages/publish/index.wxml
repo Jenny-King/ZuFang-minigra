@@ -8,38 +8,53 @@
   </view>
 
   <view class="stats-bar" catchtap="noop">
-    <view class="stat-card blue">
+    <view
+      class="stat-card blue {{activeFilter === 'all' ? 'active' : ''}}"
+      data-filter="all"
+      bindtap="onStatCardTap"
+    >
       <view class="stat-number">{{stats.all}}</view>
       <view class="stat-label">全部</view>
     </view>
-    <view class="stat-card green">
+    <view
+      class="stat-card green {{activeFilter === 'active' ? 'active' : ''}}"
+      data-filter="active"
+      bindtap="onStatCardTap"
+    >
       <view class="stat-number">{{stats.active}}</view>
       <view class="stat-label">在租中</view>
     </view>
-    <view class="stat-card amber">
+    <view
+      class="stat-card amber {{activeFilter === 'pending' ? 'active' : ''}}"
+      data-filter="pending"
+      bindtap="onStatCardTap"
+    >
       <view class="stat-number">{{stats.pending}}</view>
       <view class="stat-label">审核中</view>
     </view>
-    <view class="stat-card gray">
+    <view
+      class="stat-card gray {{activeFilter === 'hidden' ? 'active' : ''}}"
+      data-filter="hidden"
+      bindtap="onStatCardTap"
+    >
       <view class="stat-number">{{stats.hidden}}</view>
       <view class="stat-label">已下架</view>
     </view>
   </view>
 
-  <scroll-view class="filter-bar" scroll-x enable-flex show-scrollbar="{{false}}" catchtap="noop">
+  <view class="filter-bar" catchtap="noop">
     <view
-      wx:for="{{filterTabs}}"
-      wx:key="key"
-      class="filter-chip {{activeFilter === item.key ? 'active' : ''}}"
-      data-filter="{{item.key}}"
-      bindtap="onFilterTap"
+      class="filter-chip {{sortOrder === 'priceDesc' ? 'active' : ''}}"
+      bindtap="onToggleSortTap"
     >
-      {{item.label}}
+      {{sortOrder === 'priceDesc' ? '价格从高到低' : '默认排序'}}
     </view>
-  </scroll-view>
+  </view>
 
   <view wx:if="{{hintVisible}}" class="hint-bar" catchtap="noop">
-    <text class="hint-icon">👈</text>
+    <view class="hint-icon">
+      <text class="hint-icon-mark">!</text>
+    </view>
     <text class="hint-text">左滑卡片可快速下架或删除，也可通过右下角更多按钮操作</text>
     <text class="hint-close" bindtap="onCloseHintTap">×</text>
   </view>
@@ -78,7 +93,7 @@
 
           <view class="card-info">
             <view class="card-title">{{item.displayTitle}}</view>
-            <view class="card-price">{{item.displayPrice}}<text class="price-unit"> /月</text></view>
+            <view class="card-price">{{item.displayPrice}}<text class="price-unit">/月</text></view>
             <view class="card-tags">
               <text class="tag neutral">{{item.displayLayout}}</text>
               <text class="tag neutral">{{item.displayArea}}</text>
@@ -125,8 +140,8 @@
 
   <view wx:if="{{showDeleteModal}}" class="delete-modal-mask" bindtap="onCloseDeleteModal">
     <view class="delete-modal-panel" catchtap="noop">
-      <view class="delete-modal-title">确认删除房源？</view>
-      <view class="delete-modal-subtitle">《{{pendingDeleteTitle || '未命名房源'}}》删除后不可恢复，该房源将从平台永久下线。</view>
+      <view class="delete-modal-title">确认删除“{{pendingDeleteTitle || '未命名房源'}}”？</view>
+      <view class="delete-modal-subtitle">删除后不可恢复，该房源将从平台永久下线。</view>
       <button class="delete-confirm-btn" bindtap="onConfirmDeleteTap">确认删除</button>
       <button class="delete-cancel-btn" bindtap="onCloseDeleteModal">取消</button>
     </view>

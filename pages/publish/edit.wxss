@@ -199,7 +199,8 @@
 }
 
 .input {
-  min-height: 92rpx;
+  height: 96rpx;
+  line-height: 96rpx;
   padding: 0 28rpx;
   border: none;
   border-radius: 24rpx;
@@ -221,7 +222,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 92rpx;
+  height: 96rpx;
   padding: 0 28rpx;
 }
 
@@ -337,7 +338,7 @@
 }
 
 .meta-tag-control {
-  min-height: 84rpx;
+  height: 96rpx;
   border-radius: 22rpx;
 }
 
@@ -345,6 +346,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  height: 96rpx;
   padding: 0 24rpx;
   color: var(--color-text-1);
 }

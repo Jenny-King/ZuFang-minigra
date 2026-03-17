@@ -230,7 +230,8 @@
   display: block;
   color: var(--color-text-1);
   font-size: var(--font-md);
-  line-height: 1.2;
+  line-height: 1;
+  margin-top: -2rpx;
 }
 
 .layout-trigger__value--placeholder {
@@ -243,6 +244,7 @@
   font-size: var(--font-md);
   font-weight: var(--weight-bold);
   line-height: 1;
+  margin-top: -2rpx;
 }
 
 .layout-sheet-mask {
@@ -312,6 +314,7 @@
   color: var(--color-text-1);
   font-size: var(--font-xl);
   font-weight: var(--weight-heavy);
+  line-height: 96rpx;
 }
 
 .meta-grid {

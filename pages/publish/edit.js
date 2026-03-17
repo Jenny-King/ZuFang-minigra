@@ -72,6 +72,16 @@ const FACILITY_OPTIONS = [
   { key: "swimmingPool", label: "游泳池" }
 ];
 
+function getStepState(stepIndex = 0) {
+  const safeStepIndex = Math.min(Math.max(Number(stepIndex) || 0, 0), STEP_LIST.length - 1);
+  return {
+    currentStep: safeStepIndex,
+    progressPercent: ((safeStepIndex + 1) / STEP_LIST.length) * 100,
+    progressStepText: `${safeStepIndex + 1}/${STEP_LIST.length}`,
+    progressLabel: STEP_LIST[safeStepIndex]?.label || ""
+  };
+}
+
 function cloneFacilities(facilities = {}) {
   if (!facilities || Object.prototype.toString.call(facilities) !== "[object Object]") {
     return { ...DEFAULT_FACILITIES };
@@ -362,7 +372,7 @@ Page({
     houseId: "",
     stepList: STEP_LIST,
     stepLabels: STEP_LIST.map((item) => item.label),
-    currentStep: 0,
+    ...getStepState(0),
     submitting: false,
     loadingDetail: false,
     errorText: "",
@@ -457,7 +467,7 @@ Page({
       selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
       selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
       selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
-      currentStep: 0,
+      ...getStepState(0),
       titleHighlight: false
     });
     logger.info("publish_reset_state_end", {});
@@ -564,9 +574,9 @@ Page({
       selectedHallIndex: layoutState.selectedHallIndex,
         selectedBathIndex: layoutState.selectedBathIndex,
         selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
-        selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
-        selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
-        currentStep: 0
+      selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
+      selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
+      ...getStepState(0)
       };
   },
 
@@ -648,7 +658,7 @@ Page({
         selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
         selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
         selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
-        currentStep: 0
+        ...getStepState(0)
       });
     } catch (error) {
       if (requestId !== this.detailRequestId) {
@@ -918,7 +928,7 @@ Page({
     }
 
     if (nextStep <= this.data.currentStep) {
-      this.setData({ currentStep: nextStep });
+      this.setData(getStepState(nextStep));
       return;
     }
 
@@ -928,7 +938,7 @@ Page({
       return;
     }
 
-    this.setData({ currentStep: nextStep });
+    this.setData(getStepState(nextStep));
   },
 
   onPrevStepTap() {
@@ -936,9 +946,7 @@ Page({
       return;
     }
 
-    this.setData({
-      currentStep: this.data.currentStep - 1
-    });
+    this.setData(getStepState(this.data.currentStep - 1));
   },
 
   onNextStepTap() {
@@ -952,9 +960,7 @@ Page({
       return;
     }
 
-    this.setData({
-      currentStep: this.data.currentStep + 1
-    });
+    this.setData(getStepState(this.data.currentStep + 1));
   },
 
   buildSubmitPayload(images) {

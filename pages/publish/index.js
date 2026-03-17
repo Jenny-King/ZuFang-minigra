@@ -45,17 +45,27 @@ function buildStats(list = []) {
   };
 }
 
-function getVisibleList(list = [], activeFilter = "all", sortOrder = "default") {
-  const normalizedList = Array.isArray(list) ? list.slice() : [];
-  const filteredList = activeFilter === "all"
-    ? normalizedList
-    : normalizedList.filter((item) => item.statusKey === activeFilter);
-
-  if (sortOrder === "priceDesc") {
-    return filteredList.sort((left, right) => Number(right.price || 0) - Number(left.price || 0));
+function formatPublishDate(input) {
+  const formatted = formatDate(input);
+  if (!formatted) {
+    return "";
   }
 
-  return filteredList;
+  const currentYear = new Date().getFullYear();
+  const year = Number(formatted.slice(0, 4));
+
+  if (year === currentYear) {
+    return formatted.slice(5, 10);
+  }
+
+  return formatted.slice(0, 10);
+}
+
+function getVisibleList(list = [], activeFilter = "all") {
+  const normalizedList = Array.isArray(list) ? list.slice() : [];
+  return activeFilter === "all"
+    ? normalizedList
+    : normalizedList.filter((item) => item.statusKey === activeFilter);
 }
 
 Page({
@@ -69,7 +79,6 @@ Page({
     visibleList: [],
     pageSize: 50,
     activeFilter: "all",
-    sortOrder: "default",
     stats: buildStats(),
     hintVisible: true,
     openActionHouseId: "",
@@ -143,7 +152,7 @@ Page({
         statusBadgeClass: statusMeta.badgeClass,
         displayTitle: fallbackText(item.title, "未命名房源"),
         displayPrice: formatPrice(Number(item.price) || 0, "元"),
-        displayCreateTime: item.createTime ? formatDate(item.createTime).slice(0, 10) : "",
+        displayCreateTime: item.createTime ? formatPublishDate(item.createTime) : "",
         displayLayout: fallbackText(item.layoutText || item.type, "户型待完善"),
         displayArea: Number(item.area) > 0 ? `${Number(item.area)}㎡` : "面积待完善",
         displayFloor: fallbackText(item.floor, "楼层待完善"),
@@ -156,13 +165,9 @@ Page({
     return normalized;
   },
 
-  applyDerivedState(
-    list = this.data.list,
-    activeFilter = this.data.activeFilter,
-    sortOrder = this.data.sortOrder
-  ) {
+  applyDerivedState(list = this.data.list, activeFilter = this.data.activeFilter) {
     const stats = buildStats(list);
-    const visibleList = getVisibleList(list, activeFilter, sortOrder);
+    const visibleList = getVisibleList(list, activeFilter);
     const hasRawList = Array.isArray(list) && list.length > 0;
 
     this.setData({
@@ -170,7 +175,6 @@ Page({
       visibleList,
       stats,
       activeFilter,
-      sortOrder,
       empty: !hasRawList,
       openActionHouseId: visibleList.some((item) => item.houseId === this.data.openActionHouseId)
         ? this.data.openActionHouseId
@@ -288,15 +292,8 @@ Page({
   onStatCardTap(event) {
     const filterKey = String(event.currentTarget.dataset.filter || "").trim() || "all";
     logger.info("publish_tab_stat_filter_start", { filterKey });
-    this.applyDerivedState(this.data.list, filterKey, this.data.sortOrder);
+    this.applyDerivedState(this.data.list, filterKey);
     logger.info("publish_tab_stat_filter_end", { filterKey });
-  },
-
-  onToggleSortTap() {
-    const nextSortOrder = this.data.sortOrder === "priceDesc" ? "default" : "priceDesc";
-    logger.info("publish_tab_sort_start", { sortOrder: nextSortOrder });
-    this.applyDerivedState(this.data.list, this.data.activeFilter, nextSortOrder);
-    logger.info("publish_tab_sort_end", { sortOrder: nextSortOrder });
   },
 
   onGoPublish() {

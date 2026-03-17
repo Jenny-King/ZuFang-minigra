@@ -6,6 +6,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 const USERS = "users";
+const HOUSES = "houses";
 const CONVERSATIONS = "conversations";
 const CHAT_MESSAGES = "chat_messages";
 const MESSAGES = "messages";
@@ -19,6 +20,10 @@ const SESSION_STATUS = {
   ACTIVE: "active"
 };
 const CHAT_NOTIFICATION_TYPE = "chat";
+const MESSAGE_TYPE = {
+  TEXT: "text",
+  IMAGE: "image"
+};
 
 function createLogger(context) {
   const prefix = `[chat][${context?.requestId || "local"}]`;
@@ -93,6 +98,61 @@ async function getUserByUserId(userId) {
   return res.data[0] || null;
 }
 
+async function getHouseById(houseId) {
+  const normalizedHouseId = String(houseId || "").trim();
+  if (!normalizedHouseId) {
+    return null;
+  }
+
+  const detail = await db.collection(HOUSES).doc(normalizedHouseId).get().catch(() => null);
+  return detail?.data || null;
+}
+
+function buildHouseSnapshot(house) {
+  if (!house) {
+    return null;
+  }
+
+  const images = Array.isArray(house.images) ? house.images.filter(Boolean) : [];
+  return {
+    houseId: house._id || house.houseId || "",
+    title: house.title || "",
+    price: Number(house.price || 0),
+    address: house.address || "",
+    layoutText: house.layoutText || house.type || "",
+    imageUrl: images[0] || ""
+  };
+}
+
+async function getHouseMapByIds(houseIds = []) {
+  const normalizedIds = Array.from(new Set(
+    (Array.isArray(houseIds) ? houseIds : [])
+      .map((item) => String(item || "").trim())
+      .filter(Boolean)
+  ));
+
+  if (!normalizedIds.length) {
+    return {};
+  }
+
+  const batchSize = 20;
+  const batches = [];
+  for (let index = 0; index < normalizedIds.length; index += batchSize) {
+    batches.push(normalizedIds.slice(index, index + batchSize));
+  }
+
+  const results = await Promise.all(
+    batches.map((batchIds) => db.collection(HOUSES).where({ _id: _.in(batchIds) }).get())
+  );
+
+  return results.reduce((acc, res) => {
+    (res.data || []).forEach((item) => {
+      acc[item._id] = item;
+    });
+    return acc;
+  }, {});
+}
+
 async function resolveCurrentUser(event) {
   const accessToken = getAccessTokenFromEvent(event);
   if (!accessToken) {
@@ -138,6 +198,9 @@ async function handleGetConversations(event) {
   const targetIds = conversations
     .map((item) => (item.participantIds || []).find((id) => id !== authState.user.userId))
     .filter(Boolean);
+  const houseIds = conversations
+    .map((item) => item.houseId)
+    .filter(Boolean);
 
   let userMap = {};
   if (targetIds.length) {
@@ -155,12 +218,16 @@ async function handleGetConversations(event) {
     }, {});
   }
 
+  const houseMap = await getHouseMapByIds(houseIds);
+
   const list = conversations.map((item) => {
     const targetUserId = (item.participantIds || []).find((id) => id !== authState.user.userId) || "";
+    const houseInfo = buildHouseSnapshot(houseMap[item.houseId]) || item.houseSnapshot || null;
     return {
       ...item,
       targetUserId,
       targetUser: userMap[targetUserId] || null,
+      houseInfo,
       unreadCount: Number(item.unreadMap?.[authState.user.userId] || 0)
     };
   });
@@ -220,6 +287,11 @@ async function handleCreateConversation(payload, event) {
     return fail("目标用户不存在或已失效", 404);
   }
 
+  const house = await getHouseById(houseId);
+  if (!house) {
+    return fail("房源不存在", 404);
+  }
+
   const conversationId = buildConversationId(authState.user.userId, targetUserId, houseId);
   const exists = await getConversationById(conversationId);
   if (exists) {
@@ -232,6 +304,7 @@ async function handleCreateConversation(payload, event) {
       conversationId,
       participantIds: [authState.user.userId, targetUserId],
       houseId,
+      houseSnapshot: buildHouseSnapshot(house),
       lastMessage: "",
       lastMessageTime: now,
       unreadMap: { [authState.user.userId]: 0, [targetUserId]: 0 },
@@ -272,6 +345,7 @@ async function handleSendMessage(payload, event) {
   }
 
   const now = new Date();
+  const lastMessagePreview = messageType === MESSAGE_TYPE.IMAGE ? "[图片]" : content;
   const addRes = await db.collection(CHAT_MESSAGES).add({
     data: {
       conversationId,
@@ -288,7 +362,7 @@ async function handleSendMessage(payload, event) {
   unreadMap[receiverId] = Number(unreadMap[receiverId] || 0) + 1;
   await db.collection(CONVERSATIONS).doc(conversation._id).update({
     data: {
-      lastMessage: content,
+      lastMessage: lastMessagePreview,
       lastMessageTime: now,
       unreadMap,
       updateTime: now

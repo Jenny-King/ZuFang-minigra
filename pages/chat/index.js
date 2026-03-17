@@ -1,7 +1,7 @@
 const chatService = require("../../services/chat.service");
 const authUtils = require("../../utils/auth");
 const { ROUTES, navigateTo } = require("../../config/routes");
-const { formatDate, fallbackText } = require("../../utils/format");
+const { formatDate, formatPrice, fallbackText } = require("../../utils/format");
 const { logger } = require("../../utils/logger");
 
 const POLL_INTERVAL = 8000;
@@ -84,14 +84,25 @@ Page({
 
     const normalized = (Array.isArray(list) ? list : []).map((item) => {
       const participantInfo = item.targetUser || {};
+      const houseInfo = item.houseInfo || {};
       const unreadMap = item.unreadMap || {};
       const unreadCount = Number(unreadMap[currentUserId] || item.unreadCount || 0);
+      const houseTitle = fallbackText(houseInfo.title, "房源信息待完善");
+      const houseLayout = fallbackText(houseInfo.layoutText, "");
+      const houseAddress = fallbackText(houseInfo.address, "");
+      const houseMeta = [houseLayout, houseAddress]
+        .filter((value) => value && value !== "--")
+        .join(" | ");
       return {
         ...item,
         displayName: fallbackText(participantInfo.nickName || item.targetName, "未知用户"),
         displayAvatar: participantInfo.avatarUrl || item.targetAvatar || "",
         displayLastMessage: fallbackText(item.lastMessage, "暂无消息"),
         displayLastTime: item.lastMessageTime ? formatDate(item.lastMessageTime) : "",
+        displayHouseTitle: houseTitle,
+        displayHouseMeta: houseMeta || "房源信息待完善",
+        displayHousePrice: formatPrice(Number(houseInfo.price || 0)),
+        displayHouseCover: houseInfo.imageUrl || "/assets/images/house-placeholder.png",
         unreadCount
       };
     });
@@ -149,7 +160,8 @@ Page({
 
     navigateTo(ROUTES.CHAT_DETAIL, {
       conversationId,
-      targetUserId: targetUserId || ""
+      targetUserId: targetUserId || "",
+      houseId: event.currentTarget.dataset.houseId || ""
     });
     logger.info("chat_tap_item_end", { conversationId });
   }

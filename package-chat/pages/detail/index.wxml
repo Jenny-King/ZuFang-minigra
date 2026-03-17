@@ -4,6 +4,25 @@
     <button class="error-box__retry" bindtap="loadMessages">重试</button>
   </view>
 
+  <view wx:if="{{houseCard}}" class="house-card card" bindtap="onHouseCardTap">
+    <lazy-image
+      class="house-card__image"
+      src="{{houseCard.imageUrl}}"
+      mode="aspectFill"
+      radius="var(--radius-sm)"
+      width="144rpx"
+      height="108rpx"
+    />
+    <view class="house-card__content">
+      <view class="house-card__header">
+        <text class="house-card__title text-ellipsis">{{houseCard.title}}</text>
+        <text class="house-card__price">{{houseCard.priceText}}</text>
+      </view>
+      <text class="house-card__meta text-ellipsis">{{houseCard.metaText}}</text>
+      <text class="house-card__action">查看房源详情</text>
+    </view>
+  </view>
+
   <scroll-view
     class="message-scroll"
     scroll-y
@@ -26,8 +45,18 @@
       >
         <view wx:if="{{item.showTime}}" class="time-divider">{{item.timeLabel}}</view>
         <view class="message-row {{item.isSelf ? 'self' : 'other'}}">
-          <view class="bubble">
-            <text class="content">{{item.content}}</text>
+          <view class="bubble {{item.isImage ? 'image-bubble' : ''}}">
+            <view wx:if="{{item.isImage}}" class="image-message" data-url="{{item.content}}" bindtap="onPreviewMessageImage">
+              <lazy-image
+                class="image-message__img"
+                src="{{item.content}}"
+                mode="aspectFit"
+                radius="var(--radius-sm)"
+                width="320rpx"
+                height="240rpx"
+              />
+            </view>
+            <text wx:else class="content">{{item.content}}</text>
             <text class="time">{{item.displayTime}}</text>
           </view>
         </view>
@@ -36,6 +65,12 @@
   </scroll-view>
 
   <view class="input-bar">
+    <button
+      class="image-btn"
+      loading="{{uploadingImage}}"
+      disabled="{{sending || uploadingImage}}"
+      bindtap="onChooseImageTap"
+    >图片</button>
     <input
       class="msg-input"
       value="{{inputValue}}"
@@ -44,6 +79,6 @@
       confirm-type="send"
       bindconfirm="onSendTap"
     />
-    <button class="send-btn" loading="{{sending}}" bindtap="onSendTap">发送</button>
+    <button class="send-btn" loading="{{sending}}" disabled="{{sending || uploadingImage}}" bindtap="onSendTap">发送</button>
   </view>
 </view>

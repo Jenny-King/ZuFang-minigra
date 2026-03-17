@@ -1,4 +1,5 @@
 const { callCloud } = require("./cloud/call");
+const { uploadToCloud } = require("./cloud/upload");
 const { REQUEST_DEFAULT, MESSAGE_TYPE } = require("../config/constants");
 
 function assertNonEmptyString(value, fieldName) {
@@ -54,6 +55,12 @@ async function sendMessage(conversationId, content, messageType = MESSAGE_TYPE.T
   });
 }
 
+async function uploadMessageImage(filePath, cloudPath) {
+  assertNonEmptyString(filePath, "filePath");
+  assertNonEmptyString(cloudPath, "cloudPath");
+  return uploadToCloud(filePath, cloudPath);
+}
+
 async function markConversationRead(conversationId) {
   assertNonEmptyString(conversationId, "conversationId");
   return callCloud("chat", "markRead", { conversationId: conversationId.trim() });
@@ -73,6 +80,7 @@ module.exports = {
   getMessageList,
   createOrGetConversation,
   sendMessage,
+  uploadMessageImage,
   markConversationRead,
   getNotificationList,
   markNotificationRead

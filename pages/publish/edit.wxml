@@ -1,10 +1,12 @@
 <view class="container publish-page">
   <view class="publish-shell">
-    <view class="publish-hero card">
-      <view class="form-title {{titleHighlight ? 'active' : ''}}">{{isEdit ? '编辑房源' : '发布房源'}}</view>
-      <view class="step-subtitle">三步完成房源发布，提交后自动返回房源管理页并刷新列表</view>
-      <view class="stepper-wrap">
-        <steps steps="{{stepLabels}}" current="{{currentStep}}" />
+    <view class="publish-progress {{titleHighlight ? 'active' : ''}}">
+      <view class="publish-progress__track">
+        <view class="publish-progress__fill" style="width: {{progressPercent}}%;"></view>
+      </view>
+      <view class="publish-progress__meta">
+        <text class="publish-progress__step">{{progressStepText}}</text>
+        <text class="publish-progress__label">{{progressLabel}}</text>
       </view>
     </view>
 
@@ -19,13 +21,13 @@
 
     <block wx:if="{{!loadingDetail}}">
       <view wx:if="{{currentStep === 0}}" class="card form-card">
-        <view class="section-title">Step 1 / 基础信息</view>
+        <view class="section-title">1. 基础信息</view>
 
-        <view class="form-row">
+        <view class="form-row form-row--featured">
           <view class="label-row">
-            <text class="label">房源图片（最多9张）</text>
-            <text class="helper-text">{{imageList.length}}/9</text>
+            <text class="label">房源图片 <text class="label-count">({{imageList.length}}/9)</text></text>
           </view>
+          <view class="helper-text helper-text--top">优先上传客厅、卧室和采光照片，首图会更影响点击率</view>
           <view class="image-grid image-grid-top">
             <view class="image-item" wx:for="{{imageList}}" wx:key="index">
               <lazy-image
@@ -40,13 +42,23 @@
               </view>
               <view class="remove-btn" data-index="{{index}}" bindtap="onRemoveImage">×</view>
             </view>
-            <view wx:if="{{imageList.length < 9}}" class="image-add" bindtap="onChooseImages">+ 添加</view>
+            <view wx:if="{{imageList.length < 9}}" class="image-add" bindtap="onChooseImages">
+              <view class="image-add__icon">+</view>
+              <view class="image-add__title">添加图片</view>
+              <view class="image-add__hint">相册或拍摄</view>
+            </view>
           </view>
         </view>
 
         <view class="form-row">
-          <text class="label">标题</text>
-          <input class="input" data-field="title" value="{{formData.title}}" placeholder="如：地铁口精装一室一厅" bindinput="onInputChange" />
+          <text class="field-caption">房源标题</text>
+          <input
+            class="input input-outline title-input"
+            data-field="title"
+            value="{{formData.title}}"
+            placeholder="请输入房源标题（如：张江高科 2室1厅 精装修）"
+            bindinput="onInputChange"
+          />
         </view>
 
         <view class="form-row">
@@ -97,7 +109,7 @@
       </view>
 
       <view wx:if="{{currentStep === 1}}" class="card form-card">
-        <view class="section-title">Step 2 / 位置描述</view>
+        <view class="section-title">2. 位置描述</view>
 
         <view class="form-row">
           <view class="label-row label-row--action">
@@ -128,7 +140,7 @@
       </view>
 
       <view wx:if="{{currentStep === 2}}" class="card form-card">
-        <view class="section-title">Step 3 / 联系与提交</view>
+        <view class="section-title">3. 联系与提交</view>
 
         <view class="form-row">
           <text class="label">配套设施</text>

@@ -37,6 +37,62 @@
   border: none;
 }
 
+.house-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: var(--space-sm) var(--page-padding) 0;
+  padding: var(--space-sm);
+}
+
+.house-card__image {
+  width: 144rpx;
+  height: 108rpx;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-background-subtle);
+}
+
+.house-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.house-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.house-card__title {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+  font-weight: var(--weight-medium);
+}
+
+.house-card__price {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  font-size: var(--font-sm);
+}
+
+.house-card__meta {
+  display: block;
+  margin-top: var(--space-2xs);
+  color: var(--color-text-2);
+  font-size: var(--font-caption);
+}
+
+.house-card__action {
+  display: block;
+  margin-top: var(--space-xs);
+  color: var(--color-primary);
+  font-size: var(--font-caption);
+}
+
 .message-scroll {
   flex: 1;
   box-sizing: border-box;
@@ -74,6 +130,25 @@
   background: var(--color-info-bg);
 }
 
+.bubble.image-bubble {
+  padding: var(--space-2xs);
+  background: transparent;
+}
+
+.message-row.self .bubble.image-bubble {
+  background: transparent;
+}
+
+.image-message {
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-background-card);
+}
+
+.image-message__img {
+  width: 320rpx;
+}
+
 .content {
   display: block;
   color: var(--color-text-1);
@@ -98,6 +173,21 @@
   border-top: var(--line-width-thin) solid var(--color-background-subtle);
 }
 
+.image-btn {
+  min-width: 116rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  margin: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-background-page);
+  color: var(--color-text-1);
+  font-size: var(--font-label);
+}
+
+.image-btn::after {
+  border: none;
+}
+
 .msg-input {
   flex: 1;
   min-height: 72rpx;
@@ -118,4 +208,9 @@
   background: var(--color-primary);
   color: var(--color-text-inverse);
   font-size: var(--font-label);
+}
+
+.send-btn[disabled],
+.image-btn[disabled] {
+  opacity: 0.7;
 }

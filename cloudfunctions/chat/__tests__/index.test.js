@@ -96,6 +96,128 @@ describe("cloudfunction/chat", () => {
     }
   });
 
+  it("createConversation stores house snapshot", async () => {
+    const accessToken = "chat_create_success_token";
+    const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");
+    const currentUser = {
+      _id: "user_doc_1",
+      userId: "user_1",
+      status: "active"
+    };
+    const targetUser = {
+      _id: "user_doc_2",
+      userId: "user_2",
+      status: "active"
+    };
+    const house = {
+      _id: "house_1",
+      title: "软件园地铁口两室一厅",
+      price: 3200,
+      address: "思明区软件园二期",
+      layoutText: "两室一厅",
+      images: ["cloud://house-cover.jpg"]
+    };
+    const addMock = jest.fn().mockResolvedValue({ _id: "conversation_1" });
+    const db = cloud.database();
+    const originalImplementation = db.collection.getMockImplementation();
+
+    db.collection.mockImplementation((name) => {
+      if (name === "user_sessions") {
+        return {
+          doc: jest.fn((id) => ({
+            get: jest.fn().mockResolvedValue(id === tokenHash
+              ? {
+                  data: {
+                    _id: tokenHash,
+                    userId: currentUser.userId,
+                    status: "active",
+                    expireAt: new Date(Date.now() + 60 * 1000).toISOString()
+                  }
+                }
+              : { data: null })
+          }))
+        };
+      }
+
+      if (name === "users") {
+        return {
+          where: jest.fn(({ userId }) => ({
+            limit: jest.fn(() => ({
+              get: jest.fn().mockResolvedValue({
+                data: userId === currentUser.userId
+                  ? [currentUser]
+                  : userId === targetUser.userId
+                    ? [targetUser]
+                    : []
+              })
+            }))
+          }))
+        };
+      }
+
+      if (name === "houses") {
+        return {
+          doc: jest.fn((id) => ({
+            get: jest.fn().mockResolvedValue(id === house._id ? { data: house } : { data: null })
+          }))
+        };
+      }
+
+      if (name === "conversations") {
+        return {
+          where: jest.fn(() => ({
+            limit: jest.fn(() => ({
+              get: jest.fn().mockResolvedValue({ data: [] })
+            }))
+          })),
+          add: addMock
+        };
+      }
+
+      return {
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        get: jest.fn().mockResolvedValue({ data: [] }),
+        count: jest.fn().mockResolvedValue({ total: 0 }),
+        add: jest.fn().mockResolvedValue({ _id: "mock_id" }),
+        doc: jest.fn(() => ({
+          get: jest.fn().mockResolvedValue({ data: null }),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        }))
+      };
+    });
+
+    try {
+      const res = await main({
+        action: "createConversation",
+        payload: {
+          targetUserId: targetUser.userId,
+          houseId: house._id
+        },
+        auth: { accessToken }
+      }, {});
+
+      expect(res.code).toBe(0);
+      expect(addMock).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          houseId: house._id,
+          houseSnapshot: {
+            houseId: house._id,
+            title: house.title,
+            price: house.price,
+            address: house.address,
+            layoutText: house.layoutText,
+            imageUrl: house.images[0]
+          }
+        })
+      });
+    } finally {
+      db.collection.mockImplementation(originalImplementation);
+    }
+  });
+
   it("sendMessage rejects invalid receiver user", async () => {
     const accessToken = "chat_send_token";
     const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");
@@ -322,6 +444,123 @@ describe("cloudfunction/chat", () => {
       expect(messageAddMock).toHaveBeenCalledTimes(1);
       expect(conversationUpdateMock).toHaveBeenCalledTimes(1);
       expect(notificationAddMock).not.toHaveBeenCalled();
+    } finally {
+      db.collection.mockImplementation(originalImplementation);
+    }
+  });
+
+  it("sendMessage stores image preview text for conversation list", async () => {
+    const accessToken = "chat_send_image_token";
+    const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");
+    const currentUser = {
+      _id: "user_doc_1",
+      userId: "user_1",
+      status: "active"
+    };
+    const targetUser = {
+      _id: "user_doc_2",
+      userId: "user_2",
+      status: "active"
+    };
+    const conversation = {
+      _id: "conv_doc_1",
+      conversationId: "conv_1",
+      participantIds: ["user_1", "user_2"],
+      unreadMap: {}
+    };
+    const messageAddMock = jest.fn().mockResolvedValue({ _id: "chat_message_2" });
+    const conversationUpdateMock = jest.fn().mockResolvedValue({ stats: { updated: 1 } });
+    const db = cloud.database();
+    const originalImplementation = db.collection.getMockImplementation();
+
+    db.collection.mockImplementation((name) => {
+      if (name === "user_sessions") {
+        return {
+          doc: jest.fn((id) => ({
+            get: jest.fn().mockResolvedValue(id === tokenHash
+              ? {
+                  data: {
+                    _id: tokenHash,
+                    userId: currentUser.userId,
+                    status: "active",
+                    expireAt: new Date(Date.now() + 60 * 1000).toISOString()
+                  }
+                }
+              : { data: null })
+          }))
+        };
+      }
+
+      if (name === "users") {
+        return {
+          where: jest.fn(({ userId }) => ({
+            limit: jest.fn(() => ({
+              get: jest.fn().mockResolvedValue({
+                data: userId === currentUser.userId
+                  ? [currentUser]
+                  : userId === targetUser.userId
+                    ? [targetUser]
+                    : []
+              })
+            }))
+          }))
+        };
+      }
+
+      if (name === "conversations") {
+        return {
+          where: jest.fn(() => ({
+            limit: jest.fn(() => ({
+              get: jest.fn().mockResolvedValue({ data: [conversation] })
+            }))
+          })),
+          doc: jest.fn(() => ({
+            update: conversationUpdateMock
+          }))
+        };
+      }
+
+      if (name === "chat_messages") {
+        return {
+          add: messageAddMock,
+          where: jest.fn().mockReturnThis(),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        };
+      }
+
+      return {
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        get: jest.fn().mockResolvedValue({ data: [] }),
+        count: jest.fn().mockResolvedValue({ total: 0 }),
+        add: jest.fn().mockResolvedValue({ _id: "mock_id" }),
+        doc: jest.fn(() => ({
+          get: jest.fn().mockResolvedValue({ data: null }),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        }))
+      };
+    });
+
+    try {
+      const res = await main({
+        action: "sendMessage",
+        payload: {
+          conversationId: "conv_1",
+          content: "cloud://chat/image.jpg",
+          messageType: "image"
+        },
+        auth: { accessToken }
+      }, {});
+
+      expect(res.code).toBe(0);
+      expect(messageAddMock).toHaveBeenCalledTimes(1);
+      expect(conversationUpdateMock).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          lastMessage: "[图片]"
+        })
+      });
     } finally {
       db.collection.mockImplementation(originalImplementation);
     }

@@ -1,5 +1,9 @@
 const chatService = require("../../../services/chat.service");
+const houseService = require("../../../services/house.service");
+const { MESSAGE_TYPE } = require("../../../config/constants");
 const authUtils = require("../../../utils/auth");
+const { ROUTES, navigateTo } = require("../../../config/routes");
+const { formatPrice, fallbackText } = require("../../../utils/format");
 const { logger } = require("../../../utils/logger");
 const toast = require("../../../utils/toast");
 
@@ -12,8 +16,10 @@ Page({
     houseId: "",
     loading: false,
     sending: false,
+    uploadingImage: false,
     errorText: "",
     inputValue: "",
+    houseCard: null,
     messageList: [],
     scrollToViewId: ""
   },
@@ -36,6 +42,7 @@ Page({
     });
 
     await this.ensureConversation();
+    await this.loadHouseCard();
     await this.loadMessages();
     await this.markAsRead();
     logger.info("chat_detail_onload_end", { conversationId: this.data.conversationId });
@@ -64,6 +71,7 @@ Page({
   async onPullDownRefresh() {
     logger.info("chat_detail_pulldown_start", {});
     try {
+      await this.loadHouseCard();
       await this.loadMessages();
       await this.markAsRead();
     } finally {
@@ -128,6 +136,53 @@ Page({
     logger.info("chat_detail_stop_poll_end", {});
   },
 
+  normalizeHouseCard(detail) {
+    if (!detail) {
+      return null;
+    }
+
+    const images = Array.isArray(detail.images) ? detail.images.filter(Boolean) : [];
+    const displayLayout = fallbackText(detail.layoutText || detail.type, "");
+    const displayAddress = fallbackText(detail.address, "");
+    const displayMeta = [displayLayout, displayAddress]
+      .filter((value) => value && value !== "--")
+      .join(" | ");
+
+    return {
+      houseId: detail._id || this.data.houseId,
+      imageUrl: images[0] || "/assets/images/house-placeholder.png",
+      title: fallbackText(detail.title, "房源信息待完善"),
+      priceText: formatPrice(Number(detail.price || 0)),
+      metaText: displayMeta || "房源信息待完善"
+    };
+  },
+
+  async loadHouseCard() {
+    logger.info("chat_detail_load_house_start", {});
+    if (!this.data.houseId) {
+      this.setData({ houseCard: null });
+      logger.info("chat_detail_load_house_end", { blocked: "empty_house_id" });
+      return;
+    }
+
+    try {
+      logger.info("api_call", {
+        func: "house.getDetail",
+        params: { houseId: this.data.houseId }
+      });
+      const detail = await houseService.getHouseDetail(this.data.houseId);
+      logger.info("api_resp", { func: "house.getDetail", code: 0 });
+      this.setData({
+        houseCard: this.normalizeHouseCard(detail)
+      });
+    } catch (error) {
+      this.setData({ houseCard: null });
+      logger.warn("api_error", { func: "house.getDetail", err: error.message });
+    } finally {
+      logger.info("chat_detail_load_house_end", {});
+    }
+  },
+
   normalizeMessages(list = []) {
     logger.debug("chat_detail_normalize_start", { count: Array.isArray(list) ? list.length : 0 });
     const currentUser = authUtils.getLoginUser() || {};
@@ -135,6 +190,7 @@ Page({
     const normalized = (Array.isArray(list) ? list : []).map((item, index) => ({
       ...item,
       _viewId: `msg_${item._id || index}`,
+      isImage: item.messageType === MESSAGE_TYPE.IMAGE,
       isSelf: item.senderId === currentUserId,
       displayTime: item.createTime ? this.formatTime(item.createTime) : ""
     }));
@@ -234,11 +290,95 @@ Page({
     return `${date.getMonth() + 1}月${date.getDate()}日 ${hm}`;
   },
 
-  // TODO: 图片消息发送需要现有上传链路支持，当前仓库未提供可复用的图片消息存储流程，先保持文本发送稳定。
+  onHouseCardTap() {
+    logger.info("chat_detail_house_tap_start", {});
+    if (!this.data.houseId) {
+      logger.info("chat_detail_house_tap_end", { blocked: "empty_house_id" });
+      return;
+    }
+
+    navigateTo(ROUTES.HOUSE_DETAIL, {
+      houseId: this.data.houseId
+    });
+    logger.info("chat_detail_house_tap_end", { houseId: this.data.houseId });
+  },
+
+  buildImageCloudPath(tempFilePath) {
+    const userInfo = authUtils.getLoginUser() || {};
+    const userId = userInfo.userId || "anonymous";
+    const extension = tempFilePath.includes(".")
+      ? tempFilePath.split(".").pop().split("?")[0]
+      : "jpg";
+    return `chat/${userId}/${this.data.conversationId || "pending"}/${Date.now()}.${extension}`;
+  },
+
+  async onChooseImageTap() {
+    logger.info("chat_detail_choose_image_start", {});
+    if (this.data.sending || this.data.uploadingImage) {
+      logger.info("chat_detail_choose_image_end", { blocked: "sending" });
+      return;
+    }
+    if (!this.data.conversationId) {
+      await toast.error("会话初始化失败");
+      logger.info("chat_detail_choose_image_end", { blocked: "empty_conversation" });
+      return;
+    }
+
+    try {
+      const chooseRes = await wx.chooseMedia({
+        count: 1,
+        mediaType: ["image"],
+        sourceType: ["album", "camera"]
+      });
+      const tempFilePath = chooseRes?.tempFiles?.[0]?.tempFilePath || "";
+      if (!tempFilePath) {
+        logger.info("chat_detail_choose_image_end", { blocked: "empty_file" });
+        return;
+      }
+
+      this.setData({ uploadingImage: true });
+      toast.loading("图片上传中");
+      const imageUrl = await chatService.uploadMessageImage(
+        tempFilePath,
+        this.buildImageCloudPath(tempFilePath)
+      );
+      await chatService.sendMessage(this.data.conversationId, imageUrl, MESSAGE_TYPE.IMAGE);
+      await toast.hide();
+      await this.loadMessages({ silent: true });
+      await this.markAsRead({ silent: true });
+    } catch (error) {
+      await toast.hide();
+      const message = error?.errMsg || error?.message || "";
+      if (message.includes("cancel")) {
+        logger.info("chat_detail_choose_image_end", { blocked: "cancelled" });
+        return;
+      }
+      logger.error("api_error", { func: "chat.sendImageMessage", err: message });
+      await toast.error(message || "图片发送失败");
+    } finally {
+      this.setData({ uploadingImage: false });
+      logger.info("chat_detail_choose_image_end", {});
+    }
+  },
+
+  onPreviewMessageImage(event) {
+    logger.info("chat_detail_preview_image_start", { data: event.currentTarget.dataset || {} });
+    const url = String(event.currentTarget.dataset.url || "").trim();
+    if (!url) {
+      logger.info("chat_detail_preview_image_end", { blocked: "empty_url" });
+      return;
+    }
+
+    wx.previewImage({
+      current: url,
+      urls: [url]
+    });
+    logger.info("chat_detail_preview_image_end", {});
+  },
 
   async onSendTap() {
     logger.info("chat_detail_send_start", {});
-    if (this.data.sending) {
+    if (this.data.sending || this.data.uploadingImage) {
       logger.info("chat_detail_send_end", { blocked: "sending" });
       return;
     }
@@ -260,7 +400,7 @@ Page({
         func: "chat.sendMessage",
         params: { conversationId: this.data.conversationId }
       });
-      await chatService.sendMessage(this.data.conversationId, content, "text");
+      await chatService.sendMessage(this.data.conversationId, content, MESSAGE_TYPE.TEXT);
       logger.info("api_resp", { func: "chat.sendMessage", code: 0 });
       this.setData({ inputValue: "" });
       await this.loadMessages({ silent: true });

@@ -18,6 +18,7 @@
       wx:for="{{conversationList}}"
       wx:key="conversationId"
       data-conversation-id="{{item.conversationId}}"
+      data-house-id="{{item.houseId}}"
       data-target-user-id="{{item.targetUserId}}"
       bindtap="onConversationTap"
     >
@@ -33,6 +34,23 @@
         <view class="top-row">
           <text class="name text-ellipsis">{{item.displayName}}</text>
           <text class="time">{{item.displayLastTime}}</text>
+        </view>
+        <view class="house-row">
+          <lazy-image
+            class="house-cover"
+            src="{{item.displayHouseCover}}"
+            mode="aspectFill"
+            radius="var(--radius-sm)"
+            width="112rpx"
+            height="84rpx"
+          />
+          <view class="house-content">
+            <view class="house-header">
+              <text class="house-title text-ellipsis">{{item.displayHouseTitle}}</text>
+              <text class="house-price">{{item.displayHousePrice}}</text>
+            </view>
+            <text class="house-meta text-ellipsis">{{item.displayHouseMeta}}</text>
+          </view>
         </view>
         <view class="bottom-row">
           <text class="message text-ellipsis">{{item.displayLastMessage}}</text>

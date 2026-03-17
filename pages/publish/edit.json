@@ -3,7 +3,6 @@
   "backgroundColor": "#f7f8fa",
   "backgroundTextStyle": "dark",
   "usingComponents": {
-    "steps": "/components/steps/index",
     "lazy-image": "/components/lazy-image/index",
     "skeleton": "/components/skeleton/index"
   }

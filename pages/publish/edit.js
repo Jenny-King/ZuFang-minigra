@@ -9,38 +9,23 @@ const toast = require("../../utils/toast");
 
 const PENDING_PUBLISH_CONTEXT_KEY = "pendingPublishContext";
 const PROFILE_ENTRY_HIGHLIGHT_KEY = "profileEntryHighlight";
-const MIN_RENT_PERIOD_OPTIONS = [1, 3, 6, 12];
-const ORIENTATION_OPTIONS = ["东", "南", "西", "北", "东南", "东北", "西南", "西北"];
+const DEFAULT_MIN_RENT_PERIOD = "1";
 const FALLBACK_REGION_OPTIONS = [{ label: "全部区域", value: "" }];
 const STEP_LIST = [
   { key: "base", label: "基础信息" },
   { key: "location", label: "位置描述" },
-  { key: "contact", label: "联系与提交" }
+  { key: "contact", label: "设施与联系" }
 ];
-const ROOM_OPTIONS = [
-  { label: "请选择室", value: 0 },
-  { label: "1室", value: 1 },
-  { label: "2室", value: 2 },
-  { label: "3室", value: 3 },
-  { label: "4室", value: 4 },
-  { label: "5室", value: 5 },
-  { label: "6室", value: 6 }
-];
-const HALL_OPTIONS = [
-  { label: "请选择厅", value: -1 },
-  { label: "0厅", value: 0 },
-  { label: "1厅", value: 1 },
-  { label: "2厅", value: 2 },
-  { label: "3厅", value: 3 }
-];
-const BATH_OPTIONS = [
-  { label: "请选择卫", value: -1 },
-  { label: "0卫", value: 0 },
-  { label: "1卫", value: 1 },
-  { label: "2卫", value: 2 },
-  { label: "3卫", value: 3 },
-  { label: "4卫", value: 4 }
-];
+function buildLayoutOptions(unit) {
+  return Array.from({ length: 11 }, (_, index) => ({
+    label: `${index}${unit}`,
+    value: index
+  }));
+}
+
+const ROOM_OPTIONS = buildLayoutOptions("室");
+const HALL_OPTIONS = buildLayoutOptions("厅");
+const BATH_OPTIONS = buildLayoutOptions("卫");
 const DEFAULT_FACILITIES = {
   elevator: false,
   parking: false,
@@ -122,9 +107,8 @@ function createInitialForm() {
     area: "",
     address: "",
     description: "",
-    minRentPeriod: MIN_RENT_PERIOD_OPTIONS[0],
+    minRentPeriod: DEFAULT_MIN_RENT_PERIOD,
     floor: "",
-    orientation: "",
     region: "",
     latitude: 0,
     longitude: 0,
@@ -148,8 +132,15 @@ function getStepValidationResult(stepIndex, formData = {}, imageCount = 0) {
     if (!String(formData.layoutText || formData.type || "").trim()) {
       return { valid: false, message: "请选择户型" };
     }
+    const layoutMatched = String(formData.layoutText || "").match(/^(\d+)室(\d+)厅(\d+)卫$/);
+    if (!layoutMatched || Number(layoutMatched[1]) <= 0) {
+      return { valid: false, message: "室数至少为 1" };
+    }
     if (!Number(formData.area)) {
       return { valid: false, message: "请填写面积" };
+    }
+    if (!Number.isInteger(Number(formData.minRentPeriod)) || Number(formData.minRentPeriod) <= 0) {
+      return { valid: false, message: "最短租期需为正整数月份" };
     }
   }
 
@@ -179,11 +170,6 @@ function buildRegionOptions(regions = []) {
       city: item.city || ""
     }))
   );
-}
-
-function getPickerIndex(options = [], value) {
-  const index = options.findIndex((item) => item === value);
-  return index >= 0 ? index : 0;
 }
 
 function getRegionIndex(regionOptions = [], region = "", city = "") {
@@ -278,7 +264,7 @@ function getOptionIndexByValue(options = [], value) {
 }
 
 function buildLayoutText(roomCount, hallCount, bathCount) {
-  if (roomCount <= 0 || hallCount < 0 || bathCount < 0) {
+  if (roomCount < 0 || hallCount < 0 || bathCount < 0) {
     return "";
   }
 
@@ -308,7 +294,7 @@ function buildLayoutFields(selectedRoomIndex, selectedHallIndex, selectedBathInd
   const layoutText = buildLayoutText(roomCount, hallCount, bathCount);
 
   return {
-    type: layoutText ? getHouseTypeByLayout(roomCount, hallCount) : "",
+    type: layoutText ? (getHouseTypeByLayout(roomCount, hallCount) || layoutText) : "",
     layoutText
   };
 }
@@ -370,8 +356,6 @@ Page({
   data: {
     isEdit: false,
     houseId: "",
-    stepList: STEP_LIST,
-    stepLabels: STEP_LIST.map((item) => item.label),
     ...getStepState(0),
     submitting: false,
     loadingDetail: false,
@@ -381,15 +365,12 @@ Page({
     roomOptions: ROOM_OPTIONS,
     hallOptions: HALL_OPTIONS,
     bathOptions: BATH_OPTIONS,
-    minRentPeriodOptions: MIN_RENT_PERIOD_OPTIONS,
-    orientationOptions: ORIENTATION_OPTIONS,
     regionOptions: FALLBACK_REGION_OPTIONS,
     facilityOptions: FACILITY_OPTIONS,
     selectedRoomIndex: 0,
     selectedHallIndex: 0,
     selectedBathIndex: 0,
-    selectedMinRentPeriodIndex: 0,
-    selectedOrientationIndex: 0,
+    layoutPickerValue: [0, 0, 0],
     selectedRegionIndex: 0,
     titleHighlight: false
   },
@@ -464,8 +445,11 @@ Page({
       selectedRoomIndex: layoutState.selectedRoomIndex,
       selectedHallIndex: layoutState.selectedHallIndex,
       selectedBathIndex: layoutState.selectedBathIndex,
-      selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
-      selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
+      layoutPickerValue: [
+        layoutState.selectedRoomIndex,
+        layoutState.selectedHallIndex,
+        layoutState.selectedBathIndex
+      ],
       selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
       ...getStepState(0),
       titleHighlight: false
@@ -572,12 +556,15 @@ Page({
       imageList: [],
       selectedRoomIndex: layoutState.selectedRoomIndex,
       selectedHallIndex: layoutState.selectedHallIndex,
-        selectedBathIndex: layoutState.selectedBathIndex,
-        selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
-      selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
+      selectedBathIndex: layoutState.selectedBathIndex,
+      layoutPickerValue: [
+        layoutState.selectedRoomIndex,
+        layoutState.selectedHallIndex,
+        layoutState.selectedBathIndex
+      ],
       selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
       ...getStepState(0)
-      };
+    };
   },
 
   async loadHouseDetail(houseId, options = {}) {
@@ -622,10 +609,9 @@ Page({
         address: detail.address || "",
         description: detail.description || "",
         minRentPeriod: Number(detail.minRentPeriod) > 0
-          ? Number(detail.minRentPeriod)
-          : MIN_RENT_PERIOD_OPTIONS[0],
+          ? String(detail.minRentPeriod)
+          : DEFAULT_MIN_RENT_PERIOD,
         floor: detail.floor || "",
-        orientation: detail.orientation || "",
         region: detail.region || "",
         latitude: Number(detail.latitude || 0),
         longitude: Number(detail.longitude || 0),
@@ -655,8 +641,11 @@ Page({
         selectedRoomIndex: layoutState.selectedRoomIndex,
         selectedHallIndex: layoutState.selectedHallIndex,
         selectedBathIndex: layoutState.selectedBathIndex,
-        selectedMinRentPeriodIndex: getPickerIndex(MIN_RENT_PERIOD_OPTIONS, formData.minRentPeriod),
-        selectedOrientationIndex: getPickerIndex(ORIENTATION_OPTIONS, formData.orientation),
+        layoutPickerValue: [
+          layoutState.selectedRoomIndex,
+          layoutState.selectedHallIndex,
+          layoutState.selectedBathIndex
+        ],
         selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
         ...getStepState(0)
       });
@@ -707,11 +696,31 @@ Page({
       selectedRoomIndex,
       selectedHallIndex,
       selectedBathIndex,
+      layoutPickerValue: [selectedRoomIndex, selectedHallIndex, selectedBathIndex],
       "formData.type": layoutFields.type,
       "formData.layoutText": layoutFields.layoutText
     });
 
     return layoutFields;
+  },
+
+  onLayoutPickerChange(event) {
+    const value = Array.isArray(event.detail?.value) ? event.detail.value : [];
+    const selectedRoomIndex = Number(value[0] || 0);
+    const selectedHallIndex = Number(value[1] || 0);
+    const selectedBathIndex = Number(value[2] || 0);
+    const layoutFields = this.updateLayoutSelection({
+      selectedRoomIndex,
+      selectedHallIndex,
+      selectedBathIndex
+    });
+    logger.info("publish_layout_picker_change_end", {
+      selectedRoomIndex,
+      selectedHallIndex,
+      selectedBathIndex,
+      type: layoutFields.type,
+      layoutText: layoutFields.layoutText
+    });
   },
 
   onRoomChange(event) {
@@ -745,28 +754,6 @@ Page({
       type: layoutFields.type,
       layoutText: layoutFields.layoutText
     });
-  },
-
-  onMinRentPeriodChange(event) {
-    logger.info("publish_rent_period_change_start", { value: event.detail.value });
-    const selectedMinRentPeriodIndex = Number(event.detail.value) || 0;
-    const minRentPeriod = MIN_RENT_PERIOD_OPTIONS[selectedMinRentPeriodIndex] || MIN_RENT_PERIOD_OPTIONS[0];
-    this.setData({
-      selectedMinRentPeriodIndex,
-      "formData.minRentPeriod": minRentPeriod
-    });
-    logger.info("publish_rent_period_change_end", { minRentPeriod });
-  },
-
-  onOrientationChange(event) {
-    logger.info("publish_orientation_change_start", { value: event.detail.value });
-    const selectedOrientationIndex = Number(event.detail.value) || 0;
-    const orientation = ORIENTATION_OPTIONS[selectedOrientationIndex] || "";
-    this.setData({
-      selectedOrientationIndex,
-      "formData.orientation": orientation
-    });
-    logger.info("publish_orientation_change_end", { orientation });
   },
 
   onRegionChange(event) {
@@ -975,9 +962,9 @@ Page({
       area: Number(form.area) || 0,
       address: form.address.trim(),
       description: form.description.trim(),
-      minRentPeriod: Number(form.minRentPeriod) || MIN_RENT_PERIOD_OPTIONS[0],
+      minRentPeriod: Number(form.minRentPeriod) || Number(DEFAULT_MIN_RENT_PERIOD),
       floor: String(form.floor || "").trim(),
-      orientation: String(form.orientation || "").trim(),
+      orientation: "",
       region: String(form.region || "").trim(),
       latitude: Number(form.latitude) || 0,
       longitude: Number(form.longitude) || 0,

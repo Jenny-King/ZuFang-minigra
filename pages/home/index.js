@@ -14,6 +14,7 @@ const { logger } = require("../../utils/logger");
 const toast = require("../../utils/toast");
 
 const FALLBACK_REGION_OPTIONS = [{ label: "全部区域", value: "" }];
+const CITY_WIDE_REGION_VALUE = "全市";
 const FALLBACK_CITY_LABEL = "深圳";
 const TYPE_OPTIONS = [
   { label: "全部户型", value: "" },
@@ -60,6 +61,13 @@ function getRegionIndex(regionOptions = [], region = "") {
     (item) => String(item?.value || "").trim() === normalizedRegion
   );
   return matchedIndex >= 0 ? matchedIndex : 0;
+}
+
+function normalizeRegionValue(region = "") {
+  const normalizedRegion = String(region || "").trim();
+  return normalizedRegion === CITY_WIDE_REGION_VALUE
+    ? ""
+    : normalizedRegion;
 }
 
 function normalizeCityLabel(city = "") {
@@ -396,9 +404,10 @@ Page({
     logger.debug("home_build_query_start", { targetPage });
     const selectedRegionOption = this.data.regionOptions[this.data.selectedRegionIndex] || {};
     const selectedPriceOption = this.data.priceOptions[this.data.selectedPriceIndex] || {};
-    const region = selectedRegionOption.value || "";
-    const city = region
-      ? String(selectedRegionOption.city || this.data.selectedCityRaw || "").trim()
+    const rawRegion = String(selectedRegionOption.value || "").trim();
+    const region = normalizeRegionValue(rawRegion);
+    const city = (region || rawRegion === CITY_WIDE_REGION_VALUE)
+      ? String(selectedRegionOption.city || this.data.selectedCityRaw || this.data.currentCityRaw || "").trim()
       : String(this.data.selectedCityRaw || "").trim();
     const type = this.data.typeOptions[this.data.selectedTypeIndex]?.value || "";
     const sortBy = this.data.selectedListSort === "areaAsc"

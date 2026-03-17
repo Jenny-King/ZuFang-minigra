@@ -2,7 +2,7 @@
 
 .chat-page {
   min-height: 100vh;
-  background: var(--color-background-page);
+  background: #f8f8f8;
 }
 
 .error-box {
@@ -38,14 +38,17 @@
 .chat-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: 20rpx;
 }
 
 .chat-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-md);
-  padding: var(--space-md);
+  padding: 30rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .avatar {
@@ -66,20 +69,21 @@
 }
 
 .top-row {
-  margin-bottom: var(--space-2xs);
+  margin-bottom: 10rpx;
 }
 
 .house-row {
   display: flex;
   gap: var(--space-sm);
-  padding: var(--space-xs) 0;
+  align-items: center;
+  padding: 12rpx 0 14rpx;
 }
 
 .house-cover {
-  width: 112rpx;
-  height: 84rpx;
+  width: 120rpx;
+  height: 120rpx;
   flex-shrink: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 8rpx;
   background: var(--color-background-subtle);
 }
 
@@ -99,7 +103,7 @@
   flex: 1;
   min-width: 0;
   color: var(--color-text-1);
-  font-size: var(--font-sm);
+  font-size: 24rpx;
   font-weight: var(--weight-medium);
 }
 
@@ -120,21 +124,21 @@
   flex: 1;
   min-width: 0;
   color: var(--color-text-1);
-  font-size: var(--font-title-sm);
+  font-size: 32rpx;
   font-weight: var(--weight-medium);
 }
 
 .time {
   margin-left: var(--space-xs);
-  color: var(--color-text-3);
-  font-size: var(--font-caption);
+  color: #999999;
+  font-size: 24rpx;
 }
 
 .message {
   flex: 1;
   min-width: 0;
   color: var(--color-text-2);
-  font-size: var(--font-sm);
+  font-size: 24rpx;
 }
 
 .badge {

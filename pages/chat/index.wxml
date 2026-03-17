@@ -40,9 +40,9 @@
             class="house-cover"
             src="{{item.displayHouseCover}}"
             mode="aspectFill"
-            radius="var(--radius-sm)"
-            width="112rpx"
-            height="84rpx"
+            radius="8rpx"
+            width="120rpx"
+            height="120rpx"
           />
           <view class="house-content">
             <view class="house-header">

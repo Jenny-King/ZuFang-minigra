@@ -19,6 +19,9 @@ Page({
     uploadingImage: false,
     errorText: "",
     inputValue: "",
+    canSend: false,
+    currentUserAvatar: "/assets/images/avatar-placeholder.png",
+    targetUserAvatar: "/assets/images/avatar-placeholder.png",
     houseCard: null,
     messageList: [],
     scrollToViewId: ""
@@ -38,10 +41,12 @@ Page({
     this.setData({
       conversationId,
       targetUserId,
-      houseId
+      houseId,
+      currentUserAvatar: authUtils.getLoginUser()?.avatarUrl || "/assets/images/avatar-placeholder.png"
     });
 
     await this.ensureConversation();
+    await this.loadConversationProfile();
     await this.loadHouseCard();
     await this.loadMessages();
     await this.markAsRead();
@@ -183,6 +188,27 @@ Page({
     }
   },
 
+  async loadConversationProfile() {
+    logger.info("chat_detail_load_profile_start", {});
+    if (!this.data.conversationId) {
+      logger.info("chat_detail_load_profile_end", { blocked: "empty_conversation" });
+      return;
+    }
+
+    try {
+      const result = await chatService.getConversationList();
+      const conversation = (result.list || []).find((item) => item.conversationId === this.data.conversationId);
+      const targetUser = conversation?.targetUser || {};
+      this.setData({
+        targetUserAvatar: targetUser.avatarUrl || "/assets/images/avatar-placeholder.png"
+      });
+    } catch (error) {
+      logger.warn("chat_detail_load_profile_failed", { error: error.message });
+    } finally {
+      logger.info("chat_detail_load_profile_end", {});
+    }
+  },
+
   normalizeMessages(list = []) {
     logger.debug("chat_detail_normalize_start", { count: Array.isArray(list) ? list.length : 0 });
     const currentUser = authUtils.getLoginUser() || {};
@@ -260,7 +286,11 @@ Page({
 
   onInputChange(event) {
     logger.debug("chat_detail_input_start", {});
-    this.setData({ inputValue: event.detail.value || "" });
+    const inputValue = event.detail.value || "";
+    this.setData({
+      inputValue,
+      canSend: Boolean(String(inputValue).trim())
+    });
     logger.debug("chat_detail_input_end", {});
   },
 
@@ -325,10 +355,15 @@ Page({
     }
 
     try {
+      const actionRes = await wx.showActionSheet({
+        itemList: ["拍摄", "从相册选择"]
+      });
+      const sourceType = Number(actionRes?.tapIndex) === 0 ? ["camera"] : ["album"];
+
       const chooseRes = await wx.chooseMedia({
         count: 1,
         mediaType: ["image"],
-        sourceType: ["album", "camera"]
+        sourceType
       });
       const tempFilePath = chooseRes?.tempFiles?.[0]?.tempFilePath || "";
       if (!tempFilePath) {
@@ -402,7 +437,10 @@ Page({
       });
       await chatService.sendMessage(this.data.conversationId, content, MESSAGE_TYPE.TEXT);
       logger.info("api_resp", { func: "chat.sendMessage", code: 0 });
-      this.setData({ inputValue: "" });
+      this.setData({
+        inputValue: "",
+        canSend: false
+      });
       await this.loadMessages({ silent: true });
       await this.markAsRead({ silent: true });
     } catch (error) {

@@ -123,6 +123,10 @@
   height: 108rpx;
 }
 
+.lazy-image--height-120 {
+  height: 120rpx;
+}
+
 .lazy-image--height-140 {
   height: 140rpx;
 }
@@ -145,6 +149,10 @@
 
 .lazy-image--height-220 {
   height: 220rpx;
+}
+
+.lazy-image--height-240 {
+  height: 240rpx;
 }
 
 .lazy-image--height-260 {

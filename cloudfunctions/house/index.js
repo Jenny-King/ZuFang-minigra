@@ -63,16 +63,42 @@ function getAccessTokenFromEvent(event) {
   return String(event?.auth?.accessToken || "").trim();
 }
 
-function isNonEmptyString(value) {
-  return typeof value === "string" && value.trim() !== "";
-}
-
 function isPlainObject(value) {
   return Object.prototype.toString.call(value) === "[object Object]";
 }
 
 function normalizeString(value) {
   return String(value || "").trim();
+}
+
+function escapeRegExp(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeCityLabel(city) {
+  const normalizedCity = normalizeString(city);
+  return normalizedCity.endsWith("市")
+    ? normalizedCity.slice(0, -1)
+    : normalizedCity;
+}
+
+function buildCityMatcher(city) {
+  const normalizedCity = normalizeCityLabel(city);
+  if (!normalizedCity) {
+    return null;
+  }
+
+  return db.RegExp({
+    regexp: `^${escapeRegExp(normalizedCity)}市?$`,
+    options: "i"
+  });
+}
+
+function normalizeRegionFilter(region) {
+  const normalizedRegion = normalizeString(region);
+  return normalizedRegion === "全市" || normalizedRegion === "全部区域"
+    ? ""
+    : normalizedRegion;
 }
 
 function normalizePositiveNumber(value, fieldName) {
@@ -361,8 +387,10 @@ function buildListWhere(payload) {
   if (payload.keyword) {
     where.title = db.RegExp({ regexp: String(payload.keyword).trim(), options: "i" });
   }
-  if (payload.city) where.city = String(payload.city).trim();
-  if (payload.region) where.region = String(payload.region).trim();
+  const cityMatcher = buildCityMatcher(payload.city);
+  const normalizedRegion = normalizeRegionFilter(payload.region);
+  if (cityMatcher) where.city = cityMatcher;
+  if (normalizedRegion) where.region = normalizedRegion;
   if (payload.type) where.type = String(payload.type).trim();
   if (payload.minPrice && Number(payload.minPrice) > 0) where.price = _.gte(Number(payload.minPrice));
   if (payload.maxPrice && Number(payload.maxPrice) > 0) {

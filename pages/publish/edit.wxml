@@ -63,16 +63,28 @@
 
         <view class="form-row">
           <text class="label">户型</text>
-          <view class="layout-picker-row">
-            <picker mode="selector" range="{{roomOptions}}" range-key="label" value="{{selectedRoomIndex}}" bindchange="onRoomChange">
-              <view class="input layout-picker">{{roomOptions[selectedRoomIndex].label}}</view>
-            </picker>
-            <picker mode="selector" range="{{hallOptions}}" range-key="label" value="{{selectedHallIndex}}" bindchange="onHallChange">
-              <view class="input layout-picker">{{hallOptions[selectedHallIndex].label}}</view>
-            </picker>
-            <picker mode="selector" range="{{bathOptions}}" range-key="label" value="{{selectedBathIndex}}" bindchange="onBathChange">
-              <view class="input layout-picker">{{bathOptions[selectedBathIndex].label}}</view>
-            </picker>
+          <view class="layout-wheel-shell">
+            <picker-view
+              class="layout-wheel"
+              value="{{layoutPickerValue}}"
+              indicator-style="height: 84rpx;"
+              bindchange="onLayoutPickerChange"
+            >
+              <picker-view-column>
+                <view wx:for="{{roomOptions}}" wx:key="value" class="layout-wheel__item">{{item.value}}</view>
+              </picker-view-column>
+              <picker-view-column>
+                <view wx:for="{{hallOptions}}" wx:key="value" class="layout-wheel__item">{{item.value}}</view>
+              </picker-view-column>
+              <picker-view-column>
+                <view wx:for="{{bathOptions}}" wx:key="value" class="layout-wheel__item">{{item.value}}</view>
+              </picker-view-column>
+            </picker-view>
+            <view class="layout-wheel__units">
+              <text class="layout-wheel__unit">室</text>
+              <text class="layout-wheel__unit">厅</text>
+              <text class="layout-wheel__unit">卫</text>
+            </view>
           </view>
           <view class="helper-text">当前户型：{{formData.layoutText || '请选择室 / 厅 / 卫'}}</view>
         </view>
@@ -90,19 +102,18 @@
             </view>
             <view class="meta-tag">
               <text class="meta-tag-label">最短租期</text>
-              <picker mode="selector" range="{{minRentPeriodOptions}}" value="{{selectedMinRentPeriodIndex}}" bindchange="onMinRentPeriodChange">
-                <view class="input meta-tag-control meta-picker">{{minRentPeriodOptions[selectedMinRentPeriodIndex]}}个月</view>
-              </picker>
+              <input
+                class="input meta-tag-control"
+                type="number"
+                data-field="minRentPeriod"
+                value="{{formData.minRentPeriod}}"
+                placeholder="请输入最短租期（月）"
+                bindinput="onInputChange"
+              />
             </view>
             <view class="meta-tag">
               <text class="meta-tag-label">楼层</text>
               <input class="input meta-tag-control" data-field="floor" value="{{formData.floor}}" placeholder="如：12/30层" bindinput="onInputChange" />
-            </view>
-            <view class="meta-tag">
-              <text class="meta-tag-label">朝向</text>
-              <picker mode="selector" range="{{orientationOptions}}" value="{{selectedOrientationIndex}}" bindchange="onOrientationChange">
-                <view class="input meta-tag-control meta-picker">{{formData.orientation || '请选择朝向'}}</view>
-              </picker>
             </view>
           </view>
         </view>
@@ -140,7 +151,7 @@
       </view>
 
       <view wx:if="{{currentStep === 2}}" class="card form-card">
-        <view class="section-title">3. 联系与提交</view>
+        <view class="section-title">3. 设施与联系</view>
 
         <view class="form-row">
           <text class="label">配套设施</text>

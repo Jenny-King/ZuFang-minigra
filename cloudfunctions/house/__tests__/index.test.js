@@ -18,6 +18,136 @@ describe("cloudfunction/house", () => {
     expect(Array.isArray(res.data)).toBe(true);
   });
 
+  it("getList normalizes city suffix and ignores city-wide region", async () => {
+    const db = cloud.database();
+    const originalImplementation = db.collection.getMockImplementation();
+    let capturedWhere = null;
+    const housesCollection = {
+      where: jest.fn((where) => {
+        capturedWhere = where;
+        return housesCollection;
+      }),
+      orderBy: jest.fn(() => housesCollection),
+      skip: jest.fn(() => housesCollection),
+      limit: jest.fn(() => housesCollection),
+      count: jest.fn().mockResolvedValue({ total: 1 }),
+      get: jest.fn().mockResolvedValue({
+        data: [{ _id: "house_1", city: "深圳市", region: "南山区" }]
+      })
+    };
+
+    db.collection.mockImplementation((name) => {
+      if (name === "houses") {
+        return housesCollection;
+      }
+
+      return {
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        get: jest.fn().mockResolvedValue({ data: [] }),
+        count: jest.fn().mockResolvedValue({ total: 0 }),
+        add: jest.fn().mockResolvedValue({ _id: "mock_id" }),
+        doc: jest.fn(() => ({
+          get: jest.fn().mockResolvedValue({ data: null }),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        }))
+      };
+    });
+
+    try {
+      const res = await main({
+        action: "getList",
+        payload: {
+          city: "深圳",
+          region: "全市",
+          page: 1,
+          pageSize: 10
+        }
+      }, {});
+
+      expect(res.code).toBe(0);
+      expect(db.RegExp).toHaveBeenCalledWith({
+        regexp: "^深圳市?$",
+        options: "i"
+      });
+      expect(capturedWhere).toEqual(expect.objectContaining({
+        status: "active",
+        city: {
+          $regex: "^深圳市?$",
+          $options: "i"
+        }
+      }));
+      expect(capturedWhere.region).toBeUndefined();
+    } finally {
+      db.collection.mockImplementation(originalImplementation);
+    }
+  });
+
+  it("getList keeps exact district filter when region is selected", async () => {
+    const db = cloud.database();
+    const originalImplementation = db.collection.getMockImplementation();
+    let capturedWhere = null;
+    const housesCollection = {
+      where: jest.fn((where) => {
+        capturedWhere = where;
+        return housesCollection;
+      }),
+      orderBy: jest.fn(() => housesCollection),
+      skip: jest.fn(() => housesCollection),
+      limit: jest.fn(() => housesCollection),
+      count: jest.fn().mockResolvedValue({ total: 1 }),
+      get: jest.fn().mockResolvedValue({
+        data: [{ _id: "house_2", city: "深圳市", region: "南山区" }]
+      })
+    };
+
+    db.collection.mockImplementation((name) => {
+      if (name === "houses") {
+        return housesCollection;
+      }
+
+      return {
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        get: jest.fn().mockResolvedValue({ data: [] }),
+        count: jest.fn().mockResolvedValue({ total: 0 }),
+        add: jest.fn().mockResolvedValue({ _id: "mock_id" }),
+        doc: jest.fn(() => ({
+          get: jest.fn().mockResolvedValue({ data: null }),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        }))
+      };
+    });
+
+    try {
+      const res = await main({
+        action: "getList",
+        payload: {
+          city: "深圳市",
+          region: "南山区",
+          page: 1,
+          pageSize: 10
+        }
+      }, {});
+
+      expect(res.code).toBe(0);
+      expect(capturedWhere).toEqual(expect.objectContaining({
+        status: "active",
+        city: {
+          $regex: "^深圳市?$",
+          $options: "i"
+        },
+        region: "南山区"
+      }));
+    } finally {
+      db.collection.mockImplementation(originalImplementation);
+    }
+  });
+
   it("create rejects invalid house payload before writing", async () => {
     const accessToken = "house_create_token";
     const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");

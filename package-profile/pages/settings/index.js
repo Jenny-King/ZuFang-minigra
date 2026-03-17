@@ -3,8 +3,13 @@ const userStore = require("../../../store/user.store");
 const authUtils = require("../../../utils/auth");
 const { ROUTES, navigateTo, switchTab } = require("../../../config/routes");
 const { maskPhone, fallbackText } = require("../../../utils/format");
-const { isPhone, isEmail } = require("../../../utils/validate");
+const { isEmail } = require("../../../utils/validate");
 const { logger } = require("../../../utils/logger");
+const {
+  getPhoneEntryMeta,
+  validatePhoneChangeValue,
+  validateSmsCodeValue
+} = require("./phone.helper");
 
 function formatIdentityStatus(userInfo = {}) {
   if (userInfo.verified) {
@@ -36,7 +41,9 @@ function normalizeUser(userInfo = null) {
 Page({
   data: {
     loading: false,
+    changingPhone: false,
     userInfo: null,
+    phoneEntryMeta: getPhoneEntryMeta(),
     preferences: settingsService.getSettingsPreferences()
   },
 
@@ -62,6 +69,7 @@ Page({
     const state = userStore.getState();
     this.setData({
       userInfo: normalizeUser(state.userInfo),
+      phoneEntryMeta: getPhoneEntryMeta(state.userInfo),
       preferences: settingsService.getSettingsPreferences()
     });
   },
@@ -126,11 +134,19 @@ Page({
 
   async onChangePhoneTap() {
     logger.info("settings_change_phone_start", {});
+    if (this.data.changingPhone) {
+      logger.info("settings_change_phone_end", { blocked: "loading" });
+      return;
+    }
+
+    const phoneEntryMeta = getPhoneEntryMeta(this.data.userInfo || {});
+
+    this.setData({ changingPhone: true });
     try {
       const phoneRes = await wx.showModal({
-        title: "换绑手机号",
+        title: phoneEntryMeta.actionText,
         editable: true,
-        placeholderText: "请输入新的手机号",
+        placeholderText: phoneEntryMeta.phonePlaceholder,
         content: "",
         confirmText: "发送验证码",
         confirmColor: "#3c7bfd",
@@ -142,21 +158,25 @@ Page({
         return;
       }
 
-      const phone = String(phoneRes.content || "").trim();
-      if (!isPhone(phone)) {
-        wx.showToast({ title: "手机号格式错误", icon: "none" });
+      const phoneValidation = validatePhoneChangeValue(
+        phoneRes.content,
+        phoneEntryMeta.currentPhone
+      );
+      if (!phoneValidation.valid) {
+        wx.showToast({ title: phoneValidation.message, icon: "none" });
         logger.info("settings_change_phone_end", { blocked: "invalid_phone" });
         return;
       }
 
+      const phone = phoneValidation.phone;
       await settingsService.sendSmsCode(phone);
 
       const codeRes = await wx.showModal({
-        title: "换绑手机号",
+        title: phoneEntryMeta.actionText,
         editable: true,
-        placeholderText: "请输入收到的验证码",
+        placeholderText: phoneEntryMeta.codePlaceholder,
         content: "",
-        confirmText: "确认换绑",
+        confirmText: phoneEntryMeta.submitText,
         confirmColor: "#3c7bfd",
         cancelColor: "#999999"
       });
@@ -166,21 +186,22 @@ Page({
         return;
       }
 
-      const code = String(codeRes.content || "").trim();
-      if (!code) {
-        wx.showToast({ title: "验证码不能为空", icon: "none" });
-        logger.info("settings_change_phone_end", { blocked: "empty_code" });
+      const codeValidation = validateSmsCodeValue(codeRes.content);
+      if (!codeValidation.valid) {
+        wx.showToast({ title: codeValidation.message, icon: "none" });
+        logger.info("settings_change_phone_end", { blocked: "invalid_code" });
         return;
       }
 
-      const nextUser = await settingsService.changePhone(phone, code);
+      const nextUser = await settingsService.changePhone(phone, codeValidation.code);
       userStore.setUserInfo(nextUser);
       this.syncPageState();
-      wx.showToast({ title: "手机号已换绑", icon: "success" });
+      wx.showToast({ title: phoneEntryMeta.successText, icon: "success" });
     } catch (error) {
       logger.error("settings_change_phone_failed", { error: error.message });
-      wx.showToast({ title: error.message || "换绑手机号失败", icon: "none" });
+      wx.showToast({ title: error.message || "手机号操作失败", icon: "none" });
     } finally {
+      this.setData({ changingPhone: false });
       logger.info("settings_change_phone_end", {});
     }
   },

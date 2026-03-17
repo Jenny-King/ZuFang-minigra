@@ -13,7 +13,7 @@
   <view class="card settings-card">
     <view class="settings-item" bindtap="onChangePhoneTap">
       <view class="settings-main">
-        <view class="settings-name">换绑手机号</view>
+        <view class="settings-name">{{phoneEntryMeta.actionText}}</view>
         <view class="settings-desc">{{userInfo.displayPhone}}</view>
       </view>
       <view class="settings-arrow">></view>

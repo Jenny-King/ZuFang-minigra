@@ -9,9 +9,9 @@
       class="house-card__image"
       src="{{houseCard.imageUrl}}"
       mode="aspectFill"
-      radius="var(--radius-sm)"
-      width="144rpx"
-      height="108rpx"
+      radius="16rpx"
+      width="148rpx"
+      height="148rpx"
     />
     <view class="house-card__content">
       <view class="house-card__header">
@@ -19,7 +19,10 @@
         <text class="house-card__price">{{houseCard.priceText}}</text>
       </view>
       <text class="house-card__meta text-ellipsis">{{houseCard.metaText}}</text>
-      <text class="house-card__action">查看房源详情</text>
+      <view class="house-card__footer">
+        <text class="house-card__action">查看房源详情</text>
+        <text class="house-card__arrow">></text>
+      </view>
     </view>
   </view>
 
@@ -45,40 +48,69 @@
       >
         <view wx:if="{{item.showTime}}" class="time-divider">{{item.timeLabel}}</view>
         <view class="message-row {{item.isSelf ? 'self' : 'other'}}">
-          <view class="bubble {{item.isImage ? 'image-bubble' : ''}}">
-            <view wx:if="{{item.isImage}}" class="image-message" data-url="{{item.content}}" bindtap="onPreviewMessageImage">
-              <lazy-image
-                class="image-message__img"
-                src="{{item.content}}"
-                mode="aspectFit"
-                radius="var(--radius-sm)"
-                width="320rpx"
-                height="240rpx"
-              />
+          <lazy-image
+            wx:if="{{!item.isSelf}}"
+            class="message-avatar"
+            src="{{targetUserAvatar}}"
+            mode="aspectFill"
+            radius="var(--radius-pill)"
+            width="80rpx"
+            height="80rpx"
+          />
+          <view class="message-stack">
+            <view class="bubble {{item.isImage ? 'image-bubble' : ''}}">
+              <view wx:if="{{item.isImage}}" class="image-message" data-url="{{item.content}}" bindtap="onPreviewMessageImage">
+                <lazy-image
+                  class="image-message__img"
+                  src="{{item.content}}"
+                  mode="aspectFit"
+                  radius="var(--radius-sm)"
+                  width="280rpx"
+                  height="220rpx"
+                />
+              </view>
+              <text wx:else class="content">{{item.content}}</text>
             </view>
-            <text wx:else class="content">{{item.content}}</text>
-            <text class="time">{{item.displayTime}}</text>
           </view>
+          <lazy-image
+            wx:if="{{item.isSelf}}"
+            class="message-avatar"
+            src="{{currentUserAvatar}}"
+            mode="aspectFill"
+            radius="var(--radius-pill)"
+            width="80rpx"
+            height="80rpx"
+          />
         </view>
       </view>
     </block>
   </scroll-view>
 
   <view class="input-bar">
+    <view class="composer-shell">
+      <input
+        class="msg-input"
+        value="{{inputValue}}"
+        placeholder="想了解什么，问问房东吧..."
+        placeholder-class="msg-input__placeholder"
+        bindinput="onInputChange"
+        confirm-type="send"
+        bindconfirm="onSendTap"
+      />
+    </view>
     <button
-      class="image-btn"
+      wx:if="{{canSend}}"
+      class="send-btn"
+      loading="{{sending}}"
+      disabled="{{sending || uploadingImage}}"
+      bindtap="onSendTap"
+    >发送</button>
+    <button
+      wx:else
+      class="plus-btn"
       loading="{{uploadingImage}}"
       disabled="{{sending || uploadingImage}}"
       bindtap="onChooseImageTap"
-    >图片</button>
-    <input
-      class="msg-input"
-      value="{{inputValue}}"
-      placeholder="输入消息内容"
-      bindinput="onInputChange"
-      confirm-type="send"
-      bindconfirm="onSendTap"
-    />
-    <button class="send-btn" loading="{{sending}}" disabled="{{sending || uploadingImage}}" bindtap="onSendTap">发送</button>
+    >+</button>
   </view>
 </view>

@@ -25,13 +25,17 @@ const HOUSE_TYPE = {
 const HOUSE_SORT_BY = {
   LATEST: "latest",
   PRICE_ASC: "priceAsc",
-  PRICE_DESC: "priceDesc"
+  PRICE_DESC: "priceDesc",
+  AREA_ASC: "areaAsc",
+  AREA_DESC: "areaDesc"
 };
 
 const HOUSE_SORT_FIELD = {
   latest: { field: "createTime", order: "desc" },
   priceAsc: { field: "price", order: "asc" },
-  priceDesc: { field: "price", order: "desc" }
+  priceDesc: { field: "price", order: "desc" },
+  areaAsc: { field: "area", order: "asc" },
+  areaDesc: { field: "area", order: "desc" }
 };
 
 const PRICE_RANGE = [

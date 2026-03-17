@@ -1,9 +1,7 @@
 const houseService = require("../../services/house.service");
 const mapService = require("../../services/map.service");
 const {
-  HOUSE_TYPE,
   HOUSE_SORT_BY,
-  PRICE_RANGE,
   REQUEST_DEFAULT,
   STORAGE_KEY
 } = require("../../config/constants");
@@ -16,23 +14,18 @@ const toast = require("../../utils/toast");
 const FALLBACK_REGION_OPTIONS = [{ label: "全部区域", value: "" }];
 const CITY_WIDE_REGION_VALUE = "全市";
 const FALLBACK_CITY_LABEL = "深圳";
-const TYPE_OPTIONS = [
-  { label: "全部户型", value: "" },
-  { label: HOUSE_TYPE.STUDIO, value: HOUSE_TYPE.STUDIO },
-  { label: HOUSE_TYPE.ONE_BEDROOM, value: HOUSE_TYPE.ONE_BEDROOM },
-  { label: HOUSE_TYPE.TWO_BEDROOM, value: HOUSE_TYPE.TWO_BEDROOM },
-  { label: HOUSE_TYPE.THREE_PLUS, value: HOUSE_TYPE.THREE_PLUS }
+const ROOM_FILTER_OPTIONS = [
+  { label: "不限", value: "all" },
+  { label: "一室", value: "1" },
+  { label: "二室", value: "2" },
+  { label: "三室", value: "3" },
+  { label: "四室及以上", value: "4+" }
 ];
-const PRICE_OPTIONS = PRICE_RANGE.map((item) => ({
-  label: item.label,
-  minPrice: Number(item.minPrice || 0),
-  maxPrice: Number(item.maxPrice || 0)
-}));
-const LIST_SORT_TABS = [
-  { label: "最新", value: HOUSE_SORT_BY.LATEST },
-  { label: "价格 ↑", value: HOUSE_SORT_BY.PRICE_ASC },
-  { label: "面积 ↑", value: "areaAsc" }
-];
+const LIST_SORT_TAB_KEYS = {
+  LATEST: HOUSE_SORT_BY.LATEST,
+  PRICE: "price",
+  AREA: "area"
+};
 const FEATURED_BADGES = [
   { label: "热门精选", type: "red" },
   { label: "近地铁", type: "blue" },
@@ -40,6 +33,8 @@ const FEATURED_BADGES = [
 ];
 const FEATURED_ACCENT_CLASSES = ["accent-blue", "accent-green", "accent-gold"];
 const CARD_ACCENT_CLASSES = ["accent-blue", "accent-green", "accent-gold", "accent-pink", "accent-purple"];
+const DROPDOWN_CLOSE_DURATION = 220;
+const FILTER_DROPDOWN_KEYS = ["region", "type", "price"];
 
 function buildRegionOptions(regions = []) {
   return FALLBACK_REGION_OPTIONS.concat(
@@ -179,6 +174,92 @@ function formatArea(area) {
   return normalizedArea > 0 ? `${normalizedArea}㎡` : "面积待定";
 }
 
+function normalizePriceInputValue(value = "") {
+  return String(value || "").replace(/[^\d]/g, "").slice(0, 6);
+}
+
+function parsePriceValue(value = "") {
+  const normalizedValue = normalizePriceInputValue(value);
+  return normalizedValue ? Number(normalizedValue) : 0;
+}
+
+function buildPriceLabel(minPrice = "", maxPrice = "") {
+  const normalizedMinPrice = parsePriceValue(minPrice);
+  const normalizedMaxPrice = parsePriceValue(maxPrice);
+
+  if (normalizedMinPrice && normalizedMaxPrice) {
+    return `${normalizedMinPrice}-${normalizedMaxPrice}`;
+  }
+
+  if (normalizedMinPrice) {
+    return `${normalizedMinPrice}+`;
+  }
+
+  if (normalizedMaxPrice) {
+    return `${normalizedMaxPrice}以下`;
+  }
+
+  return "";
+}
+
+function normalizeRoomFilterValues(values = []) {
+  const sourceValues = Array.isArray(values)
+    ? values
+    : [values];
+  const normalizedValues = sourceValues
+    .map((item) => String(item || "").trim())
+    .filter((item) => ROOM_FILTER_OPTIONS.some((option) => option.value === item && item !== "all"));
+
+  return Array.from(new Set(normalizedValues));
+}
+
+function buildRoomFilterOptions(selectedValues = []) {
+  const normalizedValues = normalizeRoomFilterValues(selectedValues);
+  return ROOM_FILTER_OPTIONS.map((item) => ({
+    ...item,
+    selected: item.value === "all"
+      ? !normalizedValues.length
+      : normalizedValues.includes(item.value)
+  }));
+}
+
+function buildRoomFilterLabel(values = []) {
+  const normalizedValues = normalizeRoomFilterValues(values);
+  if (!normalizedValues.length) {
+    return "";
+  }
+
+  if (normalizedValues.length > 1) {
+    return "多选";
+  }
+
+  const labels = ROOM_FILTER_OPTIONS
+    .filter((item) => item.value !== "all" && normalizedValues.includes(item.value))
+    .map((item) => item.label);
+
+  return labels[0] || "";
+}
+
+function clampOptionIndex(options = [], index = 0) {
+  const maxIndex = Math.max((Array.isArray(options) ? options.length : 0) - 1, 0);
+  const normalizedIndex = Number(index || 0);
+  if (!Number.isInteger(normalizedIndex) || normalizedIndex < 0) {
+    return 0;
+  }
+
+  return Math.min(normalizedIndex, maxIndex);
+}
+
+function buildDraftSelectionState(source = {}) {
+  return {
+    draftRegionIndex: Number(source.selectedRegionIndex || 0),
+    draftRoomFilterValues: normalizeRoomFilterValues(source.selectedRoomFilterValues),
+    draftRoomFilterOptions: buildRoomFilterOptions(source.selectedRoomFilterValues),
+    draftMinPrice: normalizePriceInputValue(source.selectedMinPrice),
+    draftMaxPrice: normalizePriceInputValue(source.selectedMaxPrice)
+  };
+}
+
 function buildDisplayAddress(item = {}) {
   const region = String(item.region || "").trim();
   const address = fallbackText(item.address, "地址待完善");
@@ -187,14 +268,64 @@ function buildDisplayAddress(item = {}) {
     : address;
 }
 
-function sortBySelectedTab(list = [], sortValue = HOUSE_SORT_BY.LATEST) {
-  const workingList = Array.isArray(list) ? list.slice() : [];
-  if (sortValue === HOUSE_SORT_BY.PRICE_ASC) {
-    return workingList.sort((left, right) => Number(left.price || 0) - Number(right.price || 0));
+function isPriceSort(sortValue = "") {
+  return sortValue === HOUSE_SORT_BY.PRICE_ASC || sortValue === HOUSE_SORT_BY.PRICE_DESC;
+}
+
+function isAreaSort(sortValue = "") {
+  return sortValue === HOUSE_SORT_BY.AREA_ASC || sortValue === HOUSE_SORT_BY.AREA_DESC;
+}
+
+function buildListSortTabs(selectedSort = HOUSE_SORT_BY.LATEST) {
+  return [
+    {
+      key: LIST_SORT_TAB_KEYS.LATEST,
+      label: "最新",
+      active: selectedSort === HOUSE_SORT_BY.LATEST
+    },
+    {
+      key: LIST_SORT_TAB_KEYS.PRICE,
+      label: selectedSort === HOUSE_SORT_BY.PRICE_DESC ? "价格 ↓" : "价格 ↑",
+      active: isPriceSort(selectedSort)
+    },
+    {
+      key: LIST_SORT_TAB_KEYS.AREA,
+      label: selectedSort === HOUSE_SORT_BY.AREA_DESC ? "面积 ↓" : "面积 ↑",
+      active: isAreaSort(selectedSort)
+    }
+  ];
+}
+
+function getNextListSort(currentSort = HOUSE_SORT_BY.LATEST, tabKey = LIST_SORT_TAB_KEYS.LATEST) {
+  if (tabKey === LIST_SORT_TAB_KEYS.PRICE) {
+    return currentSort === HOUSE_SORT_BY.PRICE_ASC
+      ? HOUSE_SORT_BY.PRICE_DESC
+      : HOUSE_SORT_BY.PRICE_ASC;
   }
 
-  if (sortValue === "areaAsc") {
-    return workingList.sort((left, right) => Number(left.area || 0) - Number(right.area || 0));
+  if (tabKey === LIST_SORT_TAB_KEYS.AREA) {
+    return currentSort === HOUSE_SORT_BY.AREA_ASC
+      ? HOUSE_SORT_BY.AREA_DESC
+      : HOUSE_SORT_BY.AREA_ASC;
+  }
+
+  return HOUSE_SORT_BY.LATEST;
+}
+
+function sortBySelectedTab(list = [], sortValue = HOUSE_SORT_BY.LATEST) {
+  const workingList = Array.isArray(list) ? list.slice() : [];
+  if (isPriceSort(sortValue)) {
+    const multiplier = sortValue === HOUSE_SORT_BY.PRICE_DESC ? -1 : 1;
+    return workingList.sort((left, right) => (
+      Number(left.price || 0) - Number(right.price || 0)
+    ) * multiplier);
+  }
+
+  if (isAreaSort(sortValue)) {
+    const multiplier = sortValue === HOUSE_SORT_BY.AREA_DESC ? -1 : 1;
+    return workingList.sort((left, right) => (
+      Number(left.area || 0) - Number(right.area || 0)
+    ) * multiplier);
   }
 
   return workingList.sort((left, right) => {
@@ -210,8 +341,9 @@ function getHasActiveFilter(data = {}) {
     || String(data.keywordDraft || "").trim()
     || String(data.selectedCityRaw || "").trim()
     || Number(data.selectedRegionIndex || 0) > 0
-    || Number(data.selectedTypeIndex || 0) > 0
-    || Number(data.selectedPriceIndex || 0) > 0
+    || normalizeRoomFilterValues(data.selectedRoomFilterValues).length > 0
+    || parsePriceValue(data.selectedMinPrice) > 0
+    || parsePriceValue(data.selectedMaxPrice) > 0
     || String(data.selectedListSort || HOUSE_SORT_BY.LATEST) !== HOUSE_SORT_BY.LATEST
   );
 }
@@ -223,12 +355,14 @@ Page({
     allRegionOptions: FALLBACK_REGION_OPTIONS,
     regionOptions: FALLBACK_REGION_OPTIONS,
     cityOptions: [],
-    typeOptions: TYPE_OPTIONS,
-    priceOptions: PRICE_OPTIONS,
-    listSortTabs: LIST_SORT_TABS,
+    roomFilterOptions: buildRoomFilterOptions(),
+    listSortTabs: buildListSortTabs(HOUSE_SORT_BY.LATEST),
     selectedRegionIndex: 0,
-    selectedTypeIndex: 0,
-    selectedPriceIndex: 0,
+    selectedRoomFilterValues: [],
+    selectedRoomFilterLabel: "",
+    selectedMinPrice: "",
+    selectedMaxPrice: "",
+    selectedPriceLabel: "",
     selectedListSort: HOUSE_SORT_BY.LATEST,
     houseList: [],
     featuredList: [],
@@ -249,8 +383,18 @@ Page({
     locationLoading: false,
     locationErrorText: "",
     statusBarHeight: 0,
+    topBarHeight: 0,
+    dropdownTop: 0,
     topBarStyle: "",
     scrollAreaStyle: "",
+    activeDropdown: "",
+    dropdownVisible: false,
+    dropdownEntered: false,
+    draftRegionIndex: 0,
+    draftRoomFilterValues: [],
+    draftRoomFilterOptions: buildRoomFilterOptions(),
+    draftMinPrice: "",
+    draftMaxPrice: "",
     hasActiveFilter: false,
     loading: false,
     refreshing: false,
@@ -283,6 +427,20 @@ Page({
     logger.info("home_reach_bottom_start", { hasMore: this.data.hasMore });
     await this.loadMore();
     logger.info("home_reach_bottom_end", {});
+  },
+
+  onHide() {
+    this.clearDropdownTimer();
+    this.setData({
+      dropdownVisible: false,
+      dropdownEntered: false,
+      activeDropdown: "",
+      ...buildDraftSelectionState(this.data)
+    });
+  },
+
+  onUnload() {
+    this.clearDropdownTimer();
   },
 
   async initPage() {
@@ -350,6 +508,9 @@ Page({
       regionOptions: scopedRegionOptions,
       selectedRegionIndex
     };
+    if (!this.data.dropdownVisible || this.data.activeDropdown !== "region") {
+      nextState.draftRegionIndex = selectedRegionIndex;
+    }
     this.setData(nextState);
     this.syncHasActiveFilter(nextState);
 
@@ -375,6 +536,7 @@ Page({
         regionOptions,
         selectedRegionIndex: getRegionIndex(regionOptions, this.data.regionOptions[this.data.selectedRegionIndex]?.value || "")
       };
+      nextState.draftRegionIndex = nextState.selectedRegionIndex;
       this.setData(nextState);
       this.syncHasActiveFilter(nextState);
       logger.info("api_resp", {
@@ -387,7 +549,8 @@ Page({
         allRegionOptions: FALLBACK_REGION_OPTIONS,
         cityOptions: [],
         regionOptions: FALLBACK_REGION_OPTIONS,
-        selectedRegionIndex: 0
+        selectedRegionIndex: 0,
+        draftRegionIndex: 0
       });
       logger.warn("home_load_regions_fallback", {
         err: error.message || "区域加载失败"
@@ -403,25 +566,23 @@ Page({
   buildQueryParams(targetPage) {
     logger.debug("home_build_query_start", { targetPage });
     const selectedRegionOption = this.data.regionOptions[this.data.selectedRegionIndex] || {};
-    const selectedPriceOption = this.data.priceOptions[this.data.selectedPriceIndex] || {};
     const rawRegion = String(selectedRegionOption.value || "").trim();
     const region = normalizeRegionValue(rawRegion);
     const city = (region || rawRegion === CITY_WIDE_REGION_VALUE)
       ? String(selectedRegionOption.city || this.data.selectedCityRaw || this.data.currentCityRaw || "").trim()
       : String(this.data.selectedCityRaw || "").trim();
-    const type = this.data.typeOptions[this.data.selectedTypeIndex]?.value || "";
-    const sortBy = this.data.selectedListSort === "areaAsc"
-      ? HOUSE_SORT_BY.LATEST
-      : this.data.selectedListSort;
+    const roomFilters = normalizeRoomFilterValues(this.data.selectedRoomFilterValues);
+    const minPrice = parsePriceValue(this.data.selectedMinPrice);
+    const maxPrice = parsePriceValue(this.data.selectedMaxPrice);
 
     const params = {
       keyword: this.data.keyword.trim(),
       city,
       region,
-      type,
-      minPrice: Number(selectedPriceOption.minPrice || 0),
-      maxPrice: Number(selectedPriceOption.maxPrice || 0),
-      sortBy,
+      roomFilters,
+      minPrice,
+      maxPrice,
+      sortBy: this.data.selectedListSort,
       page: targetPage,
       pageSize: this.data.pageSize
     };
@@ -563,6 +724,7 @@ Page({
 
   async onSearchTap() {
     logger.info("home_search_tap_start", {});
+    this.closeDropdownPanel();
     const keyword = this.data.keywordDraft || "";
     this.setData({ keyword });
     this.syncHasActiveFilter({ keyword });
@@ -575,6 +737,7 @@ Page({
       cityCount: this.data.cityOptions.length,
       selectedCity: this.data.selectedCityRaw || ""
     });
+    this.closeDropdownPanel();
 
     const cityOptions = this.data.cityOptions;
     if (!cityOptions.length) {
@@ -650,126 +813,184 @@ Page({
     }
   },
 
-  async openSelectorSheet(options = {}) {
-    const {
-      itemList = [],
-      currentIndex = 0
-    } = options;
-    if (!itemList.length) {
-      return -1;
+  clearDropdownTimer() {
+    if (this.dropdownCloseTimer) {
+      clearTimeout(this.dropdownCloseTimer);
+      this.dropdownCloseTimer = null;
     }
+  },
 
-    try {
-      const result = await wx.showActionSheet({
-        itemList: itemList.map((item, index) => (index === currentIndex ? `${item} ✓` : item))
+  openDropdownPanel(key) {
+    this.clearDropdownTimer();
+
+    if (this.data.dropdownVisible) {
+      this.setData({ activeDropdown: key });
+      wx.nextTick(() => {
+        this.setData({ dropdownEntered: true });
       });
-      return Number(result?.tapIndex);
-    } catch (error) {
-      const errMsg = String(error?.errMsg || error?.message || "");
-      if (!/cancel/i.test(errMsg)) {
-        logger.warn("home_selector_sheet_failed", { err: errMsg });
-      }
-      return -1;
-    }
-  },
-
-  async onOpenRegionFilter() {
-    const selectedIndex = await this.openSelectorSheet({
-      itemList: this.data.regionOptions.map((item) => item.label),
-      currentIndex: this.data.selectedRegionIndex
-    });
-
-    if (selectedIndex < 0 || selectedIndex === this.data.selectedRegionIndex) {
       return;
     }
 
-    this.setData({ selectedRegionIndex: selectedIndex });
-    this.syncHasActiveFilter({ selectedRegionIndex: selectedIndex });
-    await this.refreshList();
+    this.setData({
+      activeDropdown: key,
+      dropdownVisible: true,
+      dropdownEntered: false,
+      ...buildDraftSelectionState(this.data)
+    });
+    wx.nextTick(() => {
+      this.setData({ dropdownEntered: true });
+    });
   },
 
-  async onOpenTypeFilter() {
-    const selectedIndex = await this.openSelectorSheet({
-      itemList: this.data.typeOptions.map((item) => item.label),
-      currentIndex: this.data.selectedTypeIndex
-    });
-
-    if (selectedIndex < 0 || selectedIndex === this.data.selectedTypeIndex) {
+  closeDropdownPanel() {
+    if (!this.data.dropdownVisible) {
       return;
     }
 
-    this.setData({ selectedTypeIndex: selectedIndex });
-    this.syncHasActiveFilter({ selectedTypeIndex: selectedIndex });
-    await this.refreshList();
-  },
-
-  async onOpenPriceFilter() {
-    const selectedIndex = await this.openSelectorSheet({
-      itemList: this.data.priceOptions.map((item) => item.label),
-      currentIndex: this.data.selectedPriceIndex
-    });
-
-    if (selectedIndex < 0 || selectedIndex === this.data.selectedPriceIndex) {
-      return;
-    }
-
-    this.setData({ selectedPriceIndex: selectedIndex });
-    this.syncHasActiveFilter({ selectedPriceIndex: selectedIndex });
-    await this.refreshList();
-  },
-
-  async onOpenMoreFilter() {
-    try {
-      const result = await wx.showActionSheet({
-        itemList: ["重新定位", "清空筛选"]
+    this.clearDropdownTimer();
+    this.setData({ dropdownEntered: false });
+    this.dropdownCloseTimer = setTimeout(() => {
+      this.setData({
+        dropdownVisible: false,
+        activeDropdown: "",
+        dropdownEntered: false,
+        ...buildDraftSelectionState(this.data)
       });
-      const selectedIndex = Number(result?.tapIndex);
+      this.dropdownCloseTimer = null;
+    }, DROPDOWN_CLOSE_DURATION);
+  },
 
-      if (selectedIndex === 0) {
-        const refreshed = await this.refreshCurrentLocation({ silent: false, fromTap: true });
-        if (refreshed && !this.data.selectedCityRaw) {
-          this.syncRegionScopeWithCity(this.data.currentCityRaw, { preserveRegion: true });
-        }
-        await this.refreshList();
-        return;
-      }
-
-      if (selectedIndex === 1) {
-        const nextState = {
-          keyword: "",
-          keywordDraft: "",
-          selectedCityRaw: "",
-          selectedCityLabel: "",
-          selectedRegionIndex: 0,
-          selectedTypeIndex: 0,
-          selectedPriceIndex: 0,
-          selectedListSort: HOUSE_SORT_BY.LATEST
-        };
-        this.setData(nextState);
-        this.syncRegionScopeWithCity(this.data.currentCityRaw, { preserveRegion: false });
-        this.syncHasActiveFilter(nextState);
-        await this.refreshList();
-      }
-    } catch (error) {
-      const errMsg = String(error?.errMsg || error?.message || "");
-      if (!/cancel/i.test(errMsg)) {
-        logger.warn("home_more_filter_failed", { err: errMsg });
-      }
+  onFilterChipTap(event) {
+    const key = String(event.currentTarget.dataset.key || "").trim();
+    if (!FILTER_DROPDOWN_KEYS.includes(key)) {
+      return;
     }
+
+    if (this.data.dropdownVisible && this.data.activeDropdown === key && this.data.dropdownEntered) {
+      this.closeDropdownPanel();
+      return;
+    }
+
+    this.openDropdownPanel(key);
+  },
+
+  onCloseDropdown() {
+    this.closeDropdownPanel();
+  },
+
+  noop() {},
+
+  onSelectDropdownOption(event) {
+    const key = String(event.currentTarget.dataset.key || "").trim();
+    const index = Number(event.currentTarget.dataset.index);
+    if (!Number.isInteger(index) || index < 0) {
+      return;
+    }
+
+    if (key === "region") {
+      this.setData({ draftRegionIndex: clampOptionIndex(this.data.regionOptions, index) });
+    }
+  },
+
+  onToggleRoomFilter(event) {
+    const value = String(event.currentTarget.dataset.value || "").trim();
+    if (!value) {
+      return;
+    }
+
+    if (value === "all") {
+      this.setData({
+        draftRoomFilterValues: [],
+        draftRoomFilterOptions: buildRoomFilterOptions([])
+      });
+      return;
+    }
+
+    const currentValues = normalizeRoomFilterValues(this.data.draftRoomFilterValues);
+    const nextValues = currentValues.includes(value)
+      ? currentValues.filter((item) => item !== value)
+      : currentValues.concat(value);
+    const normalizedValues = normalizeRoomFilterValues(nextValues);
+
+    this.setData({
+      draftRoomFilterValues: normalizedValues,
+      draftRoomFilterOptions: buildRoomFilterOptions(normalizedValues)
+    });
+  },
+
+  onPriceInput(event) {
+    const field = String(event.currentTarget.dataset.field || "").trim();
+    const value = normalizePriceInputValue(event.detail?.value);
+
+    if (field === "min") {
+      this.setData({ draftMinPrice: value });
+      return;
+    }
+
+    if (field === "max") {
+      this.setData({ draftMaxPrice: value });
+    }
+  },
+
+  onDropdownReset() {
+    this.setData({
+      draftRegionIndex: 0,
+      draftRoomFilterValues: [],
+      draftRoomFilterOptions: buildRoomFilterOptions([]),
+      draftMinPrice: "",
+      draftMaxPrice: ""
+    });
+  },
+
+  async onDropdownConfirm() {
+    const nextMinPrice = normalizePriceInputValue(this.data.draftMinPrice);
+    const nextMaxPrice = normalizePriceInputValue(this.data.draftMaxPrice);
+    const parsedMinPrice = parsePriceValue(nextMinPrice);
+    const parsedMaxPrice = parsePriceValue(nextMaxPrice);
+
+    if (parsedMinPrice && parsedMaxPrice && parsedMinPrice > parsedMaxPrice) {
+      toast.error("最高租金需大于等于最低租金");
+      return;
+    }
+
+    const nextState = {
+      selectedRegionIndex: clampOptionIndex(this.data.regionOptions, this.data.draftRegionIndex),
+      selectedRoomFilterValues: normalizeRoomFilterValues(this.data.draftRoomFilterValues),
+      selectedRoomFilterLabel: buildRoomFilterLabel(this.data.draftRoomFilterValues),
+      roomFilterOptions: buildRoomFilterOptions(this.data.draftRoomFilterValues),
+      selectedMinPrice: nextMinPrice,
+      selectedMaxPrice: nextMaxPrice,
+      selectedPriceLabel: buildPriceLabel(nextMinPrice, nextMaxPrice)
+    };
+    const hasChanged = nextState.selectedRegionIndex !== this.data.selectedRegionIndex
+      || JSON.stringify(nextState.selectedRoomFilterValues) !== JSON.stringify(this.data.selectedRoomFilterValues)
+      || nextState.selectedMinPrice !== this.data.selectedMinPrice
+      || nextState.selectedMaxPrice !== this.data.selectedMaxPrice;
+
+    this.setData(nextState);
+    this.syncHasActiveFilter(nextState);
+    this.closeDropdownPanel();
+
+    if (!hasChanged) {
+      return;
+    }
+
+    await this.refreshList();
   },
 
   async onListSortTap(event) {
-    const sortValue = String(event.currentTarget.dataset.value || HOUSE_SORT_BY.LATEST);
-    if (sortValue === this.data.selectedListSort) {
+    const sortKey = String(event.currentTarget.dataset.key || LIST_SORT_TAB_KEYS.LATEST);
+    const nextSort = getNextListSort(this.data.selectedListSort, sortKey);
+    if (nextSort === this.data.selectedListSort) {
       return;
     }
 
-    this.setData({ selectedListSort: sortValue });
-    this.syncHasActiveFilter({ selectedListSort: sortValue });
-    if (sortValue === "areaAsc") {
-      this.syncDisplayLists();
-      return;
-    }
+    this.closeDropdownPanel();
+    this.setData({
+      selectedListSort: nextSort,
+      listSortTabs: buildListSortTabs(nextSort)
+    });
+    this.syncHasActiveFilter({ selectedListSort: nextSort });
 
     await this.refreshList();
   },
@@ -875,6 +1096,8 @@ Page({
 
     this.setData({
       statusBarHeight,
+      topBarHeight: 0,
+      dropdownTop: 0,
       topBarStyle: "",
       scrollAreaStyle: ""
     });
@@ -890,6 +1113,8 @@ Page({
       }
 
       this.setData({
+        topBarHeight: rect.height,
+        dropdownTop: Math.max(rect.height - 1, 0),
         scrollAreaStyle: `padding-top:${rect.height}px;`
       });
     });
@@ -905,17 +1130,33 @@ Page({
   },
 
   async resetFilter() {
+    this.clearDropdownTimer();
     const nextState = {
       keyword: "",
       keywordDraft: "",
       selectedCityRaw: "",
       selectedCityLabel: "",
       selectedRegionIndex: 0,
-      selectedTypeIndex: 0,
-      selectedPriceIndex: 0,
-      selectedListSort: HOUSE_SORT_BY.LATEST
+      selectedRoomFilterValues: [],
+      selectedRoomFilterLabel: "",
+      roomFilterOptions: buildRoomFilterOptions([]),
+      selectedMinPrice: "",
+      selectedMaxPrice: "",
+      selectedPriceLabel: "",
+      selectedListSort: HOUSE_SORT_BY.LATEST,
+      listSortTabs: buildListSortTabs(HOUSE_SORT_BY.LATEST)
     };
-    this.setData(nextState);
+    this.setData({
+      ...nextState,
+      dropdownVisible: false,
+      dropdownEntered: false,
+      activeDropdown: "",
+      draftRegionIndex: 0,
+      draftRoomFilterValues: [],
+      draftRoomFilterOptions: buildRoomFilterOptions([]),
+      draftMinPrice: "",
+      draftMaxPrice: ""
+    });
     this.syncRegionScopeWithCity(this.data.currentCityRaw, { preserveRegion: false });
     this.syncHasActiveFilter(nextState);
     await this.refreshList();

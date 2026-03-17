@@ -10,6 +10,7 @@ const USERS = "users";
 const USER_IDENTITIES = "user_identities";
 const USER_SESSIONS = "user_sessions";
 const SMS_CODES = "sms_codes";
+const STRONG_PASSWORD_REGEXP = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d\s])[^\s]{8,20}$/;
 
 const USER_STATUS = {
   ACTIVE: "active",
@@ -91,6 +92,10 @@ function isPhone(phone) {
 
 function isEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
+function isStrongPassword(password) {
+  return STRONG_PASSWORD_REGEXP.test(String(password || ""));
 }
 
 function getIdentityProfileStatus(user) {
@@ -301,6 +306,30 @@ async function getSessionByAccessToken(accessToken) {
   return session;
 }
 
+async function revokeUserSessionsByUserId(userId) {
+  const normalizedUserId = String(userId || "").trim();
+  if (!normalizedUserId) {
+    return { revoked: 0 };
+  }
+
+  const now = new Date();
+  const res = await db.collection(USER_SESSIONS)
+    .where({
+      userId: normalizedUserId,
+      status: SESSION_STATUS.ACTIVE
+    })
+    .update({
+      data: {
+        status: SESSION_STATUS.REVOKED,
+        updateTime: now
+      }
+    });
+
+  return {
+    revoked: Number(res?.stats?.updated || 0)
+  };
+}
+
 async function isWechatBound(userId) {
   const normalizedUserId = String(userId || "").trim();
   if (!normalizedUserId) {
@@ -387,10 +416,16 @@ async function handleChangePassword(payload, event) {
   const oldPassword = String(payload.oldPassword || "");
   const newPassword = String(payload.newPassword || "");
   if (!oldPassword || !newPassword) {
-    return fail("新旧密码不能为空");
+    return fail("新旧密码不能为空", 400);
   }
   if (!authState.user.passwordHash || authState.user.passwordHash !== hashPassword(oldPassword)) {
     return fail("旧密码错误", 401);
+  }
+  if (!isStrongPassword(newPassword)) {
+    return fail("新密码需 8-20 位，且同时包含字母、数字和特殊字符", 400);
+  }
+  if (oldPassword === newPassword) {
+    return fail("新密码不能与当前密码相同", 400);
   }
 
   await db.collection(USERS)
@@ -402,7 +437,29 @@ async function handleChangePassword(payload, event) {
       }
     });
 
-  return success({ updated: true });
+  const sessionResult = await revokeUserSessionsByUserId(authState.user.userId);
+  return success({
+    updated: true,
+    revokedSessions: sessionResult.revoked
+  });
+}
+
+async function handleVerifyPassword(payload, event) {
+  const authState = await resolveCurrentUser(event);
+  if (!authState.ok) {
+    return authState.result;
+  }
+
+  const password = String(payload.password || "");
+  if (!password) {
+    return fail("当前密码不能为空", 400);
+  }
+
+  if (!authState.user.passwordHash || authState.user.passwordHash !== hashPassword(password)) {
+    return fail("当前密码错误", 401);
+  }
+
+  return success({ verified: true });
 }
 
 async function handleChangePhone(payload, event) {
@@ -577,6 +634,7 @@ exports.main = async (event, context) => {
     let result = fail("未知 action");
     if (action === "getCurrentUser") result = await handleGetCurrentUser(event);
     if (action === "updateProfile") result = await handleUpdateProfile(payload, event);
+    if (action === "verifyPassword") result = await handleVerifyPassword(payload, event);
     if (action === "changePassword") result = await handleChangePassword(payload, event);
     if (action === "changePhone") result = await handleChangePhone(payload, event);
     if (action === "bindEmail") result = await handleBindEmail(payload, event);

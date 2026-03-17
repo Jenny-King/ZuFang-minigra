@@ -354,6 +354,252 @@ describe("cloudfunction/user", () => {
     expect(identityUpdateMock).toHaveBeenCalledTimes(1);
   });
 
+  it("verifyPassword returns success when current password is correct", async () => {
+    const accessToken = "session_token";
+    const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");
+    const password = "Current@123";
+    const userDoc = {
+      _id: "user_doc_1",
+      userId: "user_1",
+      phone: "13387395714",
+      nickName: "测试用户",
+      role: "tenant",
+      status: "active",
+      passwordHash: crypto.createHash("sha256").update(password).digest("hex")
+    };
+
+    const db = cloud.database();
+    const originalImplementation = db.collection.getMockImplementation();
+    db.collection.mockImplementation((name) => {
+      if (name === "user_sessions") {
+        return {
+          doc: jest.fn((id) => ({
+            get: jest.fn().mockResolvedValue(id === tokenHash
+              ? {
+                  data: {
+                    _id: tokenHash,
+                    tokenHash,
+                    userId: userDoc.userId,
+                    status: "active",
+                    expireAt: new Date(Date.now() + 60 * 1000).toISOString()
+                  }
+                }
+              : { data: null })
+          }))
+        };
+      }
+
+      if (name === "users") {
+        return {
+          where: jest.fn(() => ({
+            limit: jest.fn(() => ({
+              get: jest.fn().mockResolvedValue({ data: [userDoc] })
+            }))
+          }))
+        };
+      }
+
+      return {
+        where: jest.fn(() => ({
+          limit: jest.fn(() => ({
+            get: jest.fn().mockResolvedValue({ data: [] })
+          })),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 0 } })
+        })),
+        doc: jest.fn(() => ({
+          get: jest.fn().mockResolvedValue({ data: null }),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        }))
+      };
+    });
+
+    try {
+      const res = await main({
+        action: "verifyPassword",
+        payload: { password },
+        auth: { accessToken }
+      }, {});
+
+      expect(res.code).toBe(0);
+      expect(res.data).toEqual({ verified: true });
+    } finally {
+      db.collection.mockImplementation(originalImplementation);
+    }
+  });
+
+  it("changePassword rejects weak new passwords", async () => {
+    const accessToken = "session_token";
+    const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");
+    const oldPassword = "Current@123";
+    const userDoc = {
+      _id: "user_doc_1",
+      userId: "user_1",
+      phone: "13387395714",
+      nickName: "测试用户",
+      role: "tenant",
+      status: "active",
+      passwordHash: crypto.createHash("sha256").update(oldPassword).digest("hex")
+    };
+
+    const db = cloud.database();
+    const originalImplementation = db.collection.getMockImplementation();
+    db.collection.mockImplementation((name) => {
+      if (name === "user_sessions") {
+        return {
+          doc: jest.fn((id) => ({
+            get: jest.fn().mockResolvedValue(id === tokenHash
+              ? {
+                  data: {
+                    _id: tokenHash,
+                    tokenHash,
+                    userId: userDoc.userId,
+                    status: "active",
+                    expireAt: new Date(Date.now() + 60 * 1000).toISOString()
+                  }
+                }
+              : { data: null })
+          }))
+        };
+      }
+
+      if (name === "users") {
+        return {
+          where: jest.fn(() => ({
+            limit: jest.fn(() => ({
+              get: jest.fn().mockResolvedValue({ data: [userDoc] })
+            }))
+          })),
+          doc: jest.fn(() => ({
+            update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+          }))
+        };
+      }
+
+      return {
+        where: jest.fn(() => ({
+          limit: jest.fn(() => ({
+            get: jest.fn().mockResolvedValue({ data: [] })
+          })),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 0 } })
+        })),
+        doc: jest.fn(() => ({
+          get: jest.fn().mockResolvedValue({ data: null }),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        }))
+      };
+    });
+
+    try {
+      const res = await main({
+        action: "changePassword",
+        payload: {
+          oldPassword,
+          newPassword: "weak1234"
+        },
+        auth: { accessToken }
+      }, {});
+
+      expect(res.code).toBe(400);
+      expect(res.message).toBe("新密码需 8-20 位，且同时包含字母、数字和特殊字符");
+    } finally {
+      db.collection.mockImplementation(originalImplementation);
+    }
+  });
+
+  it("changePassword updates password hash and revokes active sessions", async () => {
+    const accessToken = "session_token";
+    const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");
+    const oldPassword = "Current@123";
+    const newPassword = "Next@1234";
+    const userDoc = {
+      _id: "user_doc_1",
+      userId: "user_1",
+      phone: "13387395714",
+      nickName: "测试用户",
+      role: "tenant",
+      status: "active",
+      passwordHash: crypto.createHash("sha256").update(oldPassword).digest("hex")
+    };
+    const userUpdateMock = jest.fn().mockResolvedValue({ stats: { updated: 1 } });
+    const sessionUpdateMock = jest.fn().mockResolvedValue({ stats: { updated: 2 } });
+
+    const db = cloud.database();
+    const originalImplementation = db.collection.getMockImplementation();
+    db.collection.mockImplementation((name) => {
+      if (name === "user_sessions") {
+        return {
+          doc: jest.fn((id) => ({
+            get: jest.fn().mockResolvedValue(id === tokenHash
+              ? {
+                  data: {
+                    _id: tokenHash,
+                    tokenHash,
+                    userId: userDoc.userId,
+                    status: "active",
+                    expireAt: new Date(Date.now() + 60 * 1000).toISOString()
+                  }
+                }
+              : { data: null })
+          })),
+          where: jest.fn(() => ({
+            update: sessionUpdateMock
+          }))
+        };
+      }
+
+      if (name === "users") {
+        return {
+          where: jest.fn(() => ({
+            limit: jest.fn(() => ({
+              get: jest.fn().mockResolvedValue({ data: [userDoc] })
+            }))
+          })),
+          doc: jest.fn(() => ({
+            update: userUpdateMock
+          }))
+        };
+      }
+
+      return {
+        where: jest.fn(() => ({
+          limit: jest.fn(() => ({
+            get: jest.fn().mockResolvedValue({ data: [] })
+          })),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 0 } })
+        })),
+        doc: jest.fn(() => ({
+          get: jest.fn().mockResolvedValue({ data: null }),
+          update: jest.fn().mockResolvedValue({ stats: { updated: 1 } })
+        }))
+      };
+    });
+
+    try {
+      const res = await main({
+        action: "changePassword",
+        payload: {
+          oldPassword,
+          newPassword
+        },
+        auth: { accessToken }
+      }, {});
+
+      expect(res.code).toBe(0);
+      expect(res.data).toEqual({
+        updated: true,
+        revokedSessions: 2
+      });
+      expect(userUpdateMock).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          passwordHash: crypto.createHash("sha256").update(newPassword).digest("hex")
+        })
+      }));
+      expect(sessionUpdateMock).toHaveBeenCalledTimes(1);
+    } finally {
+      db.collection.mockImplementation(originalImplementation);
+    }
+  });
+
   it("bindEmail saves sanitized email", async () => {
     const accessToken = "session_token";
     const tokenHash = crypto.createHash("sha256").update(accessToken).digest("hex");

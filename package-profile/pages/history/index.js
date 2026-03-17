@@ -14,13 +14,15 @@ Page({
     hasMore: true,
     list: [],
     errorText: "",
-    titleHighlight: false
+    titleHighlight: false,
+    openActionHistoryId: ""
   },
 
   onLoad(options) {
     logger.info("page_load", { page: "profile/history", query: options || {} });
     this.shouldHighlightTitle = Boolean(options && options.highlight === "1");
     this.titleHighlightTimer = null;
+    this.touchStartPoint = null;
     if (!authUtils.requireLogin({ redirect: true })) {
       logger.info("history_onload_end", { blocked: "not_login" });
       return;
@@ -88,7 +90,8 @@ Page({
     logger.info("history_refresh_start", {});
     this.setData({
       page: REQUEST_DEFAULT.PAGE,
-      hasMore: true
+      hasMore: true,
+      openActionHistoryId: ""
     });
     await this.fetchList({ initial: true });
     logger.info("history_refresh_end", {});
@@ -140,6 +143,54 @@ Page({
     }
   },
 
+  noop() {},
+
+  onPageTap() {
+    if (this.data.openActionHistoryId) {
+      this.setData({ openActionHistoryId: "" });
+    }
+  },
+
+  onCardTouchStart(event) {
+    const historyId = String(event.currentTarget.dataset.historyId || "").trim();
+    const touch = event.changedTouches?.[0];
+    if (!historyId || !touch) {
+      return;
+    }
+
+    this.touchStartPoint = {
+      historyId,
+      x: Number(touch.clientX || 0),
+      y: Number(touch.clientY || 0)
+    };
+  },
+
+  onCardTouchEnd(event) {
+    const historyId = String(event.currentTarget.dataset.historyId || "").trim();
+    const touch = event.changedTouches?.[0];
+    if (!historyId || !touch || !this.touchStartPoint || this.touchStartPoint.historyId !== historyId) {
+      this.touchStartPoint = null;
+      return;
+    }
+
+    const dx = Number(touch.clientX || 0) - this.touchStartPoint.x;
+    const dy = Number(touch.clientY || 0) - this.touchStartPoint.y;
+    this.touchStartPoint = null;
+
+    if (Math.abs(dx) <= Math.abs(dy) || Math.abs(dx) < 40) {
+      return;
+    }
+
+    if (dx < 0) {
+      this.setData({ openActionHistoryId: historyId });
+      return;
+    }
+
+    if (this.data.openActionHistoryId === historyId) {
+      this.setData({ openActionHistoryId: "" });
+    }
+  },
+
   async onRemoveTap(event) {
     logger.info("history_remove_start", { data: event.currentTarget.dataset || {} });
     const historyId = event.currentTarget.dataset.historyId;
@@ -151,6 +202,7 @@ Page({
       logger.info("api_call", { func: "history.remove", params: { historyId } });
       await historyService.removeHistory(historyId);
       logger.info("api_resp", { func: "history.remove", code: 0 });
+      this.setData({ openActionHistoryId: "" });
       wx.showToast({ title: "已删除", icon: "none" });
       await this.refreshList();
     } catch (error) {
@@ -171,6 +223,7 @@ Page({
       logger.info("api_call", { func: "history.clear", params: {} });
       await historyService.clearHistory();
       logger.info("api_resp", { func: "history.clear", code: 0 });
+      this.setData({ openActionHistoryId: "" });
       wx.showToast({ title: "已清空历史", icon: "none" });
       await this.refreshList();
     } catch (error) {
@@ -214,5 +267,6 @@ Page({
       clearTimeout(this.titleHighlightTimer);
       this.titleHighlightTimer = null;
     }
+    this.touchStartPoint = null;
   }
 });

@@ -2,6 +2,7 @@ const { USER_ROLE } = require("../config/constants");
 
 const PHONE_REGEXP = /^1\d{10}$/;
 const PASSWORD_REGEXP = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d\W_]{6,20}$/;
+const STRONG_PASSWORD_REGEXP = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d\s])[^\s]{8,20}$/;
 const IDCARD_REGEXP = /(^\d{15}$)|(^\d{17}[\dXx]$)/;
 const EMAIL_REGEXP = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,6 +16,10 @@ function isPhone(value) {
 
 function isPassword(value) {
   return isNonEmptyString(value) && PASSWORD_REGEXP.test(value);
+}
+
+function isStrongPassword(value) {
+  return isNonEmptyString(value) && STRONG_PASSWORD_REGEXP.test(value);
 }
 
 function isIdCard(value) {
@@ -70,6 +75,7 @@ module.exports = {
   isPhone,
   isEmail,
   isPassword,
+  isStrongPassword,
   isIdCard,
   isUserRole,
   isPositiveNumber,

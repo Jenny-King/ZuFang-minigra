@@ -1,0 +1,171 @@
+@import "../../styles/variables.wxss";
+
+.auth-page {
+  --color-primary: #3c7bfd;
+  --color-primary-bg: rgba(60, 123, 253, 0.1);
+  --color-primary-dark: #245fda;
+  --auth-field-bg: #f7f8fa;
+  min-height: 100vh;
+  background: #f7f8fa;
+}
+
+.auth-card {
+  padding: 32rpx;
+  border-radius: 32rpx;
+  background: #ffffff;
+  box-shadow: 0 16rpx 36rpx rgba(15, 23, 42, 0.05);
+}
+
+.title {
+  margin-bottom: 32rpx;
+  text-align: center;
+  color: var(--color-text-1);
+  font-size: 36rpx;
+  font-weight: var(--weight-heavy);
+}
+
+.form-item {
+  margin-bottom: 24rpx;
+}
+
+.label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: var(--color-text-1);
+  font-size: 28rpx;
+  font-weight: var(--weight-bold);
+}
+
+.row {
+  display: flex;
+  align-items: stretch;
+  gap: 12rpx;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.input,
+.password-row,
+.input-inline {
+  width: 100%;
+  min-height: 92rpx;
+  border: none;
+  border-radius: 24rpx;
+  background: var(--auth-field-bg);
+}
+
+.input {
+  padding: 0 28rpx;
+  color: var(--color-text-1);
+  font-size: 28rpx;
+}
+
+.password-row,
+.input-inline {
+  display: flex;
+  align-items: center;
+  padding: 0 28rpx;
+}
+
+.password-input,
+.input-inline__control {
+  flex: 1;
+  min-width: 0;
+  min-height: 92rpx;
+  color: var(--color-text-1);
+  font-size: 28rpx;
+}
+
+.input-error,
+.password-row-error,
+.input-inline-error {
+  box-shadow: inset 0 0 0 2rpx rgba(239, 68, 68, 0.24);
+  background: #fff4f4;
+}
+
+.field-error {
+  display: block;
+  margin-top: 10rpx;
+  color: var(--color-danger);
+  font-size: 22rpx;
+  line-height: var(--lh-normal);
+}
+
+.tap-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88rpx;
+  min-height: 88rpx;
+}
+
+.password-toggle {
+  flex-shrink: 0;
+}
+
+.password-toggle-text,
+.inline-text-btn {
+  color: var(--color-primary);
+  font-size: 24rpx;
+  font-weight: var(--weight-bold);
+}
+
+.inline-text-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  min-width: 176rpx;
+  height: 92rpx;
+  line-height: 1.2;
+  margin: 0;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  text-align: right;
+}
+
+.inline-text-btn.disabled {
+  color: #b8c1cf;
+}
+
+.wechat-btn,
+.submit-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  margin: 0;
+  border-radius: 24rpx;
+  font-size: 30rpx;
+  font-weight: var(--weight-bold);
+}
+
+.submit-btn {
+  margin-top: 12rpx;
+  background: linear-gradient(180deg, #4c88ff 0%, #3c7bfd 100%);
+  color: var(--color-text-inverse);
+  box-shadow: 0 12rpx 24rpx rgba(60, 123, 253, 0.22);
+}
+
+.bottom-text {
+  margin-top: 24rpx;
+  text-align: center;
+  color: var(--color-text-2);
+  font-size: 24rpx;
+}
+
+.link {
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
+}
+
+.wechat-btn::after,
+.submit-btn::after,
+.inline-text-btn::after {
+  border: none;
+}

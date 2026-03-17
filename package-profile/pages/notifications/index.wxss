@@ -2,6 +2,13 @@
   min-height: 100vh;
 }
 
+.empty-wrap {
+  min-height: calc(100vh - 260rpx);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .error-box {
   padding: 20rpx;
   margin-bottom: 20rpx;
@@ -23,6 +30,7 @@
 
 .notification-item.unread {
   border: 2rpx solid #d6e4ff;
+  background: #f9fbff;
 }
 
 .notification-item.read {

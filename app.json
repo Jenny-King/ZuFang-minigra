@@ -27,6 +27,8 @@
       "pages": [
         "pages/support-center/index",
         "pages/settings/index",
+        "pages/change-phone/index",
+        "pages/change-password/index",
         "pages/edit-profile/index",
         "pages/favorites/index",
         "pages/history/index",

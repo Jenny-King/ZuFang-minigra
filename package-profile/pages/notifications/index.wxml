@@ -1,6 +1,13 @@
 <view class="container notifications-page">
   <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
-  <view wx:if="{{!loading && list.length === 0}}" class="empty-tip">暂无通知</view>
+
+  <view wx:if="{{!loading && !errorText && list.length === 0}}" class="empty-wrap">
+    <empty-state
+      icon="/assets/images/empty-notification.svg"
+      title="暂无新通知"
+      subtitle="系统提醒和业务进度会第一时间出现在这里"
+    />
+  </view>
 
   <view class="notification-list">
     <view

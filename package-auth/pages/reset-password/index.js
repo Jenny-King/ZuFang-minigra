@@ -9,6 +9,8 @@ Page({
     phone: "",
     code: "",
     newPassword: "",
+    cdSecs: 0,
+    cdRunning: false,
     sendingCode: false,
     submitLoading: false
   },
@@ -16,6 +18,10 @@ Page({
   onLoad(options) {
     logger.info("page_load", { page: "auth/reset-password", query: options || {} });
     logger.info("auth_reset_password_onload_end", {});
+  },
+
+  onUnload() {
+    this.clearCountdown();
   },
 
   onPhoneInput(event) {
@@ -31,7 +37,7 @@ Page({
   },
 
   async onSendCodeTap() {
-    if (this.data.sendingCode) {
+    if (this.data.sendingCode || this.data.cdRunning) {
       return;
     }
 
@@ -44,6 +50,7 @@ Page({
     this.setData({ sendingCode: true });
     try {
       await authService.sendSmsCode(phone);
+      this.startCountdown();
       wx.showToast({ title: "验证码已发送", icon: "success" });
     } catch (error) {
       logger.error("api_error", { func: "auth.sendSmsCode", err: error.message });
@@ -89,6 +96,28 @@ Page({
       wx.showToast({ title: error.message || "重置失败", icon: "none" });
     } finally {
       this.setData({ submitLoading: false });
+    }
+  },
+
+  startCountdown() {
+    this.clearCountdown();
+    this.setData({ cdSecs: 60, cdRunning: true });
+    this._cdTimer = setInterval(() => {
+      const nextSecs = this.data.cdSecs - 1;
+      if (nextSecs <= 0) {
+        this.clearCountdown();
+        this.setData({ cdSecs: 0, cdRunning: false });
+        return;
+      }
+
+      this.setData({ cdSecs: nextSecs });
+    }, 1000);
+  },
+
+  clearCountdown() {
+    if (this._cdTimer) {
+      clearInterval(this._cdTimer);
+      this._cdTimer = null;
     }
   }
 });

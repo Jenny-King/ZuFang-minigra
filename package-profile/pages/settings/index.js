@@ -5,11 +5,7 @@ const { ROUTES, navigateTo, switchTab } = require("../../../config/routes");
 const { maskPhone, fallbackText } = require("../../../utils/format");
 const { isEmail } = require("../../../utils/validate");
 const { logger } = require("../../../utils/logger");
-const {
-  getPhoneEntryMeta,
-  validatePhoneChangeValue,
-  validateSmsCodeValue
-} = require("./phone.helper");
+const { getPhoneEntryMeta } = require("./phone.helper");
 
 function formatIdentityStatus(userInfo = {}) {
   if (userInfo.verified) {
@@ -41,7 +37,6 @@ function normalizeUser(userInfo = null) {
 Page({
   data: {
     loading: false,
-    changingPhone: false,
     userInfo: null,
     phoneEntryMeta: getPhoneEntryMeta(),
     preferences: settingsService.getSettingsPreferences()
@@ -134,74 +129,12 @@ Page({
 
   async onChangePhoneTap() {
     logger.info("settings_change_phone_start", {});
-    if (this.data.changingPhone) {
-      logger.info("settings_change_phone_end", { blocked: "loading" });
-      return;
-    }
-
-    const phoneEntryMeta = getPhoneEntryMeta(this.data.userInfo || {});
-
-    this.setData({ changingPhone: true });
     try {
-      const phoneRes = await wx.showModal({
-        title: phoneEntryMeta.actionText,
-        editable: true,
-        placeholderText: phoneEntryMeta.phonePlaceholder,
-        content: "",
-        confirmText: "发送验证码",
-        confirmColor: "#3c7bfd",
-        cancelColor: "#999999"
-      });
-
-      if (!phoneRes.confirm) {
-        logger.info("settings_change_phone_end", { blocked: "cancelled_phone" });
-        return;
-      }
-
-      const phoneValidation = validatePhoneChangeValue(
-        phoneRes.content,
-        phoneEntryMeta.currentPhone
-      );
-      if (!phoneValidation.valid) {
-        wx.showToast({ title: phoneValidation.message, icon: "none" });
-        logger.info("settings_change_phone_end", { blocked: "invalid_phone" });
-        return;
-      }
-
-      const phone = phoneValidation.phone;
-      await settingsService.sendSmsCode(phone);
-
-      const codeRes = await wx.showModal({
-        title: phoneEntryMeta.actionText,
-        editable: true,
-        placeholderText: phoneEntryMeta.codePlaceholder,
-        content: "",
-        confirmText: phoneEntryMeta.submitText,
-        confirmColor: "#3c7bfd",
-        cancelColor: "#999999"
-      });
-
-      if (!codeRes.confirm) {
-        logger.info("settings_change_phone_end", { blocked: "cancelled_code" });
-        return;
-      }
-
-      const codeValidation = validateSmsCodeValue(codeRes.content);
-      if (!codeValidation.valid) {
-        wx.showToast({ title: codeValidation.message, icon: "none" });
-        logger.info("settings_change_phone_end", { blocked: "invalid_code" });
-        return;
-      }
-
-      const nextUser = await settingsService.changePhone(phone, codeValidation.code);
-      userStore.setUserInfo(nextUser);
-      this.syncPageState();
-      wx.showToast({ title: phoneEntryMeta.successText, icon: "success" });
+      navigateTo(ROUTES.PROFILE_CHANGE_PHONE);
     } catch (error) {
       logger.error("settings_change_phone_failed", { error: error.message });
       wx.showToast({ title: error.message || "手机号操作失败", icon: "none" });
     } finally {
-      this.setData({ changingPhone: false });
       logger.info("settings_change_phone_end", {});
     }
   },
@@ -209,52 +142,7 @@ Page({
   async onChangePasswordTap() {
     logger.info("settings_change_password_start", {});
     try {
-      const oldPasswordRes = await wx.showModal({
-        title: "修改登录密码",
-        editable: true,
-        placeholderText: "请输入当前密码",
-        content: "",
-        confirmText: "下一步",
-        confirmColor: "#3c7bfd",
-        cancelColor: "#999999"
-      });
-
-      if (!oldPasswordRes.confirm) {
-        logger.info("settings_change_password_end", { blocked: "cancelled_old" });
-        return;
-      }
-
-      const oldPassword = String(oldPasswordRes.content || "").trim();
-      if (!oldPassword) {
-        wx.showToast({ title: "当前密码不能为空", icon: "none" });
-        logger.info("settings_change_password_end", { blocked: "empty_old_password" });
-        return;
-      }
-
-      const newPasswordRes = await wx.showModal({
-        title: "修改登录密码",
-        editable: true,
-        placeholderText: "请输入新密码",
-        content: "",
-        confirmText: "保存",
-        confirmColor: "#3c7bfd",
-        cancelColor: "#999999"
-      });
-
-      if (!newPasswordRes.confirm) {
-        logger.info("settings_change_password_end", { blocked: "cancelled_new" });
-        return;
-      }
-
-      const newPassword = String(newPasswordRes.content || "").trim();
-      if (!newPassword) {
-        wx.showToast({ title: "新密码不能为空", icon: "none" });
-        logger.info("settings_change_password_end", { blocked: "empty_new_password" });
-        return;
-      }
-
-      await settingsService.changePassword(oldPassword, newPassword);
-      wx.showToast({ title: "登录密码已更新", icon: "success" });
+      navigateTo(ROUTES.PROFILE_CHANGE_PASSWORD);
     } catch (error) {
       logger.error("settings_change_password_failed", { error: error.message });
       wx.showToast({ title: error.message || "修改密码失败", icon: "none" });

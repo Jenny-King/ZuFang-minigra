@@ -103,24 +103,24 @@
       </view>
 
       <view class="swipe-actions">
-        <button
-          class="swipe-btn swipe-offline"
-          size="mini"
+        <view
+          class="swipe-btn {{item.actionButtonClass}}"
           data-house-id="{{item.houseId}}"
           data-status="{{item.actionStatus}}"
           bindtap="onToggleStatusTap"
         >
-          {{item.actionLabel}}
-        </button>
-        <button
+          <text class="swipe-btn-char">{{item.actionLabelTop}}</text>
+          <text class="swipe-btn-char">{{item.actionLabelBottom}}</text>
+        </view>
+        <view
           class="swipe-btn swipe-delete"
-          size="mini"
           data-house-id="{{item.houseId}}"
           data-title="{{item.displayTitle}}"
           bindtap="onDeleteHouseTap"
         >
-          删除
-        </button>
+          <text class="swipe-btn-char">删</text>
+          <text class="swipe-btn-char">除</text>
+        </view>
       </view>
     </view>
   </view>

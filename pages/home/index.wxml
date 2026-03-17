@@ -1,7 +1,7 @@
 <view class="home-page">
   <view
     id="homeTopBar"
-    class="home-top-bar"
+    class="home-top-bar {{dropdownVisible ? 'home-top-bar-dropdown-open' : ''}}"
     style="{{topBarStyle}}"
   >
     <view class="search-panel">
@@ -28,43 +28,130 @@
 
     <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
       <view
-        class="filter-chip {{selectedRegionIndex > 0 ? 'filter-chip-active' : ''}}"
-        bindtap="onOpenRegionFilter"
+        class="filter-chip {{(activeDropdown === 'region' && dropdownVisible) || selectedRegionIndex > 0 ? 'filter-chip-active' : ''}}"
+        data-key="region"
+        bindtap="onFilterChipTap"
       >
-        区域 · {{regionOptions[selectedRegionIndex].label || "全部"}}
-        <text class="filter-chip-arrow">▾</text>
+        {{selectedRegionIndex > 0 ? ('区域 · ' + (regionOptions[selectedRegionIndex].label || '全部')) : '区域'}}
+        <text class="filter-chip-arrow">{{activeDropdown === 'region' && dropdownVisible ? '▴' : '▾'}}</text>
       </view>
       <view
-        class="filter-chip {{selectedTypeIndex > 0 ? 'filter-chip-active' : ''}}"
-        bindtap="onOpenTypeFilter"
+        class="filter-chip {{(activeDropdown === 'type' && dropdownVisible) || selectedRoomFilterLabel ? 'filter-chip-active' : ''}}"
+        data-key="type"
+        bindtap="onFilterChipTap"
       >
-        {{selectedTypeIndex > 0 ? ('户型 · ' + typeOptions[selectedTypeIndex].label) : '户型'}}
-        <text class="filter-chip-arrow">▾</text>
+        {{selectedRoomFilterLabel ? ('居室 · ' + selectedRoomFilterLabel) : '居室'}}
+        <text class="filter-chip-arrow">{{activeDropdown === 'type' && dropdownVisible ? '▴' : '▾'}}</text>
       </view>
       <view
-        class="filter-chip {{selectedPriceIndex > 0 ? 'filter-chip-active' : ''}}"
-        bindtap="onOpenPriceFilter"
+        class="filter-chip {{(activeDropdown === 'price' && dropdownVisible) || selectedPriceLabel ? 'filter-chip-active' : ''}}"
+        data-key="price"
+        bindtap="onFilterChipTap"
       >
-        {{selectedPriceIndex > 0 ? ('租金 · ' + priceOptions[selectedPriceIndex].label) : '租金'}}
-        <text class="filter-chip-arrow">▾</text>
+        {{selectedPriceLabel ? ('租金 · ' + selectedPriceLabel) : '租金'}}
+        <text class="filter-chip-arrow">{{activeDropdown === 'price' && dropdownVisible ? '▴' : '▾'}}</text>
       </view>
-      <view class="filter-chip" bindtap="onOpenMoreFilter">
-        更多
-        <text class="filter-chip-arrow">▾</text>
-      </view>
-      <button
-        wx:if="{{hasActiveFilter}}"
-        class="filter-reset-btn"
-        bindtap="resetFilter"
-      >
-        重置
-      </button>
     </scroll-view>
+  </view>
+
+  <view
+    wx:if="{{dropdownVisible}}"
+    class="filter-dropdown-layer"
+    style="top: {{dropdownTop}}px;"
+  >
+    <view
+      class="filter-dropdown-mask {{dropdownEntered ? 'filter-dropdown-mask-visible' : ''}}"
+      bindtap="onCloseDropdown"
+    ></view>
+    <view
+      class="filter-dropdown-panel {{dropdownEntered ? 'filter-dropdown-panel-entered' : ''}}"
+      catchtap="noop"
+    >
+      <view class="filter-dropdown-sheet">
+        <scroll-view class="filter-dropdown-content" scroll-y enhanced show-scrollbar="{{false}}">
+          <view wx:if="{{activeDropdown === 'region'}}" class="filter-dropdown-section">
+            <view class="filter-dropdown-title">选择区域</view>
+            <view class="filter-option-grid">
+            <view
+              wx:for="{{regionOptions}}"
+              wx:key="value"
+              class="filter-option-tag {{draftRegionIndex === index ? 'filter-option-tag-active' : ''}}"
+              data-key="region"
+                data-index="{{index}}"
+              bindtap="onSelectDropdownOption"
+            >
+              <text class="filter-option-tag-text">{{item.label || "全部区域"}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{activeDropdown === 'type'}}" class="filter-dropdown-section">
+          <view class="filter-dropdown-title">选择居室</view>
+          <view class="filter-option-grid">
+            <view
+              wx:for="{{draftRoomFilterOptions}}"
+              wx:key="value"
+              class="filter-option-tag {{item.selected ? 'filter-option-tag-active' : ''}}"
+              data-value="{{item.value}}"
+              bindtap="onToggleRoomFilter"
+            >
+              <text class="filter-option-tag-text">{{item.label}}</text>
+            </view>
+          </view>
+        </view>
+
+          <view wx:if="{{activeDropdown === 'price'}}" class="filter-dropdown-section">
+            <view class="filter-dropdown-title">选择租金</view>
+            <view class="price-range-form">
+              <view
+                class="price-input-box {{draftMinPrice ? 'price-input-box-filled' : ''}}"
+              >
+                <input
+                  class="price-input"
+                  type="number"
+                  maxlength="6"
+                  placeholder="最低租金"
+                  value="{{draftMinPrice}}"
+                  data-field="min"
+                  bindinput="onPriceInput"
+                />
+                <text class="price-input-unit">元/月</text>
+              </view>
+              <text class="price-range-divider">-</text>
+              <view
+                class="price-input-box {{draftMaxPrice ? 'price-input-box-filled' : ''}}"
+              >
+                <input
+                  class="price-input"
+                  type="number"
+                  maxlength="6"
+                  placeholder="最高租金"
+                  value="{{draftMaxPrice}}"
+                  data-field="max"
+                  bindinput="onPriceInput"
+                />
+                <text class="price-input-unit">元/月</text>
+              </view>
+            </view>
+            <view class="price-range-hint">支持只填最低或最高，留空表示不限</view>
+          </view>
+        </scroll-view>
+
+        <view class="filter-dropdown-actions">
+          <button class="dropdown-action-btn dropdown-action-btn-secondary" bindtap="onDropdownReset">
+            重置
+          </button>
+          <button class="dropdown-action-btn dropdown-action-btn-primary" bindtap="onDropdownConfirm">
+            确定
+          </button>
+        </view>
+      </view>
+    </view>
   </view>
 
   <scroll-view
     class="home-scroll"
-    scroll-y
+    scroll-y="{{!dropdownVisible}}"
     enhanced
     show-scrollbar="{{false}}"
     style="{{scrollAreaStyle}}"
@@ -148,9 +235,9 @@
           <view class="sort-row">
             <view
               wx:for="{{listSortTabs}}"
-              wx:key="value"
-              class="sort-tab {{selectedListSort === item.value ? 'sort-tab-active' : ''}}"
-              data-value="{{item.value}}"
+              wx:key="key"
+              class="sort-tab {{item.active ? 'sort-tab-active' : ''}}"
+              data-key="{{item.key}}"
               bindtap="onListSortTap"
             >
               {{item.label}}

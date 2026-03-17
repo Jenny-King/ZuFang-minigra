@@ -63,30 +63,12 @@
 
         <view class="form-row">
           <text class="label">户型</text>
-          <view class="layout-wheel-shell">
-            <picker-view
-              class="layout-wheel"
-              value="{{layoutPickerValue}}"
-              indicator-style="height: 84rpx;"
-              bindchange="onLayoutPickerChange"
-            >
-              <picker-view-column>
-                <view wx:for="{{roomOptions}}" wx:key="value" class="layout-wheel__item">{{item.value}}</view>
-              </picker-view-column>
-              <picker-view-column>
-                <view wx:for="{{hallOptions}}" wx:key="value" class="layout-wheel__item">{{item.value}}</view>
-              </picker-view-column>
-              <picker-view-column>
-                <view wx:for="{{bathOptions}}" wx:key="value" class="layout-wheel__item">{{item.value}}</view>
-              </picker-view-column>
-            </picker-view>
-            <view class="layout-wheel__units">
-              <text class="layout-wheel__unit">室</text>
-              <text class="layout-wheel__unit">厅</text>
-              <text class="layout-wheel__unit">卫</text>
-            </view>
+          <view class="input layout-trigger" bindtap="onOpenLayoutSheet">
+            <text class="layout-trigger__value {{formData.layoutText ? '' : 'layout-trigger__value--placeholder'}}">
+              {{formData.layoutText || '请选择户型'}}
+            </text>
+            <text class="layout-trigger__arrow">></text>
           </view>
-          <view class="helper-text">当前户型：{{formData.layoutText || '请选择室 / 厅 / 卫'}}</view>
         </view>
 
         <view class="form-row">
@@ -183,6 +165,34 @@
             <view class="submit-preview-subtitle">新房源会自动出现在列表顶部，编辑也会刷新为最新状态。</view>
           </view>
         </view>
+      </view>
+    </block>
+
+    <block wx:if="{{showLayoutSheet}}">
+      <view class="layout-sheet-mask" bindtap="onCloseLayoutSheet" catchtouchmove="onPreventTouchMove"></view>
+      <view class="layout-sheet" catchtouchmove="onPreventTouchMove">
+        <view class="layout-sheet__handle"></view>
+        <view class="layout-sheet__header">
+          <text class="layout-sheet__action" bindtap="onCloseLayoutSheet">取消</text>
+          <text class="layout-sheet__title">选择户型</text>
+          <text class="layout-sheet__action layout-sheet__action--primary" bindtap="onConfirmLayoutSheet">确定</text>
+        </view>
+        <picker-view
+          class="layout-sheet__picker"
+          value="{{layoutPickerValue}}"
+          indicator-style="height: 96rpx;"
+          bindchange="onLayoutPickerChange"
+        >
+          <picker-view-column>
+            <view wx:for="{{roomOptions}}" wx:key="value" class="layout-wheel__item">{{item.label}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{hallOptions}}" wx:key="value" class="layout-wheel__item">{{item.label}}</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view wx:for="{{bathOptions}}" wx:key="value" class="layout-wheel__item">{{item.label}}</view>
+          </picker-view-column>
+        </picker-view>
       </view>
     </block>
 

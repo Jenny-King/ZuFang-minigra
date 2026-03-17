@@ -1,33 +1,46 @@
-<view class="container favorites-page">
-  <view class="page-title-bar {{titleHighlight ? 'active' : ''}}">
-    <view class="page-title">我的收藏</view>
-    <view class="page-subtitle">快速查看你标记过的房源</view>
-  </view>
-
+<view class="container favorites-page {{titleHighlight ? 'highlight' : ''}}" bindtap="onPageTap">
   <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
 
   <view wx:if="{{!loading && list.length === 0}}" class="empty-tip">暂无收藏房源</view>
 
   <view class="fav-list">
-    <view class="fav-item card" wx:for="{{list}}" wx:key="houseId">
-      <image
-        class="cover"
-        src="{{item.displayImage}}"
-        mode="aspectFill"
-        data-house-id="{{item.houseId}}"
-        bindtap="onGoDetailTap"
-      />
-      <view class="main" data-house-id="{{item.houseId}}" bindtap="onGoDetailTap">
-        <view class="title text-ellipsis">{{item.displayTitle}}</view>
-        <view class="meta">{{item.displayType}} · {{item.displayAddress}}</view>
-        <view class="footer">
-          <text class="price">{{item.displayPrice}}</text>
-          <text class="time">{{item.displayCreateTime}}</text>
+    <view
+      class="listing-card {{openActionHouseId === item.houseId ? 'swiped' : ''}}"
+      wx:for="{{list}}"
+      wx:key="houseId"
+      data-house-id="{{item.houseId}}"
+      bindtouchstart="onCardTouchStart"
+      bindtouchend="onCardTouchEnd"
+      catchtap="noop"
+    >
+      <view class="card-inner">
+        <view class="listing-body">
+          <image
+            class="cover"
+            src="{{item.displayImage}}"
+            mode="aspectFill"
+            data-house-id="{{item.houseId}}"
+            bindtap="onGoDetailTap"
+          />
+
+          <view class="main" data-house-id="{{item.houseId}}" bindtap="onGoDetailTap">
+            <view class="title text-ellipsis">{{item.displayTitle}}</view>
+            <view class="meta">{{item.displayType}}</view>
+            <view class="address">{{item.displayAddress}}</view>
+            <view class="footer">
+              <text class="price">{{item.displayPrice}}</text>
+              <text class="time">{{item.displayCreateTime}}</text>
+            </view>
+          </view>
         </view>
       </view>
-      <button class="cancel-btn" size="mini" data-house-id="{{item.houseId}}" bindtap="onCancelFavoriteTap">
-        取消
-      </button>
+
+      <view class="swipe-actions">
+        <view class="swipe-btn swipe-delete" data-house-id="{{item.houseId}}" bindtap="onCancelFavoriteTap">
+          <text class="swipe-btn-char">取</text>
+          <text class="swipe-btn-char">消</text>
+        </view>
+      </view>
     </view>
   </view>
 

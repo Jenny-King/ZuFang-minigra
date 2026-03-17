@@ -268,6 +268,10 @@ function buildLayoutText(roomCount, hallCount, bathCount) {
     return "";
   }
 
+  if (roomCount === 0 && hallCount === 0 && bathCount === 0) {
+    return "";
+  }
+
   return `${roomCount}室${hallCount}厅${bathCount}卫`;
 }
 
@@ -371,6 +375,7 @@ Page({
     selectedHallIndex: 0,
     selectedBathIndex: 0,
     layoutPickerValue: [0, 0, 0],
+    showLayoutSheet: false,
     selectedRegionIndex: 0,
     titleHighlight: false
   },
@@ -450,6 +455,7 @@ Page({
         layoutState.selectedHallIndex,
         layoutState.selectedBathIndex
       ],
+      showLayoutSheet: false,
       selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
       ...getStepState(0),
       titleHighlight: false
@@ -562,6 +568,7 @@ Page({
         layoutState.selectedHallIndex,
         layoutState.selectedBathIndex
       ],
+      showLayoutSheet: false,
       selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
       ...getStepState(0)
     };
@@ -646,6 +653,7 @@ Page({
           layoutState.selectedHallIndex,
           layoutState.selectedBathIndex
         ],
+        showLayoutSheet: false,
         selectedRegionIndex: getRegionIndex(this.data.regionOptions, formData.region, formData.city),
         ...getStepState(0)
       });
@@ -704,17 +712,56 @@ Page({
     return layoutFields;
   },
 
+  onOpenLayoutSheet() {
+    this.setData({
+      showLayoutSheet: true,
+      layoutPickerValue: [
+        this.data.selectedRoomIndex,
+        this.data.selectedHallIndex,
+        this.data.selectedBathIndex
+      ]
+    });
+  },
+
+  onCloseLayoutSheet() {
+    this.setData({
+      showLayoutSheet: false,
+      layoutPickerValue: [
+        this.data.selectedRoomIndex,
+        this.data.selectedHallIndex,
+        this.data.selectedBathIndex
+      ]
+    });
+  },
+
   onLayoutPickerChange(event) {
     const value = Array.isArray(event.detail?.value) ? event.detail.value : [];
     const selectedRoomIndex = Number(value[0] || 0);
     const selectedHallIndex = Number(value[1] || 0);
     const selectedBathIndex = Number(value[2] || 0);
+    this.setData({
+      layoutPickerValue: [
+        selectedRoomIndex,
+        selectedHallIndex,
+        selectedBathIndex
+      ]
+    });
+    logger.info("publish_layout_picker_change_end", {
+      selectedRoomIndex,
+      selectedHallIndex,
+      selectedBathIndex
+    });
+  },
+
+  onConfirmLayoutSheet() {
+    const [selectedRoomIndex, selectedHallIndex, selectedBathIndex] = this.data.layoutPickerValue;
     const layoutFields = this.updateLayoutSelection({
       selectedRoomIndex,
       selectedHallIndex,
       selectedBathIndex
     });
-    logger.info("publish_layout_picker_change_end", {
+    this.setData({ showLayoutSheet: false });
+    logger.info("publish_layout_picker_confirm_end", {
       selectedRoomIndex,
       selectedHallIndex,
       selectedBathIndex,
@@ -722,6 +769,8 @@ Page({
       layoutText: layoutFields.layoutText
     });
   },
+
+  onPreventTouchMove() {},
 
   onRoomChange(event) {
     logger.info("publish_room_change_start", { value: event.detail.value });

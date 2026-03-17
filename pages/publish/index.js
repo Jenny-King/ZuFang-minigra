@@ -157,8 +157,11 @@ Page({
         displayArea: Number(item.area) > 0 ? `${Number(item.area)}㎡` : "面积待完善",
         displayFloor: fallbackText(item.floor, "楼层待完善"),
         displayImage: Array.isArray(item.images) && item.images[0] ? item.images[0] : "",
-        actionLabel: statusMeta.key === "hidden" ? "重新上架" : "下架",
-        actionStatus: statusMeta.key === "hidden" ? "active" : "hidden"
+        actionLabel: statusMeta.key === "hidden" ? "上架" : "下架",
+        actionLabelTop: statusMeta.key === "hidden" ? "上" : "下",
+        actionLabelBottom: "架",
+        actionStatus: statusMeta.key === "hidden" ? "active" : "hidden",
+        actionButtonClass: statusMeta.key === "hidden" ? "swipe-publish" : "swipe-unpublish"
       };
     });
     logger.debug("publish_tab_normalize_end", { count: normalized.length });

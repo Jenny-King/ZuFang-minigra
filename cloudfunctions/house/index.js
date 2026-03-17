@@ -26,6 +26,7 @@ const HOUSE_STATUS = {
 
 const PAYMENT_METHOD_OPTIONS = ["月付", "季付", "半年付", "年付"];
 const PHONE_REGEXP = /^1\d{10}$/;
+const ROOM_FILTER_VALUES = ["1", "2", "3", "4+"];
 
 function createLogger(context) {
   const prefix = `[house][${context?.requestId || "local"}]`;
@@ -99,6 +100,32 @@ function normalizeRegionFilter(region) {
   return normalizedRegion === "全市" || normalizedRegion === "全部区域"
     ? ""
     : normalizedRegion;
+}
+
+function normalizeRoomFilters(roomFilters) {
+  const sourceValues = Array.isArray(roomFilters)
+    ? roomFilters
+    : [roomFilters];
+
+  return Array.from(new Set(sourceValues
+    .map((item) => normalizeString(item))
+    .filter((item) => ROOM_FILTER_VALUES.includes(item))));
+}
+
+function buildRoomLayoutMatcher(roomFilters) {
+  const normalizedFilters = normalizeRoomFilters(roomFilters);
+  if (!normalizedFilters.length) {
+    return null;
+  }
+
+  const roomPattern = normalizedFilters
+    .map((item) => (item === "4+" ? "(?:[4-9]|[1-9]\\d+)" : escapeRegExp(item)))
+    .join("|");
+
+  return db.RegExp({
+    regexp: `^(?:${roomPattern})室\\d+厅\\d+卫$`,
+    options: "i"
+  });
 }
 
 function normalizePositiveNumber(value, fieldName) {
@@ -389,9 +416,14 @@ function buildListWhere(payload) {
   }
   const cityMatcher = buildCityMatcher(payload.city);
   const normalizedRegion = normalizeRegionFilter(payload.region);
+  const roomLayoutMatcher = buildRoomLayoutMatcher(payload.roomFilters);
   if (cityMatcher) where.city = cityMatcher;
   if (normalizedRegion) where.region = normalizedRegion;
-  if (payload.type) where.type = String(payload.type).trim();
+  if (roomLayoutMatcher) {
+    where.layoutText = roomLayoutMatcher;
+  } else if (payload.type) {
+    where.type = String(payload.type).trim();
+  }
   if (payload.minPrice && Number(payload.minPrice) > 0) where.price = _.gte(Number(payload.minPrice));
   if (payload.maxPrice && Number(payload.maxPrice) > 0) {
     where.price = where.price ? _.and([where.price, _.lte(Number(payload.maxPrice))]) : _.lte(Number(payload.maxPrice));
@@ -403,6 +435,8 @@ function getSort(payload) {
   const sortBy = payload.sortBy || "latest";
   if (sortBy === "priceAsc") return { field: "price", order: "asc" };
   if (sortBy === "priceDesc") return { field: "price", order: "desc" };
+  if (sortBy === "areaAsc") return { field: "area", order: "asc" };
+  if (sortBy === "areaDesc") return { field: "area", order: "desc" };
   return { field: "createTime", order: "desc" };
 }
 

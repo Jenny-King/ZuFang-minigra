@@ -1,9 +1,5 @@
-<view class="container history-page">
-  <view class="page-title-bar {{titleHighlight ? 'active' : ''}}">
-    <view class="page-title-main">
-      <view class="page-title">浏览历史</view>
-      <view class="page-subtitle">最近看过的房源记录</view>
-    </view>
+<view class="container history-page {{titleHighlight ? 'highlight' : ''}}" bindtap="onPageTap">
+  <view wx:if="{{!loading && list.length > 0}}" class="page-toolbar" catchtap="noop">
     <button class="clear-btn" size="mini" bindtap="onClearTap">清空历史</button>
   </view>
 
@@ -11,28 +7,47 @@
   <view wx:if="{{!loading && list.length === 0}}" class="empty-tip">暂无浏览历史</view>
 
   <view class="history-list">
-    <view class="history-item card" wx:for="{{list}}" wx:key="historyId">
-      <image
-        class="cover"
-        src="{{item.displayImage}}"
-        mode="aspectFill"
-        data-house-id="{{item.houseId}}"
-        bindtap="onGoDetailTap"
-      />
-      <view class="main" data-house-id="{{item.houseId}}" bindtap="onGoDetailTap">
-        <view class="title text-ellipsis">{{item.displayTitle}}</view>
-        <view class="meta">{{item.displayType}} · {{item.displayAddress}}</view>
-        <view class="footer">
-          <text class="price">{{item.displayPrice}}</text>
-          <text class="time">浏览于 {{item.displayViewTime}}</text>
+    <view
+      class="listing-card {{openActionHistoryId === item.historyId ? 'swiped' : ''}}"
+      wx:for="{{list}}"
+      wx:key="historyId"
+      data-history-id="{{item.historyId}}"
+      bindtouchstart="onCardTouchStart"
+      bindtouchend="onCardTouchEnd"
+      catchtap="noop"
+    >
+      <view class="card-inner">
+        <view class="listing-body">
+          <image
+            class="cover"
+            src="{{item.displayImage}}"
+            mode="aspectFill"
+            data-house-id="{{item.houseId}}"
+            bindtap="onGoDetailTap"
+          />
+
+          <view class="main" data-house-id="{{item.houseId}}" bindtap="onGoDetailTap">
+            <view class="title text-ellipsis">{{item.displayTitle}}</view>
+            <view class="meta">{{item.displayType}}</view>
+            <view class="address">{{item.displayAddress}}</view>
+            <view class="footer">
+              <text class="price">{{item.displayPrice}}</text>
+              <text class="time">浏览于 {{item.displayViewTime}}</text>
+            </view>
+          </view>
         </view>
       </view>
-      <button
-        class="remove-btn"
-        size="mini"
-        data-history-id="{{item.historyId}}"
-        bindtap="onRemoveTap"
-      >删除</button>
+
+      <view class="swipe-actions">
+        <view
+          class="swipe-btn swipe-delete"
+          data-history-id="{{item.historyId}}"
+          bindtap="onRemoveTap"
+        >
+          <text class="swipe-btn-char">删</text>
+          <text class="swipe-btn-char">除</text>
+        </view>
+      </view>
     </view>
   </view>
 

@@ -33,6 +33,14 @@ async function changePassword(oldPassword, newPassword) {
   });
 }
 
+async function verifyPassword(password) {
+  assertNonEmptyString(password, "password");
+
+  return callCloud("user", "verifyPassword", {
+    password
+  });
+}
+
 async function changePhone(phone, code) {
   assertNonEmptyString(phone, "phone");
   assertNonEmptyString(code, "code");
@@ -78,6 +86,7 @@ module.exports = {
   getCurrentUser,
   updateProfile,
   changePassword,
+  verifyPassword,
   changePhone,
   bindEmail,
   switchRole,

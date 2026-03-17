@@ -354,9 +354,8 @@
 }
 
 .account-inline-add {
-  border: var(--line-width-thin) dashed var(--color-border-strong);
-  background: var(--color-background-page);
-  color: var(--color-text-3);
+  background: #f2f2f2;
+  color: #6b7280;
   font-size: var(--font-2xl);
   line-height: 1;
 }
@@ -376,7 +375,7 @@
 }
 
 .account-inline-name.dim {
-  color: var(--color-text-3);
+  color: #98a2b3;
 }
 
 .logout-wrap {

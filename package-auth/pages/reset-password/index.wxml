@@ -9,9 +9,15 @@
 
     <view class="form-item">
       <text class="label">验证码</text>
-      <view class="row">
-        <input class="input flex-1" type="number" placeholder="请输入验证码" value="{{code}}" bindinput="onCodeInput" />
-        <button class="code-btn" loading="{{sendingCode}}" bindtap="onSendCodeTap">发送验证码</button>
+      <view class="input-inline">
+        <input class="input-inline__control" type="number" placeholder="请输入验证码" value="{{code}}" bindinput="onCodeInput" />
+        <button
+          class="inline-text-btn {{(cdRunning || sendingCode) ? 'disabled' : ''}}"
+          disabled="{{cdRunning || sendingCode}}"
+          bindtap="onSendCodeTap"
+        >
+          {{sendingCode ? '发送中...' : (cdRunning ? cdSecs + 's后重发' : '发送验证码')}}
+        </button>
       </view>
     </view>
 

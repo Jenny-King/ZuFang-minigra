@@ -42,14 +42,14 @@ page {
   --color-price-highlight: #ff5a5f;
 
   /* Typography */
-  --font-2xl: 40rpx;
-  --font-xl: 36rpx;
+  --font-caption: 22rpx;
+  --font-sm: 24rpx;
+  --font-md: 28rpx;
   --font-lg: 32rpx;
+  --font-xl: 40rpx;
+  --font-2xl: 40rpx;
   --font-title-sm: 30rpx;
   --font-label: 26rpx;
-  --font-md: 28rpx;
-  --font-sm: 24rpx;
-  --font-caption: 22rpx;
   --font-xs: 20rpx;
   --font-xxs: 18rpx;
   --weight-regular: 400;

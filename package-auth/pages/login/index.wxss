@@ -1,249 +1,47 @@
-@import "../../../styles/variables.wxss";
-
-.auth-page {
-  min-height: 100vh;
-  background: var(--color-background-page);
-}
-
-.auth-card {
-  padding: var(--card-padding);
-}
-
-.title {
-  margin-bottom: var(--space-lg);
-  text-align: center;
-  font-size: var(--font-xl);
-  font-weight: var(--weight-bold);
-  color: var(--color-text-1);
-}
-
-.quick-accounts {
-  margin-bottom: var(--space-xl);
-  padding: var(--card-padding);
-  border-radius: var(--radius-lg);
-  background: var(--gradient-panel);
-}
-
-.quick-title {
-  color: var(--color-text-1);
-  font-size: var(--font-title-sm);
-  font-weight: var(--weight-bold);
-}
-
-.quick-subtitle {
-  margin-top: var(--space-2xs);
-  color: var(--color-text-2);
-  font-size: var(--font-caption);
-  line-height: var(--lh-normal);
-}
-
-.quick-account-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  margin-top: var(--space-md);
-}
-
-.quick-account-item {
-  display: flex;
-  align-items: center;
-  padding: var(--space-md);
-  border: var(--line-width-thin) solid transparent;
-  border-radius: var(--radius-md);
-  background: var(--color-background-card);
-}
-
-.quick-account-item.active {
-  border-color: var(--color-primary-bg);
-  box-shadow: var(--shadow-focus);
-}
-
-.quick-account-avatar {
-  width: 76rpx;
-  flex-shrink: 0;
-}
-
-.quick-account-main {
-  flex: 1;
-  min-width: 0;
-  margin-left: var(--space-sm);
-}
-
-.quick-account-name {
-  color: var(--color-text-1);
-  font-size: var(--font-md);
-  font-weight: var(--weight-bold);
-}
-
-.quick-account-phone {
-  margin-top: var(--space-3xs);
-  color: var(--color-text-2);
-  font-size: var(--font-caption);
-}
-
-.quick-account-badge {
-  padding: var(--space-2xs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
-  font-size: var(--font-xs);
-}
-
-.quick-account-arrow {
-  color: var(--color-primary);
-  font-size: var(--font-caption);
-}
-
-.wechat-btn,
-.submit-btn {
-  height: var(--button-height);
-  line-height: var(--button-height);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-title-sm);
-}
+@import "../../styles/auth-form.wxss";
 
 .wechat-btn {
-  background: var(--color-success);
-  color: var(--color-text-inverse);
-}
-
-.submit-btn {
-  margin-top: var(--space-sm);
-  background: var(--color-primary);
+  background: #4cab58;
   color: var(--color-text-inverse);
 }
 
 .divider {
-  margin: var(--space-lg) 0;
+  margin: 28rpx 0 24rpx;
   text-align: center;
   color: var(--color-text-3);
-  font-size: var(--font-sm);
+  font-size: 24rpx;
 }
 
 .mode-tabs {
   display: flex;
-  overflow: hidden;
-  margin-bottom: var(--space-lg);
-  border-radius: var(--radius-sm);
-  background: var(--color-background-subtle);
+  justify-content: center;
+  gap: 56rpx;
+  margin-bottom: 28rpx;
+  padding-bottom: 8rpx;
+  border-bottom: 1rpx solid rgba(156, 163, 175, 0.18);
 }
 
 .mode-tab {
-  flex: 1;
-  padding: var(--space-sm) 0;
-  text-align: center;
-  color: var(--color-text-2);
-  font-size: var(--font-label);
-}
-
-.mode-tab.active {
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-}
-
-.form-item {
-  margin-bottom: var(--space-md);
-}
-
-.label {
-  display: block;
-  margin-bottom: var(--space-2xs);
-  color: var(--color-text-1);
-  font-size: var(--font-label);
-}
-
-.row {
-  display: flex;
-  gap: var(--space-xs);
-}
-
-.flex-1 {
-  flex: 1;
-}
-
-.input,
-.password-row {
-  width: 100%;
-  min-height: var(--input-height);
-  border: var(--line-width-thin) solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-background-card);
-}
-
-.input {
-  padding: 0 var(--space-sm);
-  color: var(--color-text-1);
-  font-size: var(--font-md);
-}
-
-.input-error,
-.password-row-error {
-  border-color: var(--color-danger);
-}
-
-.field-error {
-  display: block;
-  margin-top: var(--space-2xs);
-  color: var(--color-danger);
-  font-size: var(--font-caption);
-  line-height: var(--lh-normal);
-}
-
-.password-row {
-  display: flex;
-  align-items: center;
-  padding-left: var(--space-sm);
-}
-
-.password-input {
-  flex: 1;
-  min-height: var(--input-height);
-  color: var(--color-text-1);
-  font-size: var(--font-md);
-}
-
-.tap-area {
-  min-width: 88rpx;
-  min-height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.password-toggle {
-  flex-shrink: 0;
-}
-
-.password-toggle-text {
-  color: var(--color-primary);
-  font-size: var(--font-sm);
+  position: relative;
+  padding-bottom: 16rpx;
+  color: var(--color-text-3);
+  font-size: 28rpx;
   font-weight: var(--weight-medium);
 }
 
-.code-btn {
-  min-width: 180rpx;
-  margin: 0;
-  height: var(--input-height);
-  line-height: var(--input-height);
-  padding: 0 var(--space-md);
-  border-radius: var(--radius-sm);
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-  font-size: var(--font-sm);
-}
-
-.code-btn-disabled {
-  opacity: var(--opacity-disabled);
-  pointer-events: none;
-}
-
-.bottom-text {
-  margin-top: var(--space-lg);
-  text-align: center;
-  color: var(--color-text-2);
-  font-size: var(--font-sm);
-}
-
-.link {
+.mode-tab.active {
   color: var(--color-primary);
+  font-weight: var(--weight-heavy);
+}
+
+.mode-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 48rpx;
+  height: 6rpx;
+  border-radius: 999rpx;
+  background: var(--color-primary);
+  transform: translateX(-50%);
 }

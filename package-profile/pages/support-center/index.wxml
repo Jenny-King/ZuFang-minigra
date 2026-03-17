@@ -76,6 +76,7 @@
     <textarea
       class="feedback-textarea"
       maxlength="500"
+      placeholder-style="color: #98a2b3;"
       placeholder="请尽量描述清楚问题出现的位置、操作步骤和结果"
       value="{{feedbackForm.content}}"
       bindinput="onFeedbackContentInput"
@@ -84,6 +85,7 @@
     <view class="feedback-label">联系方式</view>
     <input
       class="feedback-input"
+      placeholder-style="color: #98a2b3;"
       placeholder="可填写手机号、邮箱或微信号"
       value="{{feedbackForm.contact}}"
       bindinput="onFeedbackContactInput"

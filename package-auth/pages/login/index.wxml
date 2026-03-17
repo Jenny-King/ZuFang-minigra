@@ -2,35 +2,6 @@
   <view class="card auth-card">
     <view class="title">登录</view>
 
-    <view class="quick-accounts" wx:if="{{cachedAccounts.length > 0}}">
-      <view class="quick-title">快捷切换</view>
-      <view class="quick-subtitle">已缓存的账号可直接切换，无需重新输入登录信息</view>
-      <view class="quick-account-list">
-        <view
-          class="quick-account-item {{item.isActive ? 'active' : ''}}"
-          wx:for="{{cachedAccounts}}"
-          wx:key="userId"
-          data-user-id="{{item.userId}}"
-          bindtap="onQuickAccountTap"
-        >
-          <lazy-image
-            class="quick-account-avatar"
-            src="{{item.avatarUrl}}"
-            mode="aspectFill"
-            radius="var(--radius-pill)"
-            width="76rpx"
-            height="76rpx"
-          />
-          <view class="quick-account-main">
-            <view class="quick-account-name">{{item.displayName}}</view>
-            <view class="quick-account-phone">{{item.displayPhone}}</view>
-          </view>
-          <text class="quick-account-badge" wx:if="{{item.isActive}}">当前</text>
-          <text class="quick-account-arrow" wx:else>切换</text>
-        </view>
-      </view>
-    </view>
-
     <button class="wechat-btn" loading="{{submitLoading}}" bindtap="onWechatLoginTap">
       微信一键登录
     </button>
@@ -56,21 +27,20 @@
 
     <view class="form-item" wx:if="{{mode === 'code'}}">
       <text class="label">验证码</text>
-      <view class="row">
+      <view class="input-inline {{errors.code ? 'input-inline-error' : ''}}">
         <input
-          class="input flex-1 {{errors.code ? 'input-error' : ''}}"
+          class="input-inline__control"
           type="number"
           placeholder="请输入验证码"
           value="{{code}}"
           bindinput="onInputCode"
         />
         <button
-          class="code-btn {{(cdRunning || sendingCode) ? 'code-btn-disabled' : ''}}"
-          loading="{{sendingCode}}"
+          class="inline-text-btn {{(cdRunning || sendingCode) ? 'disabled' : ''}}"
           disabled="{{cdRunning || sendingCode}}"
           bindtap="onSendCodeTap"
         >
-          {{cdRunning ? cdSecs + 's 后重发' : '获取验证码'}}
+          {{sendingCode ? '发送中...' : (cdRunning ? cdSecs + 's后重发' : '获取验证码')}}
         </button>
       </view>
       <text wx:if="{{errors.code}}" class="field-error">{{errors.code}}</text>

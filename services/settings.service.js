@@ -50,6 +50,10 @@ async function changePassword(oldPassword, newPassword) {
   return userService.changePassword(oldPassword, newPassword);
 }
 
+async function verifyPassword(password) {
+  return userService.verifyPassword(password);
+}
+
 async function changePhone(phone, code) {
   return userService.changePhone(phone, code);
 }
@@ -83,6 +87,7 @@ module.exports = {
   getSettingsPreferences,
   saveSettingsPreferences,
   changePassword,
+  verifyPassword,
   changePhone,
   sendSmsCode,
   bindEmail,

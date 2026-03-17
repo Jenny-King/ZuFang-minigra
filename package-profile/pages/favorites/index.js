@@ -14,13 +14,15 @@ Page({
     hasMore: true,
     list: [],
     errorText: "",
-    titleHighlight: false
+    titleHighlight: false,
+    openActionHouseId: ""
   },
 
   onLoad(options) {
     logger.info("page_load", { page: "profile/favorites", query: options || {} });
     this.shouldHighlightTitle = Boolean(options && options.highlight === "1");
     this.titleHighlightTimer = null;
+    this.touchStartPoint = null;
     if (!authUtils.requireLogin({ redirect: true })) {
       logger.info("favorites_onload_end", { blocked: "not_login" });
       return;
@@ -87,7 +89,8 @@ Page({
     logger.info("favorites_refresh_start", {});
     this.setData({
       page: REQUEST_DEFAULT.PAGE,
-      hasMore: true
+      hasMore: true,
+      openActionHouseId: ""
     });
     await this.fetchList({ initial: true });
     logger.info("favorites_refresh_end", {});
@@ -140,6 +143,54 @@ Page({
     }
   },
 
+  noop() {},
+
+  onPageTap() {
+    if (this.data.openActionHouseId) {
+      this.setData({ openActionHouseId: "" });
+    }
+  },
+
+  onCardTouchStart(event) {
+    const houseId = String(event.currentTarget.dataset.houseId || "").trim();
+    const touch = event.changedTouches?.[0];
+    if (!houseId || !touch) {
+      return;
+    }
+
+    this.touchStartPoint = {
+      houseId,
+      x: Number(touch.clientX || 0),
+      y: Number(touch.clientY || 0)
+    };
+  },
+
+  onCardTouchEnd(event) {
+    const houseId = String(event.currentTarget.dataset.houseId || "").trim();
+    const touch = event.changedTouches?.[0];
+    if (!houseId || !touch || !this.touchStartPoint || this.touchStartPoint.houseId !== houseId) {
+      this.touchStartPoint = null;
+      return;
+    }
+
+    const dx = Number(touch.clientX || 0) - this.touchStartPoint.x;
+    const dy = Number(touch.clientY || 0) - this.touchStartPoint.y;
+    this.touchStartPoint = null;
+
+    if (Math.abs(dx) <= Math.abs(dy) || Math.abs(dx) < 40) {
+      return;
+    }
+
+    if (dx < 0) {
+      this.setData({ openActionHouseId: houseId });
+      return;
+    }
+
+    if (this.data.openActionHouseId === houseId) {
+      this.setData({ openActionHouseId: "" });
+    }
+  },
+
   async onCancelFavoriteTap(event) {
     logger.info("favorites_cancel_start", { data: event.currentTarget.dataset || {} });
     const houseId = event.currentTarget.dataset.houseId;
@@ -151,6 +202,7 @@ Page({
       logger.info("api_call", { func: "favorite.toggle", params: { houseId } });
       await favoriteService.toggleFavorite(houseId);
       logger.info("api_resp", { func: "favorite.toggle", code: 0 });
+      this.setData({ openActionHouseId: "" });
       wx.showToast({ title: "已取消收藏", icon: "none" });
       await this.refreshList();
     } catch (error) {
@@ -194,5 +246,6 @@ Page({
       clearTimeout(this.titleHighlightTimer);
       this.titleHighlightTimer = null;
     }
+    this.touchStartPoint = null;
   }
 });

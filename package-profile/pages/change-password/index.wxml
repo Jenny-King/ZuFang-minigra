@@ -1,0 +1,83 @@
+<view class="container change-password-page">
+  <view class="card change-password-card">
+    <view class="title">修改登录密码</view>
+    <view class="subtitle">请先验证当前密码，再设置新的登录密码。</view>
+
+    <view class="step-card">
+      <view class="step-head">
+        <view class="step-index">1</view>
+        <view class="step-copy">
+          <view class="step-title">验证当前密码</view>
+          <view class="step-desc">验证通过后，才可继续设置新密码</view>
+        </view>
+        <view class="step-status" wx:if="{{oldPasswordVerified}}">已验证</view>
+      </view>
+
+      <view class="form-item">
+        <text class="label">当前密码</text>
+        <input
+          class="input"
+          password
+          placeholder="请输入当前密码"
+          value="{{oldPassword}}"
+          bindinput="onOldPasswordInput"
+        />
+      </view>
+
+      <button
+        class="verify-btn"
+        loading="{{verifyingOldPassword}}"
+        disabled="{{verifyingOldPassword}}"
+        bindtap="onVerifyOldPasswordTap"
+      >
+        {{oldPasswordVerified ? "重新验证当前密码" : "验证当前密码"}}
+      </button>
+    </view>
+
+    <view class="step-card" wx:if="{{oldPasswordVerified}}">
+      <view class="step-head">
+        <view class="step-index">2</view>
+        <view class="step-copy">
+          <view class="step-title">设置新密码</view>
+          <view class="step-desc">新密码需要满足强密码规则，并输入两次确认</view>
+        </view>
+      </view>
+
+      <view class="tips">
+        <view class="tip">{{passwordRuleText}}</view>
+        <view class="tip">新密码不能与当前密码相同</view>
+      </view>
+
+      <view class="form-item">
+        <text class="label">新密码</text>
+        <input
+          class="input"
+          password
+          placeholder="请输入新密码"
+          value="{{newPassword}}"
+          bindinput="onNewPasswordInput"
+        />
+      </view>
+
+      <view class="form-item">
+        <text class="label">确认新密码</text>
+        <input
+          class="input"
+          password
+          placeholder="请再次输入新密码"
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+        />
+      </view>
+
+      <button class="submit-btn" loading="{{submitLoading}}" bindtap="onSubmitTap">
+        保存并重新登录
+      </button>
+    </view>
+
+    <view class="locked-box" wx:else>
+      <view class="locked-title">先完成当前密码验证</view>
+      <view class="locked-desc">验证成功后，这里会解锁新密码填写区域。</view>
+    </view>
+  </view>
+</view>

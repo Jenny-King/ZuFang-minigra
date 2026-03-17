@@ -17,6 +17,8 @@ const SUBPACKAGE_ROUTES = {
   AUTH_VERIFY: "/package-auth/pages/verify/index",
   PROFILE_SUPPORT: "/package-profile/pages/support-center/index",
   PROFILE_SETTINGS: "/package-profile/pages/settings/index",
+  PROFILE_CHANGE_PHONE: "/package-profile/pages/change-phone/index",
+  PROFILE_CHANGE_PASSWORD: "/package-profile/pages/change-password/index",
   PROFILE_FAVORITES: "/package-profile/pages/favorites/index",
   PROFILE_HISTORY: "/package-profile/pages/history/index",
   PROFILE_EDIT: "/package-profile/pages/edit-profile/index",

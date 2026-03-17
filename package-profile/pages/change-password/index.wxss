@@ -1,0 +1,153 @@
+.change-password-page {
+  min-height: 100vh;
+}
+
+.change-password-card {
+  padding: 28rpx;
+  border-radius: 28rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1f1f1f;
+  text-align: center;
+}
+
+.subtitle {
+  margin: 16rpx 0 28rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #7f8797;
+  text-align: center;
+}
+
+.step-card {
+  padding: 24rpx;
+  border: 2rpx solid #eef2fb;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+}
+
+.step-card + .step-card,
+.step-card + .locked-box,
+.locked-box + .step-card {
+  margin-top: 24rpx;
+}
+
+.step-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 22rpx;
+}
+
+.step-index {
+  width: 48rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  border-radius: 24rpx;
+  text-align: center;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1f4fd7 0%, #2f64f5 100%);
+}
+
+.step-copy {
+  flex: 1;
+  margin-left: 16rpx;
+}
+
+.step-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.step-desc {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #7f8797;
+}
+
+.step-status {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #1f7a3d;
+  background: rgba(31, 122, 61, 0.12);
+}
+
+.form-item {
+  margin-bottom: 24rpx;
+}
+
+.label {
+  display: block;
+  margin-bottom: 10rpx;
+  font-size: 26rpx;
+  color: #333333;
+}
+
+.input {
+  width: 100%;
+  height: 84rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid #e8ebf2;
+  border-radius: 18rpx;
+  font-size: 28rpx;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.tips {
+  margin-bottom: 22rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 18rpx;
+  background: #f4f7ff;
+}
+
+.tip {
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: #50607a;
+}
+
+.verify-btn,
+.submit-btn {
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 20rpx;
+  color: #ffffff;
+  font-size: 30rpx;
+}
+
+.verify-btn {
+  margin-top: 8rpx;
+  background: linear-gradient(135deg, #2b5be7 0%, #3f7cff 100%);
+}
+
+.submit-btn {
+  margin-top: 8rpx;
+  background: linear-gradient(135deg, #1f4fd7 0%, #2f64f5 100%);
+}
+
+.locked-box {
+  padding: 28rpx 24rpx;
+  border-radius: 24rpx;
+  background: #f7f8fb;
+  border: 2rpx dashed #d7dfef;
+}
+
+.locked-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #27303f;
+}
+
+.locked-desc {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: #7f8797;
+}

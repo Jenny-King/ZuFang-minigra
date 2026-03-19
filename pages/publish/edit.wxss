@@ -223,15 +223,16 @@
   align-items: center;
   justify-content: space-between;
   height: 96rpx;
+  line-height: normal;
   padding: 0 28rpx;
 }
 
 .layout-trigger__value {
-  display: block;
+  display: inline-block;
   color: var(--color-text-1);
   font-size: var(--font-md);
   line-height: 1;
-  margin-top: -2rpx;
+  margin-top: -4rpx;
 }
 
 .layout-trigger__value--placeholder {
@@ -239,12 +240,12 @@
 }
 
 .layout-trigger__arrow {
-  display: block;
+  display: inline-block;
   color: var(--color-text-3);
   font-size: var(--font-md);
   font-weight: var(--weight-bold);
   line-height: 1;
-  margin-top: -2rpx;
+  margin-top: -4rpx;
 }
 
 .layout-sheet-mask {

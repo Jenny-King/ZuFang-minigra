@@ -1,62 +1,74 @@
 <view class="container chat-page">
-  <view wx:if="{{errorText}}" class="error-box">
-    <text class="error-box__text">{{errorText}}</text>
-    <button class="error-box__retry" bindtap="loadConversationList">重试</button>
+  <!-- Search -->
+  <view class="search-bar">
+    <view class="search-inner">
+      <icon type="search" size="15" color="#9ca3af" />
+      <input type="text" placeholder="搜索联系人或房源" placeholder-class="search-placeholder" />
+    </view>
   </view>
 
-  <skeleton wx:if="{{listLoading && !conversationList.length}}" type="list-item" count="{{4}}" />
+  <!-- List -->
+  <view class="list-scroll">
+    <view wx:if="{{errorText}}" class="error-box">
+      <text class="error-box__text">{{errorText}}</text>
+      <button class="error-box__retry" bindtap="loadConversationList">重试</button>
+    </view>
 
-  <empty-state
-    wx:elif="{{!listLoading && conversationList.length === 0}}"
-    title="暂无会话"
-    subtitle="去房源详情联系房东吧"
-  />
+    <skeleton wx:if="{{listLoading && !conversationList.length}}" type="list-item" count="{{4}}" />
 
-  <view wx:else class="chat-list">
-    <view
-      class="chat-item card"
-      wx:for="{{conversationList}}"
-      wx:key="conversationId"
-      data-conversation-id="{{item.conversationId}}"
-      data-house-id="{{item.houseId}}"
-      data-target-user-id="{{item.targetUserId}}"
-      bindtap="onConversationTap"
-    >
-      <lazy-image
-        class="avatar"
-        src="{{item.displayAvatar || '/assets/images/avatar-placeholder.png'}}"
-        mode="aspectFill"
-        radius="var(--radius-pill)"
-        width="92rpx"
-        height="92rpx"
-      />
-      <view class="content">
-        <view class="top-row">
-          <text class="name text-ellipsis">{{item.displayName}}</text>
-          <text class="time">{{item.displayLastTime}}</text>
-        </view>
-        <view class="house-row">
+    <empty-state
+      wx:elif="{{!listLoading && conversationList.length === 0}}"
+      title="暂无会话"
+      subtitle="去房源详情联系房东吧"
+    />
+
+    <block wx:else>
+      <view
+        class="chat-item"
+        wx:for="{{conversationList}}"
+        wx:key="conversationId"
+        data-conversation-id="{{item.conversationId}}"
+        data-house-id="{{item.houseId}}"
+        data-target-user-id="{{item.targetUserId}}"
+        bindtap="onConversationTap"
+      >
+        <view class="avatar-wrap">
           <lazy-image
-            class="house-cover"
-            src="{{item.displayHouseCover}}"
+            class="avatar"
+            src="{{item.displayAvatar || '/assets/images/avatar-placeholder.png'}}"
             mode="aspectFill"
-            radius="8rpx"
-            width="120rpx"
-            height="120rpx"
+            radius="50%"
+            width="96rpx"
+            height="96rpx"
           />
-          <view class="house-content">
-            <view class="house-header">
-              <text class="house-title text-ellipsis">{{item.displayHouseTitle}}</text>
-              <text class="house-price">{{item.displayHousePrice}}</text>
-            </view>
-            <text class="house-meta text-ellipsis">{{item.displayHouseMeta}}</text>
-          </view>
+          <view wx:if="{{item.unreadCount > 0}}" class="badge">{{item.unreadCount}}</view>
         </view>
-        <view class="bottom-row">
-          <text class="message text-ellipsis">{{item.displayLastMessage}}</text>
-          <text wx:if="{{item.unreadCount > 0}}" class="badge">{{item.unreadCount}}</text>
+
+        <view class="chat-main">
+          <view class="chat-row1">
+            <text class="chat-name">{{item.displayName}}</text>
+            <text class="chat-time">{{item.displayLastTime}}</text>
+          </view>
+          
+          <view class="house-card" wx:if="{{item.houseId}}">
+            <lazy-image
+              class="house-thumb"
+              src="{{item.displayHouseCover}}"
+              mode="aspectFill"
+              radius="12rpx"
+              width="88rpx"
+              height="88rpx"
+            />
+            <view class="house-info">
+              <text class="house-name">{{item.displayHouseTitle}}</text>
+              <text class="house-meta">{{item.displayHouseMeta}}</text>
+            </view>
+            <text class="house-price">{{item.displayHousePrice}}</text>
+          </view>
+          
+          <view class="chat-preview">{{item.displayLastMessage}}</view>
         </view>
       </view>
-    </view>
+    </block>
   </view>
 </view>

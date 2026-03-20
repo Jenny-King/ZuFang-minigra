@@ -65,30 +65,32 @@ Page({
     const houseId = options && options.houseId ? String(options.houseId) : "";
     if (!houseId) {
       this.setData({ errorText: "缺少房源 ID" });
-      logger.info("house_detail_onload_end", { blocked: "missing_house_id" });
+      logger.debug("house_detail_onload_end", { blocked: "missing_house_id" });
       return;
     }
     this.setData({ houseId });
     await this.loadPageData();
-    logger.info("house_detail_onload_end", { houseId });
+    logger.debug("house_detail_onload_end", { houseId });
   },
 
   async onPullDownRefresh() {
-    logger.info("house_detail_pulldown_start", {});
+    logger.debug("house_detail_pulldown_start", {});
     try {
       await this.loadPageData();
     } finally {
       wx.stopPullDownRefresh();
-      logger.info("house_detail_pulldown_end", {});
+      logger.debug("house_detail_pulldown_end", {});
     }
   },
 
   async loadPageData() {
-    logger.info("house_detail_load_start", {});
-    await this.loadDetail();
-    await this.loadFavoriteStatus();
-    await this.addViewHistory();
-    logger.info("house_detail_load_end", {});
+    logger.debug("house_detail_load_start", {});
+    await Promise.allSettled([
+      this.loadDetail(),
+      this.loadFavoriteStatus(),
+      this.addViewHistory()
+    ]);
+    logger.debug("house_detail_load_end", {});
   },
 
   normalizeDetail(detail) {
@@ -121,15 +123,15 @@ Page({
   },
 
   async loadDetail() {
-    logger.info("house_detail_fetch_start", { houseId: this.data.houseId });
+    logger.debug("house_detail_fetch_start", { houseId: this.data.houseId });
     this.setData({ loading: true, errorText: "" });
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "house.getDetail",
         params: { houseId: this.data.houseId }
       });
       const detail = await houseService.getHouseDetail(this.data.houseId);
-      logger.info("api_resp", { func: "house.getDetail", code: 0 });
+      logger.debug("api_resp", { func: "house.getDetail", code: 0 });
       const houseDetail = this.normalizeDetail(detail);
       this.setData({
         houseDetail,
@@ -146,7 +148,7 @@ Page({
       logger.error("api_error", { func: "house.getDetail", err: message });
     } finally {
       this.setData({ loading: false });
-      logger.info("house_detail_fetch_end", {});
+      logger.debug("house_detail_fetch_end", {});
     }
   },
 
@@ -166,7 +168,10 @@ Page({
       id: 0,
       latitude,
       longitude,
-      title: houseDetail.displayTitle
+      title: houseDetail.displayTitle,
+      iconPath: "/assets/images/map-pin.png",
+      width: 30,
+      height: 30
     }];
 
     this.setData({
@@ -197,56 +202,56 @@ Page({
   },
 
   async loadFavoriteStatus() {
-    logger.info("house_detail_fav_status_start", {});
+    logger.debug("house_detail_fav_status_start", {});
     if (!authUtils.isLoggedIn()) {
-      logger.info("house_detail_fav_status_end", { skipped: "not_login" });
+      logger.debug("house_detail_fav_status_end", { skipped: "not_login" });
       return;
     }
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "favorite.check",
         params: { houseId: this.data.houseId }
       });
       const result = await favoriteService.checkFavorite(this.data.houseId);
-      logger.info("api_resp", { func: "favorite.check", code: 0 });
+      logger.debug("api_resp", { func: "favorite.check", code: 0 });
       this.setData({ isFavorite: Boolean(result && result.isFavorite) });
     } catch (error) {
       logger.error("api_error", { func: "favorite.check", err: error.message });
     } finally {
-      logger.info("house_detail_fav_status_end", {});
+      logger.debug("house_detail_fav_status_end", {});
     }
   },
 
   async addViewHistory() {
-    logger.info("house_detail_add_history_start", {});
+    logger.debug("house_detail_add_history_start", {});
     if (!authUtils.isLoggedIn()) {
-      logger.info("house_detail_add_history_end", { skipped: "not_login" });
+      logger.debug("house_detail_add_history_end", { skipped: "not_login" });
       return;
     }
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "history.add",
         params: { houseId: this.data.houseId }
       });
       await historyService.addHistory(this.data.houseId);
-      logger.info("api_resp", { func: "history.add", code: 0 });
+      logger.debug("api_resp", { func: "history.add", code: 0 });
     } catch (error) {
       logger.error("api_error", { func: "history.add", err: error.message });
     } finally {
-      logger.info("house_detail_add_history_end", {});
+      logger.debug("house_detail_add_history_end", {});
     }
   },
 
   onPreviewImage(event) {
-    logger.info("house_detail_preview_start", { data: event.currentTarget.dataset || {} });
+    logger.debug("house_detail_preview_start", { data: event.currentTarget.dataset || {} });
     const current = event.currentTarget.dataset.url;
     const urls = (this.data.houseDetail && this.data.houseDetail.displayImages) || [];
     if (!current || !urls.length) {
-      logger.info("house_detail_preview_end", { blocked: "empty_images" });
+      logger.debug("house_detail_preview_end", { blocked: "empty_images" });
       return;
     }
     wx.previewImage({ current, urls });
-    logger.info("house_detail_preview_end", {});
+    logger.debug("house_detail_preview_end", {});
   },
 
   onSwiperChange(event) {
@@ -256,24 +261,24 @@ Page({
   },
 
   async onToggleFavoriteTap() {
-    logger.info("house_detail_toggle_fav_start", {});
+    logger.debug("house_detail_toggle_fav_start", {});
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("house_detail_toggle_fav_end", { blocked: "not_login" });
+      logger.debug("house_detail_toggle_fav_end", { blocked: "not_login" });
       return;
     }
     if (this.data.favoriteLoading) {
-      logger.info("house_detail_toggle_fav_end", { blocked: "loading" });
+      logger.debug("house_detail_toggle_fav_end", { blocked: "loading" });
       return;
     }
 
     this.setData({ favoriteLoading: true });
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "favorite.toggle",
         params: { houseId: this.data.houseId }
       });
       const result = await favoriteService.toggleFavorite(this.data.houseId);
-      logger.info("api_resp", { func: "favorite.toggle", code: 0 });
+      logger.debug("api_resp", { func: "favorite.toggle", code: 0 });
       const isFavorite = typeof result?.isFavorite === "boolean"
         ? result.isFavorite
         : !this.data.isFavorite;
@@ -284,35 +289,35 @@ Page({
       await toast.error(error.message || "操作失败");
     } finally {
       this.setData({ favoriteLoading: false });
-      logger.info("house_detail_toggle_fav_end", {});
+      logger.debug("house_detail_toggle_fav_end", {});
     }
   },
 
   async onContactTap() {
-    logger.info("house_detail_contact_start", {});
+    logger.debug("house_detail_contact_start", {});
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("house_detail_contact_end", { blocked: "not_login" });
+      logger.debug("house_detail_contact_end", { blocked: "not_login" });
       return;
     }
     const detail = this.data.houseDetail;
     if (!detail) {
-      logger.info("house_detail_contact_end", { blocked: "no_detail" });
+      logger.debug("house_detail_contact_end", { blocked: "no_detail" });
       return;
     }
     const targetUserId = detail.landlordUserId || "";
     if (!targetUserId) {
       await toast.error("房东信息缺失");
-      logger.info("house_detail_contact_end", { blocked: "missing_landlord" });
+      logger.debug("house_detail_contact_end", { blocked: "missing_landlord" });
       return;
     }
 
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "chat.createConversation",
         params: { targetUserId, houseId: this.data.houseId }
       });
       const result = await chatService.createOrGetConversation(targetUserId, this.data.houseId);
-      logger.info("api_resp", { func: "chat.createConversation", code: 0 });
+      logger.debug("api_resp", { func: "chat.createConversation", code: 0 });
       const conversationId = result && result.conversationId ? result.conversationId : "";
       navigateTo(ROUTES.CHAT_DETAIL, {
         conversationId,
@@ -323,7 +328,7 @@ Page({
       logger.error("api_error", { func: "chat.createConversation", err: error.message });
       await toast.error(error.message || "无法发起会话");
     } finally {
-      logger.info("house_detail_contact_end", {});
+      logger.debug("house_detail_contact_end", {});
     }
   }
 });

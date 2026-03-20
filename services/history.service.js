@@ -1,10 +1,5 @@
 const { callCloud } = require("./cloud/call");
-
-function assertNonEmptyString(value, fieldName) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`${fieldName} 不能为空`);
-  }
-}
+const { assertNonEmptyString } = require("../utils/assert");
 
 async function getHistoryList(params = {}) {
   return callCloud("history", "getList", params);

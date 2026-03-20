@@ -4,7 +4,7 @@ const { ROUTES, navigateTo } = require("../../config/routes");
 const { formatDate, formatPrice, fallbackText } = require("../../utils/format");
 const { logger } = require("../../utils/logger");
 
-const POLL_INTERVAL = 8000;
+const db = wx.cloud.database();
 
 Page({
   data: {
@@ -16,65 +16,74 @@ Page({
   onLoad(options) {
     logger.info("page_load", { page: "chat/index", query: options || {} });
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("chat_onload_end", { blocked: "not_login" });
+      logger.debug("chat_onload_end", { blocked: "not_login" });
       return;
     }
-    logger.info("chat_onload_end", {});
+    logger.debug("chat_onload_end", {});
   },
 
   async onShow() {
-    logger.info("chat_onshow_start", {});
+    logger.debug("chat_onshow_start", {});
     if (!authUtils.isLoggedIn()) {
-      logger.info("chat_onshow_end", { blocked: "not_login" });
+      logger.debug("chat_onshow_end", { blocked: "not_login" });
       return;
     }
     await this.loadConversationList();
-    this.startPolling();
-    logger.info("chat_onshow_end", {});
+    this.startWatcher();
+    logger.debug("chat_onshow_end", {});
   },
 
   onHide() {
-    logger.info("chat_onhide_start", {});
-    this.stopPolling();
-    logger.info("chat_onhide_end", {});
+    logger.debug("chat_onhide", {});
+    this.closeWatcher();
   },
 
   onUnload() {
-    logger.info("chat_onunload_start", {});
-    this.stopPolling();
-    logger.info("chat_onunload_end", {});
+    logger.debug("chat_onunload", {});
+    this.closeWatcher();
   },
 
   async onPullDownRefresh() {
-    logger.info("chat_pulldown_start", {});
+    logger.debug("chat_pulldown_start", {});
     try {
       await this.loadConversationList();
     } finally {
       wx.stopPullDownRefresh();
-      logger.info("chat_pulldown_end", {});
+      logger.debug("chat_pulldown_end", {});
     }
   },
 
-  startPolling() {
-    logger.info("chat_poll_start", {});
-    this.stopPolling();
-    this._pollTimer = setInterval(async () => {
-      try {
-        await this.loadConversationList({ silent: true });
-      } catch (error) {
-        logger.warn("chat_poll_tick_failed", { error: error.message });
-      }
-    }, POLL_INTERVAL);
-    logger.info("chat_poll_end", {});
+  startWatcher() {
+    this.closeWatcher();
+    const userInfo = authUtils.getLoginUser();
+    if (!userInfo || !userInfo.userId) {
+      logger.debug("chat_watcher_skip", { reason: "no_user" });
+      return;
+    }
+
+    const _ = db.command;
+    this._watcher = db.collection("conversations")
+      .where({ participantIds: _.all([userInfo.userId]) })
+      .watch({
+        onChange: (snapshot) => {
+          logger.debug("chat_watcher_change", { type: snapshot.type, count: (snapshot.docs || []).length });
+          this.loadConversationList({ silent: true }).catch((err) => {
+            logger.warn("chat_watcher_reload_failed", { error: err.message });
+          });
+        },
+        onError: (err) => {
+          logger.warn("chat_watcher_error", { error: err.errMsg || err.message || "unknown" });
+        }
+      });
+    logger.debug("chat_watcher_started", { userId: userInfo.userId });
   },
 
-  stopPolling() {
-    logger.info("chat_stop_poll_start", {});
-    if (this._pollTimer) {
-      clearInterval(this._pollTimer);
-      this._pollTimer = null;
+  closeWatcher() {
+    if (this._watcher) {
+      this._watcher.close();
+      this._watcher = null;
+      logger.debug("chat_watcher_closed", {});
     }
-    logger.info("chat_stop_poll_end", {});
   },
 
   normalizeConversationList(list = []) {
@@ -113,9 +122,9 @@ Page({
 
   async loadConversationList(options = {}) {
     const silent = Boolean(options.silent);
-    logger.info("chat_list_load_start", { silent });
+    logger.debug("chat_list_load_start", { silent });
     if (this.data.listLoading && !silent) {
-      logger.info("chat_list_load_end", { blocked: "loading" });
+      logger.debug("chat_list_load_end", { blocked: "loading" });
       return;
     }
 
@@ -124,9 +133,9 @@ Page({
     }
 
     try {
-      logger.info("api_call", { func: "chat.getConversations", params: {} });
+      logger.debug("api_call", { func: "chat.getConversations", params: {} });
       const result = await chatService.getConversationList();
-      logger.info("api_resp", {
+      logger.debug("api_resp", {
         func: "chat.getConversations",
         code: 0,
         count: (result.list || []).length
@@ -145,12 +154,12 @@ Page({
       if (!silent) {
         this.setData({ listLoading: false });
       }
-      logger.info("chat_list_load_end", { silent });
+      logger.debug("chat_list_load_end", { silent });
     }
   },
 
   onConversationTap(event) {
-    logger.info("chat_tap_item_start", { data: event.currentTarget.dataset || {} });
+    logger.debug("chat_tap_item_start", { data: event.currentTarget.dataset || {} });
     const conversationId = event.currentTarget.dataset.conversationId;
     const targetUserId = event.currentTarget.dataset.targetUserId;
     if (!conversationId) {
@@ -163,6 +172,6 @@ Page({
       targetUserId: targetUserId || "",
       houseId: event.currentTarget.dataset.houseId || ""
     });
-    logger.info("chat_tap_item_end", { conversationId });
+    logger.debug("chat_tap_item_end", { conversationId });
   }
 });

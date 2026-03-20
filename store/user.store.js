@@ -107,7 +107,7 @@ function restoreFromStorage() {
 
 async function refreshCurrentUser() {
   setLoading(true);
-  logger.info("user_store_refresh_start", {});
+  logger.debug("user_store_refresh_start", {});
 
   try {
     const userInfo = await userService.getCurrentUser();

@@ -1,21 +1,10 @@
 const { callCloud } = require("./cloud/call");
 const { uploadToCloud } = require("./cloud/upload");
 const { REQUEST_DEFAULT } = require("../config/constants");
-
-function assertNonEmptyString(value, fieldName) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`${fieldName} 不能为空`);
-  }
-}
-
-function assertObject(value, fieldName) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    throw new Error(`${fieldName} 必须是对象`);
-  }
-}
+const { assertNonEmptyString, assertPlainObject } = require("../utils/assert");
 
 async function getHouseList(params = {}) {
-  assertObject(params, "params");
+  assertPlainObject(params, "params");
 
   const normalizedParams = {
     page: REQUEST_DEFAULT.PAGE,
@@ -36,13 +25,13 @@ async function getHouseDetail(houseId) {
 }
 
 async function createHouse(formData = {}) {
-  assertObject(formData, "formData");
+  assertPlainObject(formData, "formData");
   return callCloud("house", "create", formData);
 }
 
 async function updateHouse(houseId, formData = {}) {
   assertNonEmptyString(houseId, "houseId");
-  assertObject(formData, "formData");
+  assertPlainObject(formData, "formData");
 
   return callCloud("house", "update", {
     houseId: houseId.trim(),
@@ -66,7 +55,7 @@ async function deleteHouse(houseId) {
 }
 
 async function getMyHouseList(params = {}) {
-  assertObject(params, "params");
+  assertPlainObject(params, "params");
   return callCloud("house", "getMine", params);
 }
 

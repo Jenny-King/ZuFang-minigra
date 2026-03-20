@@ -1,17 +1,12 @@
 const { REQUEST_DEFAULT } = require("../../config/constants");
 const { parseCloudFunctionResponse } = require("./response");
 const { normalizeCloudError } = require("./error");
-const storage = require("../../utils/storage");
-
-function assertRequiredString(value, fieldName) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`${fieldName} 必须是非空字符串`);
-  }
-}
+const authUtils = require("../../utils/auth");
+const { assertNonEmptyString } = require("../../utils/assert");
 
 async function callCloud(functionName, action, payload = {}, options = {}) {
-  assertRequiredString(functionName, "functionName");
-  assertRequiredString(action, "action");
+  assertNonEmptyString(functionName, "functionName");
+  assertNonEmptyString(action, "action");
 
   const {
     timeout = REQUEST_DEFAULT.TIMEOUT,
@@ -19,7 +14,7 @@ async function callCloud(functionName, action, payload = {}, options = {}) {
   } = options;
 
   try {
-    const accessToken = storage.getAccessToken();
+    const accessToken = authUtils.getAccessToken();
     const response = await wx.cloud.callFunction({
       name: functionName,
       data: {

@@ -30,7 +30,7 @@ Page({
   async onLoad(options) {
     logger.info("page_load", { page: "chat/detail", query: options || {} });
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("chat_detail_onload_end", { blocked: "not_login" });
+      logger.debug("chat_detail_onload_end", { blocked: "not_login" });
       return;
     }
 
@@ -50,55 +50,55 @@ Page({
     await this.loadHouseCard();
     await this.loadMessages();
     await this.markAsRead();
-    logger.info("chat_detail_onload_end", { conversationId: this.data.conversationId });
+    logger.debug("chat_detail_onload_end", { conversationId: this.data.conversationId });
   },
 
   async onShow() {
-    logger.info("chat_detail_onshow_start", {});
+    logger.debug("chat_detail_onshow_start", {});
     if (this.data.conversationId) {
       this.startPolling();
     }
-    logger.info("chat_detail_onshow_end", {});
+    logger.debug("chat_detail_onshow_end", {});
   },
 
   onHide() {
-    logger.info("chat_detail_onhide_start", {});
+    logger.debug("chat_detail_onhide_start", {});
     this.stopPolling();
-    logger.info("chat_detail_onhide_end", {});
+    logger.debug("chat_detail_onhide_end", {});
   },
 
   onUnload() {
-    logger.info("chat_detail_onunload_start", {});
+    logger.debug("chat_detail_onunload_start", {});
     this.stopPolling();
-    logger.info("chat_detail_onunload_end", {});
+    logger.debug("chat_detail_onunload_end", {});
   },
 
   async onPullDownRefresh() {
-    logger.info("chat_detail_pulldown_start", {});
+    logger.debug("chat_detail_pulldown_start", {});
     try {
       await this.loadHouseCard();
       await this.loadMessages();
       await this.markAsRead();
     } finally {
       wx.stopPullDownRefresh();
-      logger.info("chat_detail_pulldown_end", {});
+      logger.debug("chat_detail_pulldown_end", {});
     }
   },
 
   async ensureConversation() {
-    logger.info("chat_detail_ensure_conv_start", {});
+    logger.debug("chat_detail_ensure_conv_start", {});
     if (this.data.conversationId) {
-      logger.info("chat_detail_ensure_conv_end", { reused: true });
+      logger.debug("chat_detail_ensure_conv_end", { reused: true });
       return;
     }
     if (!this.data.targetUserId || !this.data.houseId) {
       this.setData({ errorText: "缺少会话参数，无法进入聊天" });
-      logger.info("chat_detail_ensure_conv_end", { blocked: "missing_params" });
+      logger.debug("chat_detail_ensure_conv_end", { blocked: "missing_params" });
       return;
     }
 
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "chat.createConversation",
         params: {
           targetUserId: this.data.targetUserId,
@@ -106,7 +106,7 @@ Page({
         }
       });
       const result = await chatService.createOrGetConversation(this.data.targetUserId, this.data.houseId);
-      logger.info("api_resp", { func: "chat.createConversation", code: 0 });
+      logger.debug("api_resp", { func: "chat.createConversation", code: 0 });
       this.setData({
         conversationId: result && result.conversationId ? result.conversationId : ""
       });
@@ -114,12 +114,12 @@ Page({
       this.setData({ errorText: error.message || "会话创建失败" });
       logger.error("api_error", { func: "chat.createConversation", err: error.message });
     } finally {
-      logger.info("chat_detail_ensure_conv_end", {});
+      logger.debug("chat_detail_ensure_conv_end", {});
     }
   },
 
   startPolling() {
-    logger.info("chat_detail_poll_start", {});
+    logger.debug("chat_detail_poll_start", {});
     this.stopPolling();
     this._pollTimer = setInterval(async () => {
       try {
@@ -129,16 +129,16 @@ Page({
         logger.warn("chat_detail_poll_tick_failed", { error: error.message });
       }
     }, POLL_INTERVAL);
-    logger.info("chat_detail_poll_end", {});
+    logger.debug("chat_detail_poll_end", {});
   },
 
   stopPolling() {
-    logger.info("chat_detail_stop_poll_start", {});
+    logger.debug("chat_detail_stop_poll_start", {});
     if (this._pollTimer) {
       clearInterval(this._pollTimer);
       this._pollTimer = null;
     }
-    logger.info("chat_detail_stop_poll_end", {});
+    logger.debug("chat_detail_stop_poll_end", {});
   },
 
   normalizeHouseCard(detail) {
@@ -163,20 +163,20 @@ Page({
   },
 
   async loadHouseCard() {
-    logger.info("chat_detail_load_house_start", {});
+    logger.debug("chat_detail_load_house_start", {});
     if (!this.data.houseId) {
       this.setData({ houseCard: null });
-      logger.info("chat_detail_load_house_end", { blocked: "empty_house_id" });
+      logger.debug("chat_detail_load_house_end", { blocked: "empty_house_id" });
       return;
     }
 
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "house.getDetail",
         params: { houseId: this.data.houseId }
       });
       const detail = await houseService.getHouseDetail(this.data.houseId);
-      logger.info("api_resp", { func: "house.getDetail", code: 0 });
+      logger.debug("api_resp", { func: "house.getDetail", code: 0 });
       this.setData({
         houseCard: this.normalizeHouseCard(detail)
       });
@@ -184,14 +184,14 @@ Page({
       this.setData({ houseCard: null });
       logger.warn("api_error", { func: "house.getDetail", err: error.message });
     } finally {
-      logger.info("chat_detail_load_house_end", {});
+      logger.debug("chat_detail_load_house_end", {});
     }
   },
 
   async loadConversationProfile() {
-    logger.info("chat_detail_load_profile_start", {});
+    logger.debug("chat_detail_load_profile_start", {});
     if (!this.data.conversationId) {
-      logger.info("chat_detail_load_profile_end", { blocked: "empty_conversation" });
+      logger.debug("chat_detail_load_profile_end", { blocked: "empty_conversation" });
       return;
     }
 
@@ -205,7 +205,7 @@ Page({
     } catch (error) {
       logger.warn("chat_detail_load_profile_failed", { error: error.message });
     } finally {
-      logger.info("chat_detail_load_profile_end", {});
+      logger.debug("chat_detail_load_profile_end", {});
     }
   },
 
@@ -227,9 +227,9 @@ Page({
 
   async loadMessages(options = {}) {
     const silent = Boolean(options.silent);
-    logger.info("chat_detail_load_msgs_start", { silent });
+    logger.debug("chat_detail_load_msgs_start", { silent });
     if (!this.data.conversationId) {
-      logger.info("chat_detail_load_msgs_end", { blocked: "empty_conversation" });
+      logger.debug("chat_detail_load_msgs_end", { blocked: "empty_conversation" });
       return;
     }
 
@@ -238,12 +238,12 @@ Page({
     }
 
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "chat.getMessages",
         params: { conversationId: this.data.conversationId }
       });
       const result = await chatService.getMessageList(this.data.conversationId, 1, 50);
-      logger.info("api_resp", { func: "chat.getMessages", code: 0 });
+      logger.debug("api_resp", { func: "chat.getMessages", code: 0 });
       const messageList = this.normalizeMessages(result.list || []);
       const lastMessage = messageList[messageList.length - 1];
       this.setData({
@@ -259,28 +259,28 @@ Page({
       if (!silent) {
         this.setData({ loading: false });
       }
-      logger.info("chat_detail_load_msgs_end", { silent });
+      logger.debug("chat_detail_load_msgs_end", { silent });
     }
   },
 
   async markAsRead(options = {}) {
     const silent = Boolean(options.silent);
-    logger.info("chat_detail_mark_read_start", { silent });
+    logger.debug("chat_detail_mark_read_start", { silent });
     if (!this.data.conversationId) {
-      logger.info("chat_detail_mark_read_end", { blocked: "empty_conversation" });
+      logger.debug("chat_detail_mark_read_end", { blocked: "empty_conversation" });
       return;
     }
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "chat.markRead",
         params: { conversationId: this.data.conversationId }
       });
       await chatService.markConversationRead(this.data.conversationId);
-      logger.info("api_resp", { func: "chat.markRead", code: 0 });
+      logger.debug("api_resp", { func: "chat.markRead", code: 0 });
     } catch (error) {
       logger.error("api_error", { func: "chat.markRead", err: error.message });
     } finally {
-      logger.info("chat_detail_mark_read_end", { silent });
+      logger.debug("chat_detail_mark_read_end", { silent });
     }
   },
 
@@ -321,16 +321,16 @@ Page({
   },
 
   onHouseCardTap() {
-    logger.info("chat_detail_house_tap_start", {});
+    logger.debug("chat_detail_house_tap_start", {});
     if (!this.data.houseId) {
-      logger.info("chat_detail_house_tap_end", { blocked: "empty_house_id" });
+      logger.debug("chat_detail_house_tap_end", { blocked: "empty_house_id" });
       return;
     }
 
     navigateTo(ROUTES.HOUSE_DETAIL, {
       houseId: this.data.houseId
     });
-    logger.info("chat_detail_house_tap_end", { houseId: this.data.houseId });
+    logger.debug("chat_detail_house_tap_end", { houseId: this.data.houseId });
   },
 
   buildImageCloudPath(tempFilePath) {
@@ -343,14 +343,14 @@ Page({
   },
 
   async onChooseImageTap() {
-    logger.info("chat_detail_choose_image_start", {});
+    logger.debug("chat_detail_choose_image_start", {});
     if (this.data.sending || this.data.uploadingImage) {
-      logger.info("chat_detail_choose_image_end", { blocked: "sending" });
+      logger.debug("chat_detail_choose_image_end", { blocked: "sending" });
       return;
     }
     if (!this.data.conversationId) {
       await toast.error("会话初始化失败");
-      logger.info("chat_detail_choose_image_end", { blocked: "empty_conversation" });
+      logger.debug("chat_detail_choose_image_end", { blocked: "empty_conversation" });
       return;
     }
 
@@ -367,7 +367,7 @@ Page({
       });
       const tempFilePath = chooseRes?.tempFiles?.[0]?.tempFilePath || "";
       if (!tempFilePath) {
-        logger.info("chat_detail_choose_image_end", { blocked: "empty_file" });
+        logger.debug("chat_detail_choose_image_end", { blocked: "empty_file" });
         return;
       }
 
@@ -385,22 +385,22 @@ Page({
       await toast.hide();
       const message = error?.errMsg || error?.message || "";
       if (message.includes("cancel")) {
-        logger.info("chat_detail_choose_image_end", { blocked: "cancelled" });
+        logger.debug("chat_detail_choose_image_end", { blocked: "cancelled" });
         return;
       }
       logger.error("api_error", { func: "chat.sendImageMessage", err: message });
       await toast.error(message || "图片发送失败");
     } finally {
       this.setData({ uploadingImage: false });
-      logger.info("chat_detail_choose_image_end", {});
+      logger.debug("chat_detail_choose_image_end", {});
     }
   },
 
   onPreviewMessageImage(event) {
-    logger.info("chat_detail_preview_image_start", { data: event.currentTarget.dataset || {} });
+    logger.debug("chat_detail_preview_image_start", { data: event.currentTarget.dataset || {} });
     const url = String(event.currentTarget.dataset.url || "").trim();
     if (!url) {
-      logger.info("chat_detail_preview_image_end", { blocked: "empty_url" });
+      logger.debug("chat_detail_preview_image_end", { blocked: "empty_url" });
       return;
     }
 
@@ -408,35 +408,35 @@ Page({
       current: url,
       urls: [url]
     });
-    logger.info("chat_detail_preview_image_end", {});
+    logger.debug("chat_detail_preview_image_end", {});
   },
 
   async onSendTap() {
-    logger.info("chat_detail_send_start", {});
+    logger.debug("chat_detail_send_start", {});
     if (this.data.sending || this.data.uploadingImage) {
-      logger.info("chat_detail_send_end", { blocked: "sending" });
+      logger.debug("chat_detail_send_end", { blocked: "sending" });
       return;
     }
     const content = String(this.data.inputValue || "").trim();
     if (!content) {
       await toast.error("请输入消息内容");
-      logger.info("chat_detail_send_end", { blocked: "empty_content" });
+      logger.debug("chat_detail_send_end", { blocked: "empty_content" });
       return;
     }
     if (!this.data.conversationId) {
       await toast.error("会话初始化失败");
-      logger.info("chat_detail_send_end", { blocked: "empty_conversation" });
+      logger.debug("chat_detail_send_end", { blocked: "empty_conversation" });
       return;
     }
 
     this.setData({ sending: true });
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "chat.sendMessage",
         params: { conversationId: this.data.conversationId }
       });
       await chatService.sendMessage(this.data.conversationId, content, MESSAGE_TYPE.TEXT);
-      logger.info("api_resp", { func: "chat.sendMessage", code: 0 });
+      logger.debug("api_resp", { func: "chat.sendMessage", code: 0 });
       this.setData({
         inputValue: "",
         canSend: false
@@ -448,7 +448,7 @@ Page({
       await toast.error(error.message || "发送失败");
     } finally {
       this.setData({ sending: false });
-      logger.info("chat_detail_send_end", {});
+      logger.debug("chat_detail_send_end", {});
     }
   }
 });

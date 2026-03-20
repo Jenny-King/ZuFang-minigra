@@ -38,11 +38,11 @@ Page({
   onLoad(options) {
     logger.info("page_load", { page: "profile/change-password", query: options || {} });
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("change_password_onload_end", { blocked: "not_login" });
+      logger.debug("change_password_onload_end", { blocked: "not_login" });
       return;
     }
 
-    logger.info("change_password_onload_end", {});
+    logger.debug("change_password_onload_end", {});
   },
 
   onOldPasswordInput(event) {

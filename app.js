@@ -1,3 +1,4 @@
+const { getIOReport } = require("./utils/debug-io"); // Storage I/O 审计（调试用）
 const { getEnvConfig } = require("./config/env");
 const appStore = require("./store/app.store");
 const userStore = require("./store/user.store");
@@ -11,7 +12,7 @@ App({
   },
 
   onLaunch() {
-    logger.info("app_launch_start", {});
+    logger.debug("app_launch_start", {});
 
     const envConfig = getEnvConfig();
     appStore.refreshEnv();
@@ -33,7 +34,10 @@ App({
     userStore.restoreFromStorage();
     this.restoreCachedSessionChain();
     appStore.setInitialized(true);
-    logger.info("app_launch_end", {});
+    logger.debug("app_launch_end", {});
+
+    // 延迟 5 秒输出 Storage I/O 审计报告
+    setTimeout(() => { getIOReport(); }, 5000);
   },
 
   async restoreCachedSessionChain() {
@@ -62,7 +66,7 @@ App({
   async manualBootstrap() {
     appStore.setBootstrapping(true);
     appStore.setLastError(null);
-    logger.info("manual_bootstrap_start", {});
+    logger.debug("manual_bootstrap_start", {});
 
     try {
       const result = await bootstrapService.initAll();

@@ -1,4 +1,4 @@
-const { IDENTITY_MASK } = require("../config/constants");
+
 
 function pad(num) {
   return String(num).padStart(2, "0");
@@ -32,26 +32,22 @@ function maskPhone(phone = "") {
   if (typeof phone !== "string") {
     return "";
   }
-  if (!IDENTITY_MASK.PHONE_MASK_REGEXP.test(phone)) {
+  const regexp = /^(\d{3})\d{4}(\d{4})$/;
+  if (!regexp.test(phone)) {
     return phone;
   }
-  return phone.replace(
-    IDENTITY_MASK.PHONE_MASK_REGEXP,
-    IDENTITY_MASK.PHONE_MASK_REPLACEMENT
-  );
+  return phone.replace(regexp, "$1****$2");
 }
 
 function maskIdCard(idCard = "") {
   if (typeof idCard !== "string") {
     return "";
   }
-  if (!IDENTITY_MASK.IDCARD_MASK_REGEXP.test(idCard)) {
+  const regexp = /^(.{6}).+(.{4})$/;
+  if (!regexp.test(idCard)) {
     return idCard;
   }
-  return idCard.replace(
-    IDENTITY_MASK.IDCARD_MASK_REGEXP,
-    IDENTITY_MASK.IDCARD_MASK_REPLACEMENT
-  );
+  return idCard.replace(regexp, "$1********$2");
 }
 
 function fallbackText(text, fallback = "--") {

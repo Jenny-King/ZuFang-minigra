@@ -39,3 +39,23 @@
 - [docs/数据库设计说明.md](D:/Grade4-2/coding4-1/docs/数据库设计说明.md)：集合设计与数据约束
 - [docs/开发规范说明.md](D:/Grade4-2/coding4-1/docs/开发规范说明.md)：编码与分层规范
 - [docs/测试与联调指南.md](D:/Grade4-2/coding4-1/docs/测试与联调指南.md)：测试账号、联调命令与核心验收清单
+
+## 自动化 UI 测试说明
+
+本项目已全面集成基于 `miniprogram-automator` 的独立 UI 测试架构，脚本完全收发在根目录的 `test-scripts/` 中。
+
+### 安全机制限制
+测试引擎拥有极高的破坏性，因此搭载了 `safety-check.js` 阻断器。如果你试图在 `config/env.js` 将 `dev` 指针指到 `PROD` 环境时拉起测试，系统会直接报错并熔断，坚决守护线上房客数据！
+
+### 指令集
+**执行一键大盘全量回归体检（极力推荐在 MR / 发布前触发）：**
+```bash
+node test-scripts/run-all.js
+```
+**若仅做针对性迭代，允许直接单独调用场景用例：**
+```bash
+node test-scripts/ui-skeleton-smoke.js
+node test-scripts/ui-chat-detail.js
+```
+### 产物结构
+执行过程中不会依赖人工点击。一切由于延迟拦截、极端数据、超长输入引出的视觉效果，将以模块为名配以高精度时间戳，自适应汇聚留存于 `test-scripts/outputs/`。请在跑测完毕后前往该目录，查收自动化快门记录的体检报告。

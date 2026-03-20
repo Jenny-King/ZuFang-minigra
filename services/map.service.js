@@ -1,16 +1,5 @@
 const { callCloud } = require("./cloud/call");
-
-function assertNonEmptyString(value, fieldName) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`${fieldName} 不能为空`);
-  }
-}
-
-function assertNumber(value, fieldName) {
-  if (typeof value !== "number" || Number.isNaN(value)) {
-    throw new Error(`${fieldName} 必须是数字`);
-  }
-}
+const { assertNonEmptyString, assertNumber } = require("../utils/assert");
 
 async function geocodeAddress(address) {
   assertNonEmptyString(address, "address");

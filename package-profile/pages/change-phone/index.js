@@ -42,12 +42,12 @@ Page({
   onLoad(options) {
     logger.info("page_load", { page: "profile/change-phone", query: options || {} });
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("change_phone_onload_end", { blocked: "not_login" });
+      logger.debug("change_phone_onload_end", { blocked: "not_login" });
       return;
     }
 
     this.syncPageState();
-    logger.info("change_phone_onload_end", {});
+    logger.debug("change_phone_onload_end", {});
   },
 
   onUnload() {

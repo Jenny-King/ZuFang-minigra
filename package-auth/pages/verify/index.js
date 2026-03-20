@@ -44,25 +44,25 @@ Page({
   async onLoad(options) {
     logger.info("page_load", { page: "auth/verify", query: options || {} });
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("auth_verify_onload_end", { blocked: "not_login" });
+      logger.debug("auth_verify_onload_end", { blocked: "not_login" });
       return;
     }
     await this.loadCurrentUser();
-    logger.info("auth_verify_onload_end", {});
+    logger.debug("auth_verify_onload_end", {});
   },
 
   async loadCurrentUser() {
-    logger.info("auth_verify_load_user_start", {});
+    logger.debug("auth_verify_load_user_start", {});
     try {
-      logger.info("api_call", { func: "user.getCurrentUser", params: {} });
+      logger.debug("api_call", { func: "user.getCurrentUser", params: {} });
       const userInfo = await userStore.refreshCurrentUser();
-      logger.info("api_resp", { func: "user.getCurrentUser", code: 0 });
+      logger.debug("api_resp", { func: "user.getCurrentUser", code: 0 });
       this.setData({ userInfo: normalizeIdentityInfo(userInfo) });
     } catch (error) {
       logger.error("api_error", { func: "user.getCurrentUser", err: error.message });
       wx.showToast({ title: error.message || "用户信息加载失败", icon: "none" });
     } finally {
-      logger.info("auth_verify_load_user_end", {});
+      logger.debug("auth_verify_load_user_end", {});
     }
   },
 
@@ -79,9 +79,9 @@ Page({
   },
 
   async onSubmitTap() {
-    logger.info("auth_verify_submit_start", {});
+    logger.debug("auth_verify_submit_start", {});
     if (this.data.submitLoading) {
-      logger.info("auth_verify_submit_end", { blocked: "loading" });
+      logger.debug("auth_verify_submit_end", { blocked: "loading" });
       return;
     }
 
@@ -90,28 +90,28 @@ Page({
 
     if (!isNonEmptyString(realName)) {
       wx.showToast({ title: "请输入真实姓名", icon: "none" });
-      logger.info("auth_verify_submit_end", { blocked: "empty_realname" });
+      logger.debug("auth_verify_submit_end", { blocked: "empty_realname" });
       return;
     }
     if (!isIdCard(idCard)) {
       wx.showToast({ title: "身份证号格式错误", icon: "none" });
-      logger.info("auth_verify_submit_end", { blocked: "invalid_idcard" });
+      logger.debug("auth_verify_submit_end", { blocked: "invalid_idcard" });
       return;
     }
 
     this.setData({ submitLoading: true });
     try {
-      logger.info("api_call", { func: "auth.submitIdentityProfile", params: { realName } });
+      logger.debug("api_call", { func: "auth.submitIdentityProfile", params: { realName } });
       const verifyResult = await authService.submitIdentityProfile(realName, idCard);
-      logger.info("api_resp", { func: "auth.submitIdentityProfile", code: 0 });
+      logger.debug("api_resp", { func: "auth.submitIdentityProfile", code: 0 });
 
       let nextUser = this.data.userInfo || {};
       if (verifyResult && verifyResult.userInfo) {
         nextUser = verifyResult.userInfo;
       } else {
-        logger.info("api_call", { func: "user.getCurrentUser", params: {} });
+        logger.debug("api_call", { func: "user.getCurrentUser", params: {} });
         nextUser = await userStore.refreshCurrentUser();
-        logger.info("api_resp", { func: "user.getCurrentUser", code: 0 });
+        logger.debug("api_resp", { func: "user.getCurrentUser", code: 0 });
       }
 
       userStore.setUserInfo(nextUser);
@@ -122,7 +122,7 @@ Page({
       wx.showToast({ title: error.message || "提交失败", icon: "none" });
     } finally {
       this.setData({ submitLoading: false });
-      logger.info("auth_verify_submit_end", {});
+      logger.debug("auth_verify_submit_end", {});
     }
   }
 });

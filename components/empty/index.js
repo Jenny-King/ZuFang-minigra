@@ -33,6 +33,9 @@ Component({
   lifetimes: {
     attached() {
       this.syncState();
+      if (this.data.btnText) {
+        console.warn("[Empty Component] btn-text was provided, ensure bindbtntap is bound to avoid dead ends.");
+      }
     }
   },
 

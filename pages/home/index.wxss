@@ -442,25 +442,8 @@
   width: 100%;
 }
 
-.accent-blue {
-  background: var(--color-background-card);
-}
 
-.accent-green {
-  background: var(--color-background-card);
-}
 
-.accent-gold {
-  background: var(--color-background-card);
-}
-
-.accent-pink {
-  background: var(--color-background-card);
-}
-
-.accent-purple {
-  background: var(--color-background-card);
-}
 
 .featured-badge {
   position: absolute;
@@ -486,7 +469,7 @@
 }
 
 .featured-body {
-  padding: 18rpx 16rpx 20rpx;
+  padding: var(--space-md) var(--space-sm) var(--space-lg);
 }
 
 .featured-price,

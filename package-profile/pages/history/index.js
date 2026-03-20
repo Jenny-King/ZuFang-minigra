@@ -24,16 +24,16 @@ Page({
     this.titleHighlightTimer = null;
     this.touchStartPoint = null;
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("history_onload_end", { blocked: "not_login" });
+      logger.debug("history_onload_end", { blocked: "not_login" });
       return;
     }
-    logger.info("history_onload_end", {});
+    logger.debug("history_onload_end", {});
   },
 
   async onShow() {
-    logger.info("history_onshow_start", {});
+    logger.debug("history_onshow_start", {});
     if (!authUtils.isLoggedIn()) {
-      logger.info("history_onshow_end", { blocked: "not_login" });
+      logger.debug("history_onshow_end", { blocked: "not_login" });
       return;
     }
     await this.refreshList();
@@ -41,7 +41,7 @@ Page({
       this.shouldHighlightTitle = false;
       this.applyTitleHighlight();
     }
-    logger.info("history_onshow_end", {});
+    logger.debug("history_onshow_end", {});
   },
 
   onUnload() {
@@ -49,19 +49,19 @@ Page({
   },
 
   async onPullDownRefresh() {
-    logger.info("history_pulldown_start", {});
+    logger.debug("history_pulldown_start", {});
     try {
       await this.refreshList();
     } finally {
       wx.stopPullDownRefresh();
-      logger.info("history_pulldown_end", {});
+      logger.debug("history_pulldown_end", {});
     }
   },
 
   async onReachBottom() {
-    logger.info("history_reach_bottom_start", { hasMore: this.data.hasMore });
+    logger.debug("history_reach_bottom_start", { hasMore: this.data.hasMore });
     await this.loadMore();
-    logger.info("history_reach_bottom_end", {});
+    logger.debug("history_reach_bottom_end", {});
   },
 
   normalizeList(list = []) {
@@ -87,30 +87,30 @@ Page({
   },
 
   async refreshList() {
-    logger.info("history_refresh_start", {});
+    logger.debug("history_refresh_start", {});
     this.setData({
       page: REQUEST_DEFAULT.PAGE,
       hasMore: true,
       openActionHistoryId: ""
     });
     await this.fetchList({ initial: true });
-    logger.info("history_refresh_end", {});
+    logger.debug("history_refresh_end", {});
   },
 
   async loadMore() {
-    logger.info("history_load_more_start", {});
+    logger.debug("history_load_more_start", {});
     if (this.data.loading || !this.data.hasMore) {
-      logger.info("history_load_more_end", { blocked: true });
+      logger.debug("history_load_more_end", { blocked: true });
       return;
     }
     await this.fetchList({ initial: false });
-    logger.info("history_load_more_end", {});
+    logger.debug("history_load_more_end", {});
   },
 
   async fetchList({ initial }) {
-    logger.info("history_fetch_start", { initial });
+    logger.debug("history_fetch_start", { initial });
     if (this.data.loading) {
-      logger.info("history_fetch_end", { blocked: "loading" });
+      logger.debug("history_fetch_end", { blocked: "loading" });
       return;
     }
     const page = initial ? REQUEST_DEFAULT.PAGE : this.data.page + 1;
@@ -118,12 +118,12 @@ Page({
 
     this.setData({ loading: true, errorText: "" });
     try {
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "history.getList",
         params: { page, pageSize }
       });
       const result = await historyService.getHistoryList({ page, pageSize });
-      logger.info("api_resp", { func: "history.getList", code: 0 });
+      logger.debug("api_resp", { func: "history.getList", code: 0 });
       const remoteList = this.normalizeList(result.list || []);
       const list = initial ? remoteList : this.data.list.concat(remoteList);
       const total = Number(result.total || 0);
@@ -139,7 +139,7 @@ Page({
       logger.error("api_error", { func: "history.getList", err: error.message });
     } finally {
       this.setData({ loading: false });
-      logger.info("history_fetch_end", { initial });
+      logger.debug("history_fetch_end", { initial });
     }
   },
 
@@ -192,16 +192,16 @@ Page({
   },
 
   async onRemoveTap(event) {
-    logger.info("history_remove_start", { data: event.currentTarget.dataset || {} });
+    logger.debug("history_remove_start", { data: event.currentTarget.dataset || {} });
     const historyId = event.currentTarget.dataset.historyId;
     if (!historyId) {
-      logger.info("history_remove_end", { blocked: "empty_history_id" });
+      logger.debug("history_remove_end", { blocked: "empty_history_id" });
       return;
     }
     try {
-      logger.info("api_call", { func: "history.remove", params: { historyId } });
+      logger.debug("api_call", { func: "history.remove", params: { historyId } });
       await historyService.removeHistory(historyId);
-      logger.info("api_resp", { func: "history.remove", code: 0 });
+      logger.debug("api_resp", { func: "history.remove", code: 0 });
       this.setData({ openActionHistoryId: "" });
       wx.showToast({ title: "已删除", icon: "none" });
       await this.refreshList();
@@ -209,20 +209,20 @@ Page({
       logger.error("api_error", { func: "history.remove", err: error.message });
       wx.showToast({ title: error.message || "删除失败", icon: "none" });
     } finally {
-      logger.info("history_remove_end", {});
+      logger.debug("history_remove_end", {});
     }
   },
 
   async onClearTap() {
-    logger.info("history_clear_start", {});
+    logger.debug("history_clear_start", {});
     if (!this.data.list.length) {
-      logger.info("history_clear_end", { blocked: "empty_list" });
+      logger.debug("history_clear_end", { blocked: "empty_list" });
       return;
     }
     try {
-      logger.info("api_call", { func: "history.clear", params: {} });
+      logger.debug("api_call", { func: "history.clear", params: {} });
       await historyService.clearHistory();
-      logger.info("api_resp", { func: "history.clear", code: 0 });
+      logger.debug("api_resp", { func: "history.clear", code: 0 });
       this.setData({ openActionHistoryId: "" });
       wx.showToast({ title: "已清空历史", icon: "none" });
       await this.refreshList();
@@ -230,23 +230,23 @@ Page({
       logger.error("api_error", { func: "history.clear", err: error.message });
       wx.showToast({ title: error.message || "清空失败", icon: "none" });
     } finally {
-      logger.info("history_clear_end", {});
+      logger.debug("history_clear_end", {});
     }
   },
 
   onGoDetailTap(event) {
-    logger.info("history_go_detail_start", { data: event.currentTarget.dataset || {} });
+    logger.debug("history_go_detail_start", { data: event.currentTarget.dataset || {} });
     const houseId = event.currentTarget.dataset.houseId;
     if (!houseId) {
-      logger.info("history_go_detail_end", { blocked: "empty_house_id" });
+      logger.debug("history_go_detail_end", { blocked: "empty_house_id" });
       return;
     }
     navigateTo(ROUTES.HOUSE_DETAIL, { houseId });
-    logger.info("history_go_detail_end", { houseId });
+    logger.debug("history_go_detail_end", { houseId });
   },
 
   applyTitleHighlight() {
-    logger.info("history_title_highlight_start", {});
+    logger.debug("history_title_highlight_start", {});
     this.clearTitleHighlightTimer();
     this.setData({ titleHighlight: true });
     wx.nextTick(() => {
@@ -259,7 +259,7 @@ Page({
       this.setData({ titleHighlight: false });
       this.titleHighlightTimer = null;
     }, 1800);
-    logger.info("history_title_highlight_end", {});
+    logger.debug("history_title_highlight_end", {});
   },
 
   clearTitleHighlightTimer() {

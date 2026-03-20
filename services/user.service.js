@@ -1,25 +1,14 @@
 const { callCloud } = require("./cloud/call");
 const { uploadToCloud } = require("./cloud/upload");
 const { USER_ROLE } = require("../config/constants");
-
-function assertNonEmptyString(value, fieldName) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`${fieldName} 不能为空`);
-  }
-}
-
-function assertObject(value, fieldName) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    throw new Error(`${fieldName} 必须是对象`);
-  }
-}
+const { assertNonEmptyString, assertPlainObject } = require("../utils/assert");
 
 async function getCurrentUser() {
   return callCloud("user", "getCurrentUser", {});
 }
 
 async function updateProfile(updateData = {}) {
-  assertObject(updateData, "updateData");
+  assertPlainObject(updateData, "updateData");
   return callCloud("user", "updateProfile", updateData);
 }
 

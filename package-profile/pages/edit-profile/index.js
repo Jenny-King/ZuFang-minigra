@@ -24,12 +24,12 @@ Page({
   async onLoad(options) {
     logger.info("page_load", { page: "profile/edit-profile", query: options || {} });
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("edit_profile_onload_end", { blocked: "not_login" });
+      logger.debug("edit_profile_onload_end", { blocked: "not_login" });
       return;
     }
 
     await this.loadCurrentUser();
-    logger.info("edit_profile_onload_end", {});
+    logger.debug("edit_profile_onload_end", {});
   },
 
   async onPullDownRefresh() {

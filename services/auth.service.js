@@ -1,19 +1,8 @@
 const { callCloud } = require("./cloud/call");
-
-function assertNonEmptyString(value, fieldName) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`${fieldName} 不能为空`);
-  }
-}
-
-function assertObject(value, fieldName) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    throw new Error(`${fieldName} 必须是对象`);
-  }
-}
+const { assertNonEmptyString, assertPlainObject } = require("../utils/assert");
 
 async function wechatLogin(userInfo = {}) {
-  assertObject(userInfo, "userInfo");
+  assertPlainObject(userInfo, "userInfo");
   return callCloud("auth", "wechatLogin", { userInfo });
 }
 
@@ -50,7 +39,7 @@ async function loginWithPassword(phone, password) {
 }
 
 async function register(formData = {}) {
-  assertObject(formData, "formData");
+  assertPlainObject(formData, "formData");
   return callCloud("auth", "register", formData);
 }
 

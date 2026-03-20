@@ -38,13 +38,6 @@ const HOUSE_SORT_FIELD = {
   areaDesc: { field: "area", order: "desc" }
 };
 
-const PRICE_RANGE = [
-  { label: "全部", minPrice: 0, maxPrice: 0 },
-  { label: "500元以下", minPrice: 0, maxPrice: 500 },
-  { label: "500-1000元", minPrice: 500, maxPrice: 1000 },
-  { label: "1000-2000元", minPrice: 1000, maxPrice: 2000 },
-  { label: "2000元以上", minPrice: 2000, maxPrice: 0 }
-];
 
 const MESSAGE_TYPE = {
   TEXT: "text",
@@ -103,7 +96,7 @@ module.exports = {
   HOUSE_TYPE,
   HOUSE_SORT_BY,
   HOUSE_SORT_FIELD,
-  PRICE_RANGE,
+
   MESSAGE_TYPE,
   NOTIFICATION_TYPE,
   DATA_STATUS,

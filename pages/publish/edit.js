@@ -6,11 +6,11 @@ const { validateHouseForm, isPhone } = require("../../utils/validate");
 const { logger } = require("../../utils/logger");
 const { ROUTES, switchTab } = require("../../config/routes");
 const toast = require("../../utils/toast");
+const { FALLBACK_REGION_OPTIONS } = require("../../utils/region");
 
 const PENDING_PUBLISH_CONTEXT_KEY = "pendingPublishContext";
 const PROFILE_ENTRY_HIGHLIGHT_KEY = "profileEntryHighlight";
-const DEFAULT_MIN_RENT_PERIOD = "1";
-const FALLBACK_REGION_OPTIONS = [{ label: "全部区域", value: "" }];
+const DEFAULT_MIN_RENT_PERIOD = 1;
 const STEP_LIST = [
   { key: "base", label: "基础信息" },
   { key: "location", label: "位置描述" },
@@ -388,13 +388,13 @@ Page({
     this.setData({ houseId, isEdit });
 
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("publish_edit_onload_end", { blocked: "not_login" });
+      logger.debug("publish_edit_onload_end", { blocked: "not_login" });
       return;
     }
 
     if (!authUtils.canPublishHouse()) {
       await toast.error("仅房东可发布房源");
-      logger.info("publish_edit_onload_end", { blocked: "role_denied" });
+      logger.debug("publish_edit_onload_end", { blocked: "role_denied" });
       return;
     }
 
@@ -410,24 +410,24 @@ Page({
       await this.applyPendingPublishContext();
     }
 
-    logger.info("publish_edit_onload_end", { isEdit, hasPendingContext: Boolean(getPendingPublishContext()) });
+    logger.debug("publish_edit_onload_end", { isEdit, hasPendingContext: Boolean(getPendingPublishContext()) });
   },
 
   async onShow() {
-    logger.info("publish_edit_onshow_start", {});
+    logger.debug("publish_edit_onshow_start", {});
     if (!this.hasInitialized) {
-      logger.info("publish_edit_onshow_end", { blocked: "not_initialized" });
+      logger.debug("publish_edit_onshow_end", { blocked: "not_initialized" });
       return;
     }
 
     if (!authUtils.isLoggedIn() || !authUtils.canPublishHouse()) {
-      logger.info("publish_edit_onshow_end", { blocked: "permission_denied" });
+      logger.debug("publish_edit_onshow_end", { blocked: "permission_denied" });
       return;
     }
 
     await this.applyPendingPublishContext();
     this.applyProfileEntryHighlight();
-    logger.info("publish_edit_onshow_end", {});
+    logger.debug("publish_edit_onshow_end", {});
   },
 
   onUnload() {
@@ -435,7 +435,7 @@ Page({
   },
 
   resetPublishState() {
-    logger.info("publish_reset_state_start", {});
+    logger.debug("publish_reset_state_start", {});
     const formData = createInitialForm();
     const layoutState = resolveLayoutState(formData.type, formData.layoutText);
     this.clearTitleHighlightTimer();
@@ -460,14 +460,14 @@ Page({
       ...getStepState(0),
       titleHighlight: false
     });
-    logger.info("publish_reset_state_end", {});
+    logger.debug("publish_reset_state_end", {});
   },
 
   applyProfileEntryHighlight() {
     const highlightKey = consumeProfileEntryHighlight();
-    logger.info("publish_title_highlight_start", { highlightKey });
+    logger.debug("publish_title_highlight_start", { highlightKey });
     if (highlightKey !== "publish") {
-      logger.info("publish_title_highlight_end", { blocked: "not_matched" });
+      logger.debug("publish_title_highlight_end", { blocked: "not_matched" });
       return;
     }
 
@@ -483,7 +483,7 @@ Page({
       this.setData({ titleHighlight: false });
       this.titleHighlightTimer = null;
     }, 1800);
-    logger.info("publish_title_highlight_end", { matched: true });
+    logger.debug("publish_title_highlight_end", { matched: true });
   },
 
   clearTitleHighlightTimer() {
@@ -495,10 +495,10 @@ Page({
 
   async applyPendingPublishContext() {
     const context = consumePendingPublishContext();
-    logger.info("publish_apply_context_start", { context: context || null });
+    logger.debug("publish_apply_context_start", { context: context || null });
 
     if (!context) {
-      logger.info("publish_apply_context_end", { blocked: "empty_context" });
+      logger.debug("publish_apply_context_end", { blocked: "empty_context" });
       return;
     }
 
@@ -510,28 +510,28 @@ Page({
         errorText: ""
       });
       await this.loadHouseDetail(houseId, { resetBeforeLoad: true });
-      logger.info("publish_apply_context_end", { mode: "edit", houseId });
+      logger.debug("publish_apply_context_end", { mode: "edit", houseId });
       return;
     }
 
     this.resetPublishState();
-    logger.info("publish_apply_context_end", { mode: "create" });
+    logger.debug("publish_apply_context_end", { mode: "create" });
   },
 
   async loadRegionOptions() {
-    logger.info("publish_load_regions_start", {});
+    logger.debug("publish_load_regions_start", {});
     const currentRegion = this.data.formData.region || "";
     const currentCity = this.data.formData.city || "";
 
     try {
-      logger.info("api_call", { func: "house.getRegions", params: {} });
+      logger.debug("api_call", { func: "house.getRegions", params: {} });
       const regions = await houseService.getRegions();
       const regionOptions = buildRegionOptions(regions);
       this.setData({
         regionOptions,
         selectedRegionIndex: getRegionIndex(regionOptions, currentRegion, currentCity)
       });
-      logger.info("api_resp", {
+      logger.debug("api_resp", {
         func: "house.getRegions",
         code: 0,
         count: Array.isArray(regions) ? regions.length : 0
@@ -545,7 +545,7 @@ Page({
         err: error.message || "区域加载失败"
       });
     } finally {
-      logger.info("publish_load_regions_end", {
+      logger.debug("publish_load_regions_end", {
         count: this.data.regionOptions.length
       });
     }
@@ -575,7 +575,7 @@ Page({
   },
 
   async loadHouseDetail(houseId, options = {}) {
-    logger.info("publish_load_detail_start", { houseId });
+    logger.debug("publish_load_detail_start", { houseId });
     const {
       resetBeforeLoad = false
     } = options;
@@ -596,9 +596,9 @@ Page({
     }
 
     try {
-      logger.info("api_call", { func: "house.getDetail", params: { houseId: normalizedHouseId } });
+      logger.debug("api_call", { func: "house.getDetail", params: { houseId: normalizedHouseId } });
       const detail = await houseService.getHouseDetail(normalizedHouseId);
-      logger.info("api_resp", { func: "house.getDetail", code: 0 });
+      logger.debug("api_resp", { func: "house.getDetail", code: 0 });
 
       if (requestId !== this.detailRequestId) {
         logger.warn("publish_load_detail_stale", { houseId: normalizedHouseId, requestId });
@@ -676,7 +676,7 @@ Page({
       if (requestId === this.detailRequestId) {
         this.setData({ loadingDetail: false });
       }
-      logger.info("publish_load_detail_end", {});
+      logger.debug("publish_load_detail_end", {});
     }
   },
 
@@ -746,7 +746,7 @@ Page({
         selectedBathIndex
       ]
     });
-    logger.info("publish_layout_picker_change_end", {
+    logger.debug("publish_layout_picker_change_end", {
       selectedRoomIndex,
       selectedHallIndex,
       selectedBathIndex
@@ -761,7 +761,7 @@ Page({
       selectedBathIndex
     });
     this.setData({ showLayoutSheet: false });
-    logger.info("publish_layout_picker_confirm_end", {
+    logger.debug("publish_layout_picker_confirm_end", {
       selectedRoomIndex,
       selectedHallIndex,
       selectedBathIndex,
@@ -773,10 +773,10 @@ Page({
   onPreventTouchMove() {},
 
   onRoomChange(event) {
-    logger.info("publish_room_change_start", { value: event.detail.value });
+    logger.debug("publish_room_change_start", { value: event.detail.value });
     const selectedRoomIndex = Number(event.detail.value) || 0;
     const layoutFields = this.updateLayoutSelection({ selectedRoomIndex });
-    logger.info("publish_room_change_end", {
+    logger.debug("publish_room_change_end", {
       selectedRoomIndex,
       type: layoutFields.type,
       layoutText: layoutFields.layoutText
@@ -784,10 +784,10 @@ Page({
   },
 
   onHallChange(event) {
-    logger.info("publish_hall_change_start", { value: event.detail.value });
+    logger.debug("publish_hall_change_start", { value: event.detail.value });
     const selectedHallIndex = Number(event.detail.value) || 0;
     const layoutFields = this.updateLayoutSelection({ selectedHallIndex });
-    logger.info("publish_hall_change_end", {
+    logger.debug("publish_hall_change_end", {
       selectedHallIndex,
       type: layoutFields.type,
       layoutText: layoutFields.layoutText
@@ -795,10 +795,10 @@ Page({
   },
 
   onBathChange(event) {
-    logger.info("publish_bath_change_start", { value: event.detail.value });
+    logger.debug("publish_bath_change_start", { value: event.detail.value });
     const selectedBathIndex = Number(event.detail.value) || 0;
     const layoutFields = this.updateLayoutSelection({ selectedBathIndex });
-    logger.info("publish_bath_change_end", {
+    logger.debug("publish_bath_change_end", {
       selectedBathIndex,
       type: layoutFields.type,
       layoutText: layoutFields.layoutText
@@ -806,18 +806,18 @@ Page({
   },
 
   onRegionChange(event) {
-    logger.info("publish_region_change_start", { value: event.detail.value });
+    logger.debug("publish_region_change_start", { value: event.detail.value });
     const selectedRegionIndex = Number(event.detail.value) || 0;
     const region = this.data.regionOptions[selectedRegionIndex]?.value || "";
     this.setData({
       selectedRegionIndex,
       "formData.region": region
     });
-    logger.info("publish_region_change_end", { region });
+    logger.debug("publish_region_change_end", { region });
   },
 
   onFacilityToggle(event) {
-    logger.info("publish_facility_toggle_start", { data: event.currentTarget.dataset || {} });
+    logger.debug("publish_facility_toggle_start", { data: event.currentTarget.dataset || {} });
     const key = event.currentTarget.dataset.key;
 
     if (!Object.prototype.hasOwnProperty.call(DEFAULT_FACILITIES, key)) {
@@ -829,11 +829,11 @@ Page({
     this.setData({
       [`formData.facilities.${key}`]: !currentValue
     });
-    logger.info("publish_facility_toggle_end", { key, value: !currentValue });
+    logger.debug("publish_facility_toggle_end", { key, value: !currentValue });
   },
 
   async onChooseLocation() {
-    logger.info("publish_choose_location_start", {});
+    logger.debug("publish_choose_location_start", {});
     try {
       const result = await wx.chooseLocation();
       if (!result || Object.prototype.toString.call(result) !== "[object Object]") {
@@ -887,7 +887,7 @@ Page({
         }
       }
 
-      logger.info("publish_choose_location_end", {
+      logger.debug("publish_choose_location_end", {
         address,
         latitude,
         longitude
@@ -906,13 +906,13 @@ Page({
   },
 
   async onChooseImages() {
-    logger.info("publish_choose_images_start", {});
+    logger.debug("publish_choose_images_start", {});
     try {
       const currentCount = this.data.imageList.length;
       const maxCount = 9;
       if (currentCount >= maxCount) {
         await toast.error("最多上传9张图片");
-        logger.info("publish_choose_images_end", { blocked: "reach_limit" });
+        logger.debug("publish_choose_images_end", { blocked: "reach_limit" });
         return;
       }
 
@@ -935,12 +935,12 @@ Page({
     } catch (error) {
       logger.error("publish_choose_images_failed", { error: error.message });
     } finally {
-      logger.info("publish_choose_images_end", { count: this.data.imageList.length });
+      logger.debug("publish_choose_images_end", { count: this.data.imageList.length });
     }
   },
 
   onRemoveImage(event) {
-    logger.info("publish_remove_image_start", { data: event.currentTarget.dataset || {} });
+    logger.debug("publish_remove_image_start", { data: event.currentTarget.dataset || {} });
     const index = Number(event.currentTarget.dataset.index);
     if (Number.isNaN(index)) {
       logger.warn("publish_remove_image_invalid_index", { index });
@@ -950,7 +950,7 @@ Page({
     const nextList = this.data.imageList.slice();
     nextList.splice(index, 1);
     this.setData({ imageList: nextList });
-    logger.info("publish_remove_image_end", { count: nextList.length });
+    logger.debug("publish_remove_image_end", { count: nextList.length });
   },
 
   validateStep(stepIndex = this.data.currentStep) {
@@ -1027,7 +1027,7 @@ Page({
   },
 
   async uploadImages() {
-    logger.info("publish_upload_images_start", { count: this.data.imageList.length });
+    logger.debug("publish_upload_images_start", { count: this.data.imageList.length });
     const userInfo = authUtils.getLoginUser() || {};
     const userId = userInfo.userId || "anonymous";
     const uploaded = [];
@@ -1085,33 +1085,33 @@ Page({
       }
     }
 
-    logger.info("publish_upload_images_end", { count: uploaded.length });
+    logger.debug("publish_upload_images_end", { count: uploaded.length });
     return uploaded;
   },
 
   async submitHouse() {
-    logger.info("publish_submit_start", { isEdit: this.data.isEdit });
+    logger.debug("publish_submit_start", { isEdit: this.data.isEdit });
     if (this.data.submitting) {
-      logger.info("publish_submit_end", { blocked: "submitting" });
+      logger.debug("publish_submit_end", { blocked: "submitting" });
       return;
     }
 
     const baseCheck = validateHouseForm(this.data.formData);
     if (!baseCheck.valid) {
       await toast.error(baseCheck.message);
-      logger.info("publish_submit_end", { blocked: "invalid_house_form" });
+      logger.debug("publish_submit_end", { blocked: "invalid_house_form" });
       return;
     }
 
     if (!isPhone(this.data.formData.contactPhone)) {
       await toast.error("联系电话格式错误");
-      logger.info("publish_submit_end", { blocked: "invalid_phone" });
+      logger.debug("publish_submit_end", { blocked: "invalid_phone" });
       return;
     }
 
     if (!this.data.imageList.length) {
       await toast.error("请至少上传1张图片");
-      logger.info("publish_submit_end", { blocked: "no_images" });
+      logger.debug("publish_submit_end", { blocked: "no_images" });
       return;
     }
 
@@ -1122,17 +1122,17 @@ Page({
       const payload = this.buildSubmitPayload(images);
 
       if (this.data.isEdit) {
-        logger.info("api_call", {
+        logger.debug("api_call", {
           func: "house.update",
           params: { houseId: this.data.houseId }
         });
         await houseService.updateHouse(this.data.houseId, payload);
       } else {
-        logger.info("api_call", { func: "house.create", params: { hasPayload: true } });
+        logger.debug("api_call", { func: "house.create", params: { hasPayload: true } });
         await houseService.createHouse(payload);
       }
 
-      logger.info("api_resp", { func: this.data.isEdit ? "house.update" : "house.create", code: 0 });
+      logger.debug("api_resp", { func: this.data.isEdit ? "house.update" : "house.create", code: 0 });
       await toast.success(this.data.isEdit ? "修改成功" : "发布成功");
       setTimeout(() => {
         switchTab(ROUTES.PUBLISH);
@@ -1145,7 +1145,7 @@ Page({
       await toast.error(error.message || "提交失败");
     } finally {
       this.setData({ submitting: false });
-      logger.info("publish_submit_end", {});
+      logger.debug("publish_submit_end", {});
     }
   },
 

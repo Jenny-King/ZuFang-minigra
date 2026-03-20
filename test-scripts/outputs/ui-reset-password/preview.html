@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>重置密码</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --subtext: #6b7280;
+      --line: #e5e7eb;
+      --input-bg: #f8fafc;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-disabled: #b8d3ff;
+      --danger: #ef4444;
+      --success: #10b981;
+      --shadow: 0 12px 32px rgba(28, 49, 88, 0.08);
+      --radius-card: 20px;
+      --radius-input: 14px;
+      --radius-btn: 14px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, #eef4ff 0%, transparent 28%),
+        var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    .phone-shell {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+      color: var(--subtext);
+      font-size: 15px;
+    }
+
+    .back {
+      border: 0;
+      background: transparent;
+      padding: 8px 4px;
+      cursor: pointer;
+      color: var(--subtext);
+      font-size: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .back:hover {
+      color: var(--text);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow);
+      padding: 28px 20px 22px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.2;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      margin: 10px 0 24px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--subtext);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .field-wrap {
+      position: relative;
+    }
+
+    .input {
+      width: 100%;
+      height: 50px;
+      border: 1px solid transparent;
+      background: var(--input-bg);
+      border-radius: var(--radius-input);
+      padding: 0 14px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s ease;
+      color: var(--text);
+    }
+
+    .input::placeholder {
+      color: #9ca3af;
+    }
+
+    .input:focus {
+      border-color: rgba(59, 130, 246, 0.5);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+    }
+
+    .input.has-action {
+      padding-right: 110px;
+    }
+
+    .input.has-eye {
+      padding-right: 52px;
+    }
+
+    .inline-action,
+    .eye-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .inline-action {
+      right: 12px;
+      color: var(--primary);
+      font-weight: 600;
+      padding: 4px 6px;
+    }
+
+    .inline-action[disabled] {
+      color: #aab4c3;
+      cursor: not-allowed;
+    }
+
+    .eye-btn {
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      color: #6b7280;
+      font-size: 16px;
+    }
+
+    .eye-btn:hover {
+      background: #eef2f7;
+    }
+
+    .hint,
+    .error {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .hint {
+      color: var(--subtext);
+    }
+
+    .error {
+      color: var(--danger);
+      min-height: 18px;
+    }
+
+    .strength {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--subtext);
+    }
+
+    .bars {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .bar {
+      width: 24px;
+      height: 6px;
+      border-radius: 99px;
+      background: #e5e7eb;
+      transition: 0.2s ease;
+    }
+
+    .bar.active {
+      background: var(--success);
+    }
+
+    .submit-btn {
+      width: 100%;
+      height: 50px;
+      border: 0;
+      border-radius: var(--radius-btn);
+      margin-top: 8px;
+      background: var(--primary-disabled);
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: not-allowed;
+      transition: 0.2s ease;
+    }
+
+    .submit-btn.enabled {
+      background: linear-gradient(135deg, #4f8cff, #2f6df6);
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
+    }
+
+    .submit-btn.enabled:hover {
+      background: linear-gradient(135deg, #4585ff, #2563eb);
+    }
+
+    .submit-btn.loading {
+      opacity: 0.9;
+      cursor: wait;
+    }
+
+    .security-note {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #eef2f7;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--subtext);
+    }
+
+    .success-box {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(16, 185, 129, 0.08);
+      color: #047857;
+      font-size: 14px;
+      line-height: 1.6;
+      border: 1px solid rgba(16, 185, 129, 0.18);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--line);
+      margin: 20px 0 0;
+    }
+
+    .footer-link {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .footer-link:hover {
+      color: var(--primary-hover);
+    }
+
+    @media (max-width: 420px) {
+      .card {
+        padding: 24px 16px 20px;
+      }
+
+      .title {
+        font-size: 28px;
+      }
+
+      .label {
+        font-size: 15px;
+      }
+
+      .submit-btn {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-shell">
+    <div class="nav">
+      <button class="back" type="button" onclick="history.back()">
+        <span>←</span>
+        <span>返回</span>
+      </button>
+    </div>
+
+    <div class="card">
+      <h1 class="title">重置密码</h1>
+      <p class="subtitle">请输入绑定手机号并设置新密码</p>
+
+      <form id="resetForm" novalidate>
+        <div class="form-group">
+          <label class="label" for="phone">手机号</label>
+          <div class="field-wrap">
+            <input
+              id="phone"
+              class="input"
+              type="tel"
+              inputmode="numeric"
+              maxlength="11"
+              placeholder="请输入 11 位手机号"
+            />
+          </div>
+          <div class="error" id="phoneError"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="code">验证码</label>
+          <div class="field-wrap">
+            <input
+              id="code"
+              class="input has-action"
+              type="tel"
+              inputmode="numeric"
+              maxlength="6"
+              placeholder="请输入 6 位验证码"
+            />
+            <button type="button" class="inline-action" id="sendCodeBtn">获取验证码</button>
+          </div>
+          <div class="error" id="codeError"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="password">新密码</label>
+          <div class="field-wrap">
+            <input
+              id="password"
+              class="input has-eye"
+              type="password"
+              placeholder="8-20 位，建议字母+数字"
+            />
+            <button type="button" class="eye-btn" data-target="password">👁</button>
+          </div>
+          <div class="hint">密码需为 8-20 位，并包含字母和数字</div>
+          <div class="strength">
+            <span>强度</span>
+            <span class="bars">
+              <span class="bar" id="bar1"></span>
+              <span class="bar" id="bar2"></span>
+              <span class="bar" id="bar3"></span>
+            </span>
+            <span id="strengthText">未设置</span>
+          </div>
+          <div class="error" id="passwordError"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="confirmPassword">确认新密码</label>
+          <div class="field-wrap">
+            <input
+              id="confirmPassword"
+              class="input has-eye"
+              type="password"
+              placeholder="请再次输入新密码"
+            />
+            <button type="button" class="eye-btn" data-target="confirmPassword">👁</button>
+          </div>
+          <div class="error" id="confirmPasswordError"></div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" type="submit">重置密码</button>
+
+        <div class="security-note">
+          验证码将发送到该手机号。<br />
+          如非本人操作，请勿继续。
+        </div>
+
+        <div class="success-box" id="successBox">
+          密码重置成功，请使用新密码重新登录。
+        </div>
+
+        <div class="divider"></div>
+        <div class="footer-link">返回登录</div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const phone = document.getElementById("phone");
+    const code = document.getElementById("code");
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const sendCodeBtn = document.getElementById("sendCodeBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const successBox = document.getElementById("successBox");
+
+    const phoneError = document.getElementById("phoneError");
+    const codeError = document.getElementById("codeError");
+    const passwordError = document.getElementById("passwordError");
+    const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+    const bars = [
+      document.getElementById("bar1"),
+      document.getElementById("bar2"),
+      document.getElementById("bar3")
+    ];
+    const strengthText = document.getElementById("strengthText");
+
+    let countdown = 0;
+    let timer = null;
+
+    function isValidPhone(value) {
+      return /^1\d{10}$/.test(value);
+    }
+
+    function isValidCode(value) {
+      return /^\d{6}$/.test(value);
+    }
+
+    function isValidPassword(value) {
+      return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d\S]{8,20}$/.test(value);
+    }
+
+    function getPasswordStrength(value) {
+      if (!value) return 0;
+      let score = 0;
+      if (value.length >= 8) score++;
+      if (/[A-Za-z]/.test(value) && /\d/.test(value)) score++;
+      if (/[^A-Za-z0-9]/.test(value) || (/[A-Z]/.test(value) && /[a-z]/.test(value))) score++;
+      return Math.min(score, 3);
+    }
+
+    function renderStrength() {
+      const level = getPasswordStrength(password.value);
+      bars.forEach((bar, index) => {
+        bar.classList.toggle("active", index < level);
+      });
+
+      const textMap = ["未设置", "弱", "中", "强"];
+      strengthText.textContent = textMap[level];
+    }
+
+    function validatePhone() {
+      const value = phone.value.trim();
+      if (!value) {
+        phoneError.textContent = "请输入手机号";
+        return false;
+      }
+      if (!isValidPhone(value)) {
+        phoneError.textContent = "请输入正确的手机号";
+        return false;
+      }
+      phoneError.textContent = "";
+      return true;
+    }
+
+    function validateCode() {
+      const value = code.value.trim();
+      if (!value) {
+        codeError.textContent = "请输入验证码";
+        return false;
+      }
+      if (!isValidCode(value)) {
+        codeError.textContent = "验证码应为 6 位数字";
+        return false;
+      }
+      codeError.textContent = "";
+      return true;
+    }
+
+    function validatePassword() {
+      const value = password.value;
+      if (!value) {
+        passwordError.textContent = "请输入新密码";
+        return false;
+      }
+      if (!isValidPassword(value)) {
+        passwordError.textContent = "密码需为 8-20 位，并包含字母和数字";
+        return false;
+      }
+      passwordError.textContent = "";
+      return true;
+    }
+
+    function validateConfirmPassword() {
+      const value = confirmPassword.value;
+      if (!value) {
+        confirmPasswordError.textContent = "请再次输入新密码";
+        return false;
+      }
+      if (value !== password.value) {
+        confirmPasswordError.textContent = "两次输入的密码不一致";
+        return false;
+      }
+      confirmPasswordError.textContent = "";
+      return true;
+    }
+
+    function updateSendCodeBtn() {
+      if (countdown > 0) {
+        sendCodeBtn.disabled = true;
+        sendCodeBtn.textContent = `${countdown}s 后重发`;
+        return;
+      }
+      const canSend = isValidPhone(phone.value.trim());
+      sendCodeBtn.disabled = !canSend;
+      sendCodeBtn.textContent = "获取验证码";
+    }
+
+    function updateSubmitBtn() {
+      const ready =
+        isValidPhone(phone.value.trim()) &&
+        isValidCode(code.value.trim()) &&
+        isValidPassword(password.value) &&
+        confirmPassword.value === password.value;
+
+      submitBtn.disabled = !ready;
+      submitBtn.classList.toggle("enabled", ready);
+    }
+
+    function startCountdown(seconds = 60) {
+      countdown = seconds;
+      updateSendCodeBtn();
+
+      timer = setInterval(() => {
+        countdown--;
+        updateSendCodeBtn();
+        if (countdown <= 0) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }, 1000);
+    }
+
+    phone.addEventListener("input", () => {
+      phone.value = phone.value.replace(/\D/g, "").slice(0, 11);
+      validatePhone();
+      updateSendCodeBtn();
+      updateSubmitBtn();
+    });
+
+    code.addEventListener("input", () => {
+      code.value = code.value.replace(/\D/g, "").slice(0, 6);
+      validateCode();
+      updateSubmitBtn();
+    });
+
+    password.addEventListener("input", () => {
+      validatePassword();
+      validateConfirmPassword();
+      renderStrength();
+      updateSubmitBtn();
+    });
+
+    confirmPassword.addEventListener("input", () => {
+      validateConfirmPassword();
+      updateSubmitBtn();
+    });
+
+    sendCodeBtn.addEventListener("click", () => {
+      if (!validatePhone()) {
+        updateSendCodeBtn();
+        return;
+      }
+      codeError.textContent = "验证码已发送，请注意查收";
+      codeError.style.color = "#10b981";
+
+      if (timer) clearInterval(timer);
+      startCountdown(60);
+    });
+
+    document.querySelectorAll(".eye-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = document.getElementById(btn.dataset.target);
+        const isPassword = target.type === "password";
+        target.type = isPassword ? "text" : "password";
+        btn.textContent = isPassword ? "🙈" : "👁";
+      });
+    });
+
+    document.getElementById("resetForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      codeError.style.color = "#ef4444";
+
+      const ok =
+        validatePhone() &&
+        validateCode() &&
+        validatePassword() &&
+        validateConfirmPassword();
+
+      updateSubmitBtn();
+
+      if (!ok) return;
+
+      submitBtn.classList.add("loading");
+      submitBtn.textContent = "提交中...";
+      submitBtn.disabled = true;
+
+      setTimeout(() => {
+        submitBtn.classList.remove("loading");
+        submitBtn.textContent = "重置密码";
+        successBox.style.display = "block";
+      }, 1200);
+    });
+
+    updateSendCodeBtn();
+    updateSubmitBtn();
+    renderStrength();
+  </script>
+</body>
+</html>

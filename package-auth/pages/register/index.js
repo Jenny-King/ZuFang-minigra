@@ -19,7 +19,7 @@ Page({
 
   onLoad(options) {
     logger.info("page_load", { page: "auth/register", query: options || {} });
-    logger.info("auth_register_onload_end", {});
+    logger.debug("auth_register_onload_end", {});
   },
 
   onInputChange(event) {
@@ -35,16 +35,16 @@ Page({
   },
 
   onRoleChange(event) {
-    logger.info("auth_register_role_change_start", { value: event.detail.value });
+    logger.debug("auth_register_role_change_start", { value: event.detail.value });
     const role = Number(event.detail.value) === 1 ? USER_ROLE.LANDLORD : USER_ROLE.TENANT;
     this.setData({ "formData.role": role });
-    logger.info("auth_register_role_change_end", { role });
+    logger.debug("auth_register_role_change_end", { role });
   },
 
   async onSubmitTap() {
-    logger.info("auth_register_submit_start", {});
+    logger.debug("auth_register_submit_start", {});
     if (this.data.submitLoading) {
-      logger.info("auth_register_submit_end", { blocked: "loading" });
+      logger.debug("auth_register_submit_end", { blocked: "loading" });
       return;
     }
 
@@ -58,15 +58,15 @@ Page({
     const check = validateRegisterForm(payload);
     if (!check.valid) {
       wx.showToast({ title: check.message, icon: "none" });
-      logger.info("auth_register_submit_end", { blocked: "invalid_form", message: check.message });
+      logger.debug("auth_register_submit_end", { blocked: "invalid_form", message: check.message });
       return;
     }
 
     this.setData({ submitLoading: true });
     try {
-      logger.info("api_call", { func: "auth.register", params: { role: payload.role } });
+      logger.debug("api_call", { func: "auth.register", params: { role: payload.role } });
       const session = await authService.register(payload);
-      logger.info("api_resp", { func: "auth.register", code: 0 });
+      logger.debug("api_resp", { func: "auth.register", code: 0 });
       userStore.setSession(session);
       wx.showToast({ title: "注册成功", icon: "success" });
       switchTab(ROUTES.HOME);
@@ -75,13 +75,13 @@ Page({
       wx.showToast({ title: error.message || "注册失败", icon: "none" });
     } finally {
       this.setData({ submitLoading: false });
-      logger.info("auth_register_submit_end", {});
+      logger.debug("auth_register_submit_end", {});
     }
   },
 
   onGoLoginTap() {
-    logger.info("auth_register_go_login_start", {});
+    logger.debug("auth_register_go_login_start", {});
     redirectTo(ROUTES.AUTH_LOGIN);
-    logger.info("auth_register_go_login_end", {});
+    logger.debug("auth_register_go_login_end", {});
   }
 });

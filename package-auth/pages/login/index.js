@@ -61,7 +61,7 @@ Page({
 
   onLoad(options) {
     logger.info("page_load", { page: "auth/login", query: options || {} });
-    logger.info("auth_login_onload_end", {});
+    logger.debug("auth_login_onload_end", {});
   },
 
   onUnload() {
@@ -69,7 +69,7 @@ Page({
   },
 
   onModeChange(event) {
-    logger.info("auth_login_mode_change_start", { data: event.currentTarget.dataset || {} });
+    logger.debug("auth_login_mode_change_start", { data: event.currentTarget.dataset || {} });
     const mode = event.currentTarget.dataset.mode;
     if (!Object.values(LOGIN_MODE).includes(mode)) {
       logger.warn("auth_login_mode_change_invalid", { mode });
@@ -79,7 +79,7 @@ Page({
       mode,
       errors: {}
     });
-    logger.info("auth_login_mode_change_end", { mode });
+    logger.debug("auth_login_mode_change_end", { mode });
   },
 
   onInputPhone(event) {
@@ -110,9 +110,9 @@ Page({
   },
 
   async onWechatLoginTap() {
-    logger.info("auth_login_wechat_start", {});
+    logger.debug("auth_login_wechat_start", {});
     if (this.data.submitLoading) {
-      logger.info("auth_login_wechat_end", { blocked: "submit_loading" });
+      logger.debug("auth_login_wechat_end", { blocked: "submit_loading" });
       return;
     }
 
@@ -124,7 +124,7 @@ Page({
         throw new Error("微信登录凭证获取失败");
       }
 
-      logger.info("api_call", {
+      logger.debug("api_call", {
         func: "auth.wechatLogin",
         params: { hasCode: Boolean(loginRes.code) }
       });
@@ -133,7 +133,7 @@ Page({
         ...(userProfile.userInfo || {}),
         code: loginRes.code || ""
       });
-      logger.info("api_resp", { func: "auth.wechatLogin", code: 0 });
+      logger.debug("api_resp", { func: "auth.wechatLogin", code: 0 });
 
       userStore.setSession(session);
       await toast.success("登录成功");
@@ -144,14 +144,14 @@ Page({
       await toast.error(errorMessage);
     } finally {
       this.setData({ submitLoading: false });
-      logger.info("auth_login_wechat_end", {});
+      logger.debug("auth_login_wechat_end", {});
     }
   },
 
   async onSendCodeTap() {
-    logger.info("auth_login_send_code_start", {});
+    logger.debug("auth_login_send_code_start", {});
     if (this.data.sendingCode || this.data.cdRunning) {
-      logger.info("auth_login_send_code_end", { blocked: this.data.cdRunning ? "countdown" : "sending" });
+      logger.debug("auth_login_send_code_end", { blocked: this.data.cdRunning ? "countdown" : "sending" });
       return;
     }
     const phone = String(this.data.phone || "").trim();
@@ -163,15 +163,15 @@ Page({
         }
       });
       await toast.error("手机号格式错误");
-      logger.info("auth_login_send_code_end", { blocked: "invalid_phone" });
+      logger.debug("auth_login_send_code_end", { blocked: "invalid_phone" });
       return;
     }
 
     this.setData({ sendingCode: true });
     try {
-      logger.info("api_call", { func: "auth.sendSmsCode", params: { phone } });
+      logger.debug("api_call", { func: "auth.sendSmsCode", params: { phone } });
       await authService.sendSmsCode(phone);
-      logger.info("api_resp", { func: "auth.sendSmsCode", code: 0 });
+      logger.debug("api_resp", { func: "auth.sendSmsCode", code: 0 });
       this.startCountdown();
       await toast.success("验证码已发送");
     } catch (error) {
@@ -179,14 +179,14 @@ Page({
       await toast.error(error.message || "发送失败");
     } finally {
       this.setData({ sendingCode: false });
-      logger.info("auth_login_send_code_end", {});
+      logger.debug("auth_login_send_code_end", {});
     }
   },
 
   async onSubmitTap() {
-    logger.info("auth_login_submit_start", { mode: this.data.mode });
+    logger.debug("auth_login_submit_start", { mode: this.data.mode });
     if (this.data.submitLoading) {
-      logger.info("auth_login_submit_end", { blocked: "loading" });
+      logger.debug("auth_login_submit_end", { blocked: "loading" });
       return;
     }
 
@@ -194,7 +194,7 @@ Page({
     if (Object.keys(errors).length) {
       this.setData({ errors });
       await toast.error(Object.values(errors)[0]);
-      logger.info("auth_login_submit_end", { blocked: "invalid_form" });
+      logger.debug("auth_login_submit_end", { blocked: "invalid_form" });
       return;
     }
 
@@ -205,14 +205,14 @@ Page({
       let session = null;
       if (this.data.mode === LOGIN_MODE.CODE) {
         const code = String(this.data.code || "").trim();
-        logger.info("api_call", { func: "auth.loginWithPhoneCode", params: { phone } });
+        logger.debug("api_call", { func: "auth.loginWithPhoneCode", params: { phone } });
         session = await authService.loginWithPhoneCode(phone, code);
-        logger.info("api_resp", { func: "auth.loginWithPhoneCode", code: 0 });
+        logger.debug("api_resp", { func: "auth.loginWithPhoneCode", code: 0 });
       } else {
         const password = this.data.password || "";
-        logger.info("api_call", { func: "auth.loginWithPassword", params: { phone } });
+        logger.debug("api_call", { func: "auth.loginWithPassword", params: { phone } });
         session = await authService.loginWithPassword(phone, password);
-        logger.info("api_resp", { func: "auth.loginWithPassword", code: 0 });
+        logger.debug("api_resp", { func: "auth.loginWithPassword", code: 0 });
       }
 
       userStore.setSession(session);
@@ -226,20 +226,20 @@ Page({
       await toast.error(error.message || "登录失败");
     } finally {
       this.setData({ submitLoading: false });
-      logger.info("auth_login_submit_end", {});
+      logger.debug("auth_login_submit_end", {});
     }
   },
 
   onGoRegisterTap() {
-    logger.info("auth_login_go_register_start", {});
+    logger.debug("auth_login_go_register_start", {});
     redirectTo(ROUTES.AUTH_REGISTER);
-    logger.info("auth_login_go_register_end", {});
+    logger.debug("auth_login_go_register_end", {});
   },
 
   onGoResetPasswordTap() {
-    logger.info("auth_login_go_reset_password_start", {});
+    logger.debug("auth_login_go_reset_password_start", {});
     redirectTo(ROUTES.AUTH_RESET_PASSWORD);
-    logger.info("auth_login_go_reset_password_end", {});
+    logger.debug("auth_login_go_reset_password_end", {});
   },
 
   startCountdown() {

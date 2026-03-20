@@ -26,7 +26,7 @@
       </view>
     </view>
 
-    <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
+    <scroll-view class="filter-bar" scroll-x enhanced enable-flex show-scrollbar="{{false}}">
       <view
         class="filter-chip {{(activeDropdown === 'region' && dropdownVisible) || selectedRegionIndex > 0 ? 'filter-chip-active' : ''}}"
         data-key="region"
@@ -188,7 +188,7 @@
             <text class="section-heading-title">精选推荐</text>
             <text class="section-heading-link">为你精选</text>
           </view>
-          <scroll-view class="featured-row" scroll-x enhanced show-scrollbar="{{false}}">
+          <scroll-view class="featured-row" scroll-x enhanced enable-flex show-scrollbar="{{false}}">
             <view
               class="featured-card"
               wx:for="{{featuredList}}"
@@ -196,7 +196,7 @@
               data-house-id="{{item._id}}"
               bindtap="onGoDetail"
             >
-              <view class="featured-thumb-wrap {{item.accentClass}}">
+              <view class="featured-thumb-wrap">
                 <lazy-image
                   class="featured-thumb"
                   src="{{item.displayImage}}"
@@ -261,7 +261,7 @@
               data-house-id="{{item._id}}"
               bindtap="onGoDetail"
             >
-              <view class="latest-card-thumb-wrap {{item.accentClass}}">
+              <view class="latest-card-thumb-wrap">
                 <lazy-image
                   class="latest-card-thumb"
                   src="{{item.displayImage}}"

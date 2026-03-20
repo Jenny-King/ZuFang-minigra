@@ -1,12 +1,8 @@
-function assertRequiredString(value, fieldName) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`${fieldName} 必须是非空字符串`);
-  }
-}
+const { assertNonEmptyString } = require("../../utils/assert");
 
 async function uploadToCloud(filePath, cloudPath) {
-  assertRequiredString(filePath, "filePath");
-  assertRequiredString(cloudPath, "cloudPath");
+  assertNonEmptyString(filePath, "filePath");
+  assertNonEmptyString(cloudPath, "cloudPath");
 
   const uploadRes = await wx.cloud.uploadFile({
     cloudPath: cloudPath.trim(),

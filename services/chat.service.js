@@ -1,18 +1,7 @@
 const { callCloud } = require("./cloud/call");
 const { uploadToCloud } = require("./cloud/upload");
 const { REQUEST_DEFAULT, MESSAGE_TYPE } = require("../config/constants");
-
-function assertNonEmptyString(value, fieldName) {
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`${fieldName} 不能为空`);
-  }
-}
-
-function assertPositiveInteger(value, fieldName) {
-  if (!Number.isInteger(value) || value <= 0) {
-    throw new Error(`${fieldName} 必须是正整数`);
-  }
-}
+const { assertNonEmptyString, assertPositiveInteger } = require("../utils/assert");
 
 async function getConversationList(params = {}) {
   return callCloud("chat", "getConversations", params);

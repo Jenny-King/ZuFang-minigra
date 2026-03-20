@@ -1,0 +1,7 @@
+Connecting to WeChat Developer Tools on port 54825...
+Automation error: Error: Failed connecting to ws://localhost:54825, check if target project window is opened with automation enabled
+    at Launcher.connectTool (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\node_modules\miniprogram-automator\out\Launcher.js:1:3020)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Launcher.connect (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\node_modules\miniprogram-automator\out\Launcher.js:1:2600)
+    at async Automator.connect (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\node_modules\miniprogram-automator\out\Automator.js:1:1352)
+    at async run (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\screenshot.js:6:25)

@@ -1,7 +1,9 @@
 const HEIGHT_CLASS_MAP = {
   "76rpx": "lazy-image--height-76",
   "80rpx": "lazy-image--height-80",
+  "88rpx": "lazy-image--height-88",
   "92rpx": "lazy-image--height-92",
+  "96rpx": "lazy-image--height-96",
   "108rpx": "lazy-image--height-108",
   "120rpx": "lazy-image--height-120",
   "140rpx": "lazy-image--height-140",
@@ -33,7 +35,8 @@ const RADIUS_CLASS_MAP = {
   "var(--radius-xl)": "lazy-image--radius-xl",
   "var(--radius-2xl)": "lazy-image--radius-2xl",
   "var(--radius-panel)": "lazy-image--radius-panel",
-  "var(--radius-pill)": "lazy-image--radius-pill"
+  "var(--radius-pill)": "lazy-image--radius-pill",
+  "50%": "lazy-image--radius-pill"
 };
 
 function resolveHeightClass(height) {

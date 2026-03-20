@@ -45,11 +45,11 @@ Page({
   onLoad(options) {
     logger.info("page_load", { page: "profile/settings", query: options || {} });
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("settings_onload_end", { blocked: "not_login" });
+      logger.debug("settings_onload_end", { blocked: "not_login" });
       return;
     }
     this.syncPageState();
-    logger.info("settings_onload_end", {});
+    logger.debug("settings_onload_end", {});
   },
 
   async onShow() {
@@ -128,31 +128,31 @@ Page({
   },
 
   async onChangePhoneTap() {
-    logger.info("settings_change_phone_start", {});
+    logger.debug("settings_change_phone_start", {});
     try {
       navigateTo(ROUTES.PROFILE_CHANGE_PHONE);
     } catch (error) {
       logger.error("settings_change_phone_failed", { error: error.message });
       wx.showToast({ title: error.message || "手机号操作失败", icon: "none" });
     } finally {
-      logger.info("settings_change_phone_end", {});
+      logger.debug("settings_change_phone_end", {});
     }
   },
 
   async onChangePasswordTap() {
-    logger.info("settings_change_password_start", {});
+    logger.debug("settings_change_password_start", {});
     try {
       navigateTo(ROUTES.PROFILE_CHANGE_PASSWORD);
     } catch (error) {
       logger.error("settings_change_password_failed", { error: error.message });
       wx.showToast({ title: error.message || "修改密码失败", icon: "none" });
     } finally {
-      logger.info("settings_change_password_end", {});
+      logger.debug("settings_change_password_end", {});
     }
   },
 
   async onWechatEntryTap() {
-    logger.info("settings_wechat_entry_start", {});
+    logger.debug("settings_wechat_entry_start", {});
     const isBound = Boolean(this.data.userInfo?.wechatBound);
 
     try {
@@ -170,12 +170,12 @@ Page({
       logger.error("settings_wechat_entry_failed", { error: error.message });
       wx.showToast({ title: error.message || "微信绑定状态更新失败", icon: "none" });
     } finally {
-      logger.info("settings_wechat_entry_end", { isBound });
+      logger.debug("settings_wechat_entry_end", { isBound });
     }
   },
 
   async onBindEmailTap() {
-    logger.info("settings_bind_email_start", {});
+    logger.debug("settings_bind_email_start", {});
     try {
       const emailRes = await wx.showModal({
         title: this.data.userInfo?.email ? "修改邮箱" : "绑定邮箱",
@@ -188,14 +188,14 @@ Page({
       });
 
       if (!emailRes.confirm) {
-        logger.info("settings_bind_email_end", { blocked: "cancelled" });
+        logger.debug("settings_bind_email_end", { blocked: "cancelled" });
         return;
       }
 
       const email = String(emailRes.content || "").trim().toLowerCase();
       if (!isEmail(email)) {
         wx.showToast({ title: "邮箱格式错误", icon: "none" });
-        logger.info("settings_bind_email_end", { blocked: "invalid_email" });
+        logger.debug("settings_bind_email_end", { blocked: "invalid_email" });
         return;
       }
 
@@ -207,7 +207,7 @@ Page({
       logger.error("settings_bind_email_failed", { error: error.message });
       wx.showToast({ title: error.message || "邮箱保存失败", icon: "none" });
     } finally {
-      logger.info("settings_bind_email_end", {});
+      logger.debug("settings_bind_email_end", {});
     }
   },
 
@@ -224,7 +224,7 @@ Page({
   },
 
   async onDeleteAccountTap() {
-    logger.info("settings_delete_account_start", {});
+    logger.debug("settings_delete_account_start", {});
     const modalRes = await wx.showModal({
       title: "确认注销账号",
       content: "注销后将停用当前账号和登录状态，该操作不可恢复，是否继续？",
@@ -233,7 +233,7 @@ Page({
     });
 
     if (!modalRes.confirm) {
-      logger.info("settings_delete_account_end", { blocked: "cancelled" });
+      logger.debug("settings_delete_account_end", { blocked: "cancelled" });
       return;
     }
 
@@ -249,7 +249,7 @@ Page({
       logger.error("settings_delete_account_failed", { error: error.message });
       wx.showToast({ title: error.message || "账号注销失败", icon: "none" });
     } finally {
-      logger.info("settings_delete_account_end", {});
+      logger.debug("settings_delete_account_end", {});
     }
   }
 });

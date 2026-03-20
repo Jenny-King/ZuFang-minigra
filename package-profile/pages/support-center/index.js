@@ -52,11 +52,11 @@ Page({
   onLoad(options) {
     logger.info("page_load", { page: "profile/support-center", query: options || {} });
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("support_center_onload_end", { blocked: "not_login" });
+      logger.debug("support_center_onload_end", { blocked: "not_login" });
       return;
     }
     this.syncDefaultContact();
-    logger.info("support_center_onload_end", {});
+    logger.debug("support_center_onload_end", {});
   },
 
   onShow() {
@@ -139,9 +139,9 @@ Page({
   },
 
   async onSubmitFeedbackTap() {
-    logger.info("support_center_submit_feedback_start", {});
+    logger.debug("support_center_submit_feedback_start", {});
     if (this.data.feedbackSubmitting) {
-      logger.info("support_center_submit_feedback_end", { blocked: "submitting" });
+      logger.debug("support_center_submit_feedback_end", { blocked: "submitting" });
       return;
     }
 
@@ -151,13 +151,13 @@ Page({
 
     if (!category) {
       wx.showToast({ title: "请选择反馈类型", icon: "none" });
-      logger.info("support_center_submit_feedback_end", { blocked: "empty_category" });
+      logger.debug("support_center_submit_feedback_end", { blocked: "empty_category" });
       return;
     }
 
     if (content.length < 5) {
       wx.showToast({ title: "反馈内容至少 5 个字", icon: "none" });
-      logger.info("support_center_submit_feedback_end", { blocked: "short_content" });
+      logger.debug("support_center_submit_feedback_end", { blocked: "short_content" });
       return;
     }
 
@@ -180,7 +180,7 @@ Page({
       wx.showToast({ title: error.message || "反馈提交失败", icon: "none" });
     } finally {
       this.setData({ feedbackSubmitting: false });
-      logger.info("support_center_submit_feedback_end", {});
+      logger.debug("support_center_submit_feedback_end", {});
     }
   },
 

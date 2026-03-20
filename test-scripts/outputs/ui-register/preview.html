@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>注册账号</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --sub:#6b7280;
+      --line:#e5e7eb;
+      --input:#f3f5f9;
+      --primary:#3f7cff;
+      --primary-deep:#2f6df6;
+      --primary-soft:#eaf1ff;
+      --danger:#ef4444;
+      --success:#10b981;
+      --shadow:0 12px 32px rgba(17,24,39,.08);
+      --radius-card:22px;
+      --radius-input:14px;
+      --radius-btn:16px;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top, #eef4ff 0%, transparent 30%),
+        var(--bg);
+      font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+      color:var(--text);
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:24px 16px;
+    }
+
+    .phone{
+      width:100%;
+      max-width:420px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius-card);
+      box-shadow:var(--shadow);
+      padding:28px 18px 22px;
+    }
+
+    .title{
+      margin:0;
+      font-size:32px;
+      font-weight:800;
+      text-align:center;
+      line-height:1.2;
+      letter-spacing:.5px;
+    }
+
+    .subtitle{
+      margin:10px 0 24px;
+      text-align:center;
+      color:var(--sub);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .group{
+      margin-bottom:16px;
+    }
+
+    .label{
+      display:block;
+      margin-bottom:10px;
+      font-size:16px;
+      font-weight:700;
+    }
+
+    .required::after{
+      content:" *";
+      color:var(--danger);
+      font-weight:700;
+    }
+
+    .field{
+      position:relative;
+    }
+
+    .input{
+      width:100%;
+      height:52px;
+      border:1px solid transparent;
+      background:var(--input);
+      border-radius:var(--radius-input);
+      padding:0 14px;
+      font-size:16px;
+      color:var(--text);
+      outline:none;
+      transition:.2s ease;
+    }
+
+    .input::placeholder{
+      color:#9ca3af;
+    }
+
+    .input:focus{
+      background:#fff;
+      border-color:rgba(63,124,255,.45);
+      box-shadow:0 0 0 4px rgba(63,124,255,.08);
+    }
+
+    .input.has-action{
+      padding-right:52px;
+    }
+
+    .eye{
+      position:absolute;
+      right:10px;
+      top:50%;
+      transform:translateY(-50%);
+      width:34px;
+      height:34px;
+      border:0;
+      border-radius:10px;
+      background:transparent;
+      cursor:pointer;
+      font-size:16px;
+      color:var(--sub);
+    }
+
+    .eye:hover{
+      background:#eef2f7;
+    }
+
+    .meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:8px;
+      gap:10px;
+      min-height:20px;
+    }
+
+    .hint{
+      color:var(--sub);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .error{
+      color:var(--danger);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .strength{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+      color:var(--sub);
+    }
+
+    .bars{
+      display:flex;
+      gap:4px;
+    }
+
+    .bar{
+      width:24px;
+      height:6px;
+      border-radius:999px;
+      background:#e5e7eb;
+      transition:.2s ease;
+    }
+
+    .bar.active{
+      background:var(--success);
+    }
+
+    .role-wrap{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:4px;
+    }
+
+    .role{
+      border:1px solid #e8edf5;
+      background:#f8fafc;
+      border-radius:16px;
+      height:56px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:0 14px;
+      cursor:pointer;
+      transition:.2s ease;
+      user-select:none;
+    }
+
+    .role:hover{
+      border-color:#cfe0ff;
+      background:#f7faff;
+    }
+
+    .role.active{
+      background:var(--primary-soft);
+      border-color:#cfe0ff;
+    }
+
+    .dot{
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      border:1.5px solid #c7cfdb;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      transition:.2s ease;
+      color:#fff;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .role.active .dot{
+      background:var(--primary);
+      border-color:var(--primary);
+    }
+
+    .role-name{
+      font-size:16px;
+      font-weight:600;
+    }
+
+    .submit{
+      width:100%;
+      height:52px;
+      border:0;
+      border-radius:var(--radius-btn);
+      margin-top:10px;
+      background:#bfd5ff;
+      color:#fff;
+      font-size:20px;
+      font-weight:800;
+      letter-spacing:.5px;
+      cursor:not-allowed;
+      transition:.2s ease;
+      box-shadow:none;
+    }
+
+    .submit.enabled{
+      cursor:pointer;
+      background:linear-gradient(135deg,var(--primary),var(--primary-deep));
+      box-shadow:0 12px 24px rgba(63,124,255,.22);
+    }
+
+    .submit.enabled:hover{
+      filter:brightness(.98);
+    }
+
+    .protocol{
+      margin-top:14px;
+      color:var(--sub);
+      font-size:12px;
+      line-height:1.6;
+      text-align:center;
+    }
+
+    .protocol a,
+    .login a{
+      color:var(--primary);
+      text-decoration:none;
+    }
+
+    .login{
+      margin-top:10px;
+      font-size:14px;
+      text-align:center;
+      color:var(--sub);
+    }
+
+    .success{
+      display:none;
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(16,185,129,.08);
+      color:#047857;
+      border:1px solid rgba(16,185,129,.18);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    @media (max-width:420px){
+      .card{ padding:24px 16px 20px; }
+      .title{ font-size:30px; }
+      .submit{ font-size:18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="card">
+      <h1 class="title">注册账号</h1>
+      <p class="subtitle">填写基础信息后即可完成注册并自动登录</p>
+
+      <form id="registerForm" novalidate>
+        <div class="group">
+          <label class="label required" for="nickname">昵称</label>
+          <div class="field">
+            <input id="nickname" class="input" type="text" maxlength="16" placeholder="请输入昵称">
+          </div>
+          <div class="meta">
+            <div class="hint">2-16 个字符，建议使用真实或常用称呼</div>
+            <div class="error" id="nicknameError"></div>
+          </div>
+        </div>
+
+        <div class="group">
+          <label class="label required" for="phone">手机号</label>
+          <div class="field">
+            <input id="phone" class="input" type="tel" inputmode="numeric" maxlength="11" placeholder="请输入 11 位手机号">
+          </div>
+          <div class="meta">
+            <div class="hint">用于登录、找回密码和安全验证</div>
+            <div class="error" id="phoneError"></div>
+          </div>
+        </div>
+
+        <div class="group">
+          <label class="label required" for="password">密码</label>
+          <div class="field">
+            <input id="password" class="input has-action" type="password" placeholder="6-20 位，至少字母+数字">
+            <button class="eye" type="button" data-target="password">👁</button>
+          </div>
+          <div class="meta">
+            <div class="strength">
+              <span>强度</span>
+              <span class="bars">
+                <span class="bar" id="bar1"></span>
+                <span class="bar" id="bar2"></span>
+                <span class="bar" id="bar3"></span>
+              </span>
+              <span id="strengthText">未设置</span>
+            </div>
+            <div class="error" id="passwordError"></div>
+          </div>
+        </div>
+
+        <div class="group">
+          <label class="label" for="wechat">微信号（选填）</label>
+          <div class="field">
+            <input id="wechat" class="input" type="text" maxlength="30" placeholder="请输入微信号">
+          </div>
+          <div class="meta">
+            <div class="hint">用于后续沟通或资料补充，可稍后完善</div>
+            <div class="error" id="wechatError"></div>
+          </div>
+        </div>
+
+        <div class="group">
+          <label class="label required">默认身份</label>
+          <div class="role-wrap" id="roleWrap">
+            <div class="role active" data-role="tenant">
+              <div class="dot">✓</div>
+              <div class="role-name">租客</div>
+            </div>
+            <div class="role" data-role="landlord">
+              <div class="dot"></div>
+              <div class="role-name">房东</div>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="hint">注册后仍可在个人中心切换身份</div>
+            <div class="error" id="roleError"></div>
+          </div>
+        </div>
+
+        <button id="submitBtn" class="submit" type="submit">注册并登录</button>
+
+        <div class="protocol">
+          点击即表示你已同意
+          <a href="javascript:void(0)">《用户协议》</a>
+          与
+          <a href="javascript:void(0)">《隐私政策》</a>
+        </div>
+
+        <div class="login">
+          已有账号？
+          <a href="javascript:void(0)">去登录</a>
+        </div>
+
+        <div class="success" id="successBox">
+          注册成功，正在为你自动登录。
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const nickname = document.getElementById('nickname');
+    const phone = document.getElementById('phone');
+    const password = document.getElementById('password');
+    const wechat = document.getElementById('wechat');
+    const submitBtn = document.getElementById('submitBtn');
+    const successBox = document.getElementById('successBox');
+    const roleWrap = document.getElementById('roleWrap');
+
+    const nicknameError = document.getElementById('nicknameError');
+    const phoneError = document.getElementById('phoneError');
+    const passwordError = document.getElementById('passwordError');
+    const wechatError = document.getElementById('wechatError');
+
+    const bars = [
+      document.getElementById('bar1'),
+      document.getElementById('bar2'),
+      document.getElementById('bar3')
+    ];
+    const strengthText = document.getElementById('strengthText');
+
+    let selectedRole = 'tenant';
+
+    function validateNickname() {
+      const value = nickname.value.trim();
+      if (!value) {
+        nicknameError.textContent = '请输入昵称';
+        return false;
+      }
+      if (value.length < 2) {
+        nicknameError.textContent = '昵称至少 2 个字符';
+        return false;
+      }
+      nicknameError.textContent = '';
+      return true;
+    }
+
+    function validatePhone() {
+      const value = phone.value.trim();
+      if (!value) {
+        phoneError.textContent = '请输入手机号';
+        return false;
+      }
+      if (!/^1\\d{10}$/.test(value)) {
+        phoneError.textContent = '手机号格式不正确';
+        return false;
+      }
+      phoneError.textContent = '';
+      return true;
+    }
+
+    function validatePassword() {
+      const value = password.value;
+      if (!value) {
+        passwordError.textContent = '请输入密码';
+        return false;
+      }
+      if (!/^(?=.*[A-Za-z])(?=.*\\d).{6,20}$/.test(value)) {
+        passwordError.textContent = '需为 6-20 位，且至少包含字母和数字';
+        return false;
+      }
+      passwordError.textContent = '';
+      return true;
+    }
+
+    function validateWechat() {
+      const value = wechat.value.trim();
+      if (!value) {
+        wechatError.textContent = '';
+        return true;
+      }
+      if (value.length < 6) {
+        wechatError.textContent = '微信号过短';
+        return false;
+      }
+      wechatError.textContent = '';
+      return true;
+    }
+
+    function getStrength(value) {
+      if (!value) return 0;
+      let score = 0;
+      if (value.length >= 6) score++;
+      if (/[A-Za-z]/.test(value) && /\\d/.test(value)) score++;
+      if (/[^A-Za-z0-9]/.test(value) || (/[A-Z]/.test(value) && /[a-z]/.test(value))) score++;
+      return Math.min(score, 3);
+    }
+
+    function renderStrength() {
+      const level = getStrength(password.value);
+      bars.forEach((bar, index) => {
+        bar.classList.toggle('active', index < level);
+      });
+      const textMap = ['未设置', '弱', '中', '强'];
+      strengthText.textContent = textMap[level];
+    }
+
+    function updateSubmit() {
+      const ready =
+        validateNickname() &&
+        validatePhone() &&
+        validatePassword() &&
+        validateWechat() &&
+        !!selectedRole;
+
+      submitBtn.disabled = !ready;
+      submitBtn.classList.toggle('enabled', ready);
+    }
+
+    nickname.addEventListener('input', () => {
+      validateNickname();
+      updateSubmit();
+    });
+
+    phone.addEventListener('input', () => {
+      phone.value = phone.value.replace(/\\D/g, '').slice(0, 11);
+      validatePhone();
+      updateSubmit();
+    });
+
+    password.addEventListener('input', () => {
+      validatePassword();
+      renderStrength();
+      updateSubmit();
+    });
+
+    wechat.addEventListener('input', () => {
+      validateWechat();
+      updateSubmit();
+    });
+
+    document.querySelectorAll('.eye').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        const isPwd = input.type === 'password';
+        input.type = isPwd ? 'text' : 'password';
+        btn.textContent = isPwd ? '🙈' : '👁';
+      });
+    });
+
+    roleWrap.addEventListener('click', (e) => {
+      const item = e.target.closest('.role');
+      if (!item) return;
+      selectedRole = item.dataset.role;
+
+      document.querySelectorAll('.role').forEach(role => {
+        const active = role === item;
+        role.classList.toggle('active', active);
+        role.querySelector('.dot').textContent = active ? '✓' : '';
+      });
+
+      updateSubmit();
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const ok =
+        validateNickname() &&
+        validatePhone() &&
+        validatePassword() &&
+        validateWechat();
+
+      updateSubmit();
+
+      if (!ok) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '注册中...';
+
+      setTimeout(() => {
+        successBox.style.display = 'block';
+        submitBtn.textContent = '注册并登录';
+        updateSubmit();
+      }, 1200);
+    });
+
+    renderStrength();
+    updateSubmit();
+  </script>
+</body>
+</html>

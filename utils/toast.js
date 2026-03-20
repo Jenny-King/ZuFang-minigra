@@ -128,15 +128,21 @@ function info(message = "") {
 function error(message = "") {
   hide();
 
-  const hostedToast = showHostToast("error", message, 2000);
-  if (hostedToast) {
-    return hostedToast;
+  if (message.length > 7) {
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: "错误",
+        content: message,
+        showCancel: false,
+        success: resolve
+      });
+    });
   }
 
   return showNativeToast(
     {
       title: message,
-      icon: "none",
+      icon: "error",
       mask: false,
       duration: 2000
     },

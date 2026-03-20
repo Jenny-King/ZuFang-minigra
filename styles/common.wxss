@@ -1,7 +1,7 @@
 page {
-  background: var(--color-bg);
-  color: var(--color-text-main);
-  font-size: var(--font-body);
+  background: var(--color-background-page);
+  color: var(--color-text-1);
+  font-size: var(--font-md);
   box-sizing: border-box;
 }
 
@@ -18,25 +18,25 @@ textarea {
 }
 
 .section-title {
-  font-size: var(--font-title);
+  font-size: var(--font-lg);
   font-weight: 600;
-  color: var(--color-text-main);
+  color: var(--color-text-1);
 }
 
 .section-subtitle {
   margin-top: var(--space-xs);
-  font-size: var(--font-meta);
-  color: var(--color-text-secondary);
+  font-size: var(--font-sm);
+  color: var(--color-text-2);
 }
 
 .empty-tip {
   padding: var(--space-xl) 0;
   text-align: center;
-  color: var(--color-text-secondary);
-  font-size: var(--font-meta);
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
 }
 
 .error-text {
   color: var(--color-warning);
-  font-size: var(--font-meta);
+  font-size: var(--font-sm);
 }

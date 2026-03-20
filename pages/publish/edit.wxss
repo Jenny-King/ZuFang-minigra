@@ -1,13 +1,8 @@
 @import "../../styles/variables.wxss";
 
 .publish-page {
-  --color-primary: #3c7bfd;
-  --color-primary-bg: rgba(60, 123, 253, 0.1);
-  --color-primary-dark: #245fda;
-  --color-info: #3c7bfd;
-  --color-info-bg: rgba(60, 123, 253, 0.1);
   min-height: 100vh;
-  background: #f7f8fa;
+  background: var(--color-background-page);
 }
 
 .publish-shell {
@@ -158,6 +153,7 @@
 .label {
   display: block;
   margin-bottom: 14rpx;
+  padding-left: 28rpx;
   color: var(--color-text-1);
   font-size: var(--font-md);
   font-weight: var(--weight-bold);
@@ -337,6 +333,7 @@
 .meta-tag-label {
   display: block;
   margin-bottom: 14rpx;
+  padding-left: 28rpx;
   color: var(--color-text-2);
   font-size: var(--font-sm);
 }
@@ -431,7 +428,7 @@
 .image-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16rpx;
+  gap: 12rpx;
 }
 
 .image-grid-top {
@@ -440,10 +437,10 @@
 
 .image-item {
   position: relative;
-  width: auto;
-  height: 200rpx;
+  width: 100%;
+  aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 24rpx;
+  border-radius: 16rpx;
   background: #eef2f7;
 }
 
@@ -489,10 +486,11 @@
   align-items: center;
   justify-content: center;
   gap: 10rpx;
-  width: auto;
-  height: 200rpx;
+  width: 100%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
   border: 2rpx dashed rgba(60, 123, 253, 0.22);
-  border-radius: 24rpx;
+  border-radius: 16rpx;
   background: #ffffff;
   color: #76839c;
 }

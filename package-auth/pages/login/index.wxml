@@ -1,77 +1,93 @@
 <view class="container auth-page">
   <view class="card auth-card">
     <view class="title">登录</view>
+    <view class="subtitle">欢迎回来，请选择登录方式</view>
 
-    <button class="wechat-btn" loading="{{submitLoading}}" bindtap="onWechatLoginTap">
-      微信一键登录
-    </button>
-
-    <view class="divider">或使用手机号登录</view>
-
-    <view class="mode-tabs">
-      <view class="mode-tab {{mode === 'code' ? 'active' : ''}}" data-mode="code" bindtap="onModeChange">验证码登录</view>
-      <view class="mode-tab {{mode === 'password' ? 'active' : ''}}" data-mode="password" bindtap="onModeChange">密码登录</view>
+    <!-- 微信快捷登录 -->
+    <view class="group">
+      <button class="wechat-btn" loading="{{submitLoading}}" bindtap="onWechatLoginTap">
+        <text>微信一键登录</text>
+      </button>
+      <view class="meta" style="justify-content: center;">
+        <view class="hint">推荐使用微信快捷登录，授权后可自动绑定手机号</view>
+      </view>
     </view>
 
-    <view class="form-item">
-      <text class="label">手机号</text>
-      <input
-        class="input {{errors.phone ? 'input-error' : ''}}"
-        type="number"
-        placeholder="请输入手机号"
-        value="{{phone}}"
-        bindinput="onInputPhone"
-      />
-      <text wx:if="{{errors.phone}}" class="field-error">{{errors.phone}}</text>
+    <view class="divider">
+      <view class="divider-line"></view>
+      <text class="divider-text">或使用手机号登录</text>
+      <view class="divider-line"></view>
     </view>
 
-    <view class="form-item" wx:if="{{mode === 'code'}}">
-      <text class="label">验证码</text>
-      <view class="input-inline {{errors.code ? 'input-inline-error' : ''}}">
-        <input
-          class="input-inline__control"
-          type="number"
-          placeholder="请输入验证码"
-          value="{{code}}"
-          bindinput="onInputCode"
-        />
-        <button
-          class="inline-text-btn {{(cdRunning || sendingCode) ? 'disabled' : ''}}"
-          disabled="{{cdRunning || sendingCode}}"
-          bindtap="onSendCodeTap"
-        >
-          {{sendingCode ? '发送中...' : (cdRunning ? cdSecs + 's后重发' : '获取验证码')}}
+    <!-- 登录方式切换 -->
+    <view class="tabs">
+      <view
+        class="{{mode === 'code' ? 'tab tab--active' : 'tab'}}"
+        data-mode="code"
+        bindtap="onModeChange"
+      >
+        验证码登录
+      </view>
+      <view
+        class="{{mode === 'password' ? 'tab tab--active' : 'tab'}}"
+        data-mode="password"
+        bindtap="onModeChange"
+      >
+        密码登录
+      </view>
+    </view>
+
+    <!-- 手机号 -->
+    <view class="group">
+      <view class="label required">手机号</view>
+      <view class="field">
+        <input class="input {{errors.phone ? 'input-error' : ''}}" type="number" value="{{phone}}" placeholder="请输入 11 位手机号" bindinput="onInputPhone" maxlength="11" />
+      </view>
+      <view class="meta" wx:if="{{errors.phone}}">
+        <view class="field-error">{{errors.phone}}</view>
+      </view>
+    </view>
+
+    <!-- 验证码 -->
+    <view class="group" wx:if="{{mode === 'code'}}">
+      <view class="label required">验证码</view>
+      <view class="field input-inline {{errors.code ? 'input-inline-error' : ''}}">
+        <input class="input-inline__control" type="number" value="{{code}}" placeholder="请输入 6 位验证码" bindinput="onInputCode" maxlength="6" />
+        <button class="inline-text-btn {{(cdRunning || sendingCode) ? 'disabled' : ''}}" disabled="{{cdRunning || sendingCode}}" bindtap="onSendCodeTap">
+          {{sendingCode ? '发送中...' : (cdRunning ? cdSecs + 's 后重发' : '获取验证码')}}
         </button>
       </view>
-      <text wx:if="{{errors.code}}" class="field-error">{{errors.code}}</text>
-    </view>
-
-    <view class="form-item" wx:if="{{mode === 'password'}}">
-      <text class="label">密码</text>
-      <view class="password-row {{errors.password ? 'password-row-error' : ''}}">
-        <input
-          class="password-input"
-          type="{{showPwd ? 'text' : 'password'}}"
-          placeholder="请输入密码"
-          value="{{password}}"
-          bindinput="onInputPassword"
-        />
-        <view class="tap-area password-toggle" bindtap="onTogglePassword">
-          <text class="password-toggle-text">{{showPwd ? "隐藏" : "显示"}}</text>
-        </view>
+      <view class="meta" wx:if="{{errors.code}}">
+        <view class="field-error">{{errors.code}}</view>
       </view>
-      <text wx:if="{{errors.password}}" class="field-error">{{errors.password}}</text>
     </view>
 
-    <button class="submit-btn" loading="{{submitLoading}}" bindtap="onSubmitTap">登录</button>
+    <!-- 密码 -->
+    <view class="group" wx:elif="{{mode === 'password'}}">
+      <view class="label required">密码</view>
+      <view class="field">
+        <input class="input has-action {{errors.password ? 'input-error' : ''}}" password="{{!showPwd}}" value="{{password}}" placeholder="请输入登录密码" bindinput="onInputPassword" />
+        <view class="eye" bindtap="onTogglePassword">{{showPwd ? '🙈' : '👁'}}</view>
+      </view>
+      <view class="meta" wx:if="{{errors.password}}">
+        <view class="field-error">{{errors.password}}</view>
+      </view>
+    </view>
 
-    <view class="bottom-text">
+    <button class="submit-btn enabled" loading="{{submitLoading}}" bindtap="onSubmitTap">登录</button>
+
+    <view class="protocol">
+      登录即表示你已同意
+      <text class="link">《用户协议》</text>
+      与
+      <text class="link">《隐私政策》</text>
+    </view>
+
+    <view class="bottom-text login">
       还没有账号？
       <text class="link" bindtap="onGoRegisterTap">去注册</text>
-    </view>
-    <view class="bottom-text">
-      忘记密码？
-      <text class="link" bindtap="onGoResetPasswordTap">去重置</text>
+      <text class="link-divider"> | </text>
+      <text class="link" bindtap="onGoResetPasswordTap">忘记密码</text>
     </view>
   </view>
 </view>

@@ -2,7 +2,7 @@
 
 .chat-page {
   min-height: 100vh;
-  background: #f8f8f8;
+  background: var(--color-background-page);
 }
 
 .error-box {
@@ -35,121 +35,184 @@
   border: none;
 }
 
-.chat-list {
+/* ── Search ── */
+.search-bar {
+  padding: 16rpx 32rpx 20rpx;
+  background: var(--color-background-card);
+  border-bottom: 1rpx solid var(--color-border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.search-inner {
   display: flex;
-  flex-direction: column;
-  gap: 20rpx;
+  align-items: center;
+  gap: 16rpx;
+  background: var(--color-background-page);
+  border-radius: 40rpx;
+  padding: 0 28rpx;
+  height: 72rpx;
+}
+.search-inner icon {
+  display: flex;
+  align-items: center;
+  margin-top: 4rpx;
+}
+.search-inner input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 28rpx;
+  color: var(--color-text-1);
+}
+.search-placeholder {
+  color: var(--color-text-3);
 }
 
+/* ── List Scroll ── */
+.list-scroll {
+  background: var(--color-background-card);
+  min-height: calc(100vh - 110rpx);
+}
+
+/* ── Chat Item ── */
 .chat-item {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-md);
-  padding: 30rpx;
-  border-radius: 24rpx;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  gap: 24rpx;
+  padding: 28rpx 32rpx;
+  position: relative;
+  transition: background .15s;
+}
+.chat-item:active {
+  background: var(--color-background-page);
+}
+.chat-item + .chat-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 144rpx;
+  right: 0;
+  height: 1rpx;
+  background: var(--color-border-subtle);
 }
 
+/* Avatar */
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
 .avatar {
-  width: var(--avatar-size-lg);
-  flex-shrink: 0;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
-.content {
-  flex: 1;
-  min-width: 0;
-}
-
-.top-row,
-.bottom-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.top-row {
-  margin-bottom: 10rpx;
-}
-
-.house-row {
-  display: flex;
-  gap: var(--space-sm);
-  align-items: center;
-  padding: 12rpx 0 14rpx;
-}
-
-.house-cover {
-  width: 120rpx;
-  height: 120rpx;
-  flex-shrink: 0;
-  border-radius: 8rpx;
-  background: var(--color-background-subtle);
-}
-
-.house-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.house-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-xs);
-}
-
-.house-title {
-  flex: 1;
-  min-width: 0;
-  color: var(--color-text-1);
-  font-size: 24rpx;
-  font-weight: var(--weight-medium);
-}
-
-.house-price {
-  flex-shrink: 0;
-  color: var(--color-primary);
-  font-size: var(--font-caption);
-}
-
-.house-meta {
-  display: block;
-  margin-top: var(--space-2xs);
-  color: var(--color-text-3);
-  font-size: var(--font-caption);
-}
-
-.name {
-  flex: 1;
-  min-width: 0;
-  color: var(--color-text-1);
-  font-size: 32rpx;
-  font-weight: var(--weight-medium);
-}
-
-.time {
-  margin-left: var(--space-xs);
-  color: #999999;
-  font-size: 24rpx;
-}
-
-.message {
-  flex: 1;
-  min-width: 0;
-  color: var(--color-text-2);
-  font-size: 24rpx;
-}
-
+/* Badge */
 .badge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
   min-width: 36rpx;
   height: 36rpx;
-  line-height: 36rpx;
-  padding: 0 var(--space-2xs);
-  margin-left: var(--space-xs);
-  border-radius: var(--radius-pill);
   background: var(--color-danger);
-  color: var(--color-text-inverse);
-  font-size: var(--font-caption);
-  text-align: center;
+  border-radius: 18rpx;
+  border: 4rpx solid var(--color-background-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #fff;
+  padding: 0 8rpx;
+  line-height: normal;
+  box-sizing: border-box;
+}
+
+/* Main */
+.chat-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.chat-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.chat-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-time {
+  font-size: 24rpx;
+  color: var(--color-text-3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* House Preview Card */
+.house-card {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background: #f9fafb;
+  border: 1rpx solid var(--color-border-subtle, #f0f0f0);
+  border-radius: 16rpx;
+  padding: 14rpx 18rpx;
+  overflow: hidden;
+}
+.house-thumb {
+  width: 88rpx;
+  height: 88rpx;
+  background: var(--color-background-subtle);
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+.house-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.house-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--color-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.house-meta {
+  font-size: 22rpx;
+  color: var(--color-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.house-price {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Last Message */
+.chat-preview {
+  font-size: 26rpx;
+  color: var(--color-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

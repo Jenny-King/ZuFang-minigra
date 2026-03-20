@@ -109,8 +109,7 @@
           data-status="{{item.actionStatus}}"
           bindtap="onToggleStatusTap"
         >
-          <text class="swipe-btn-char">{{item.actionLabelTop}}</text>
-          <text class="swipe-btn-char">{{item.actionLabelBottom}}</text>
+          <text class="swipe-btn-text">{{item.actionLabelTop}}{{item.actionLabelBottom}}</text>
         </view>
         <view
           class="swipe-btn swipe-delete"
@@ -118,8 +117,7 @@
           data-title="{{item.displayTitle}}"
           bindtap="onDeleteHouseTap"
         >
-          <text class="swipe-btn-char">删</text>
-          <text class="swipe-btn-char">除</text>
+          <text class="swipe-btn-text">删除</text>
         </view>
       </view>
     </view>

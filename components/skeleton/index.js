@@ -6,9 +6,9 @@ function normalizeType(type) {
 function normalizeCount(count) {
   const numericCount = Number(count);
   if (!Number.isFinite(numericCount) || numericCount < 1) {
-    return 1;
+    return 0;
   }
-  return Math.max(1, Math.floor(numericCount));
+  return Math.floor(numericCount);
 }
 
 function createItems(count) {
@@ -23,7 +23,7 @@ Component({
     },
     count: {
       type: Number,
-      value: 1
+      value: 0
     }
   },
 
@@ -51,7 +51,12 @@ Component({
   methods: {
     syncState() {
       const normalizedType = normalizeType(this.data.type);
-      const count = normalizeCount(this.data.count);
+      let count = normalizeCount(this.data.count);
+
+      const needAutoCount = count === 0 && normalizedType === "list-item";
+      if (count === 0) {
+        count = needAutoCount ? 5 : 1;
+      }
 
       this.setData({
         normalizedType,
@@ -61,6 +66,17 @@ Component({
         isDetail: normalizedType === "detail",
         isProfile: normalizedType === "profile"
       });
+
+      if (needAutoCount) {
+        wx.getSystemInfo({
+          success: (sysInfo) => {
+            const autoCount = Math.max(1, Math.ceil(sysInfo.windowHeight / 100));
+            if (autoCount !== count) {
+              this.setData({ items: createItems(autoCount) });
+            }
+          }
+        });
+      }
     }
   }
 });

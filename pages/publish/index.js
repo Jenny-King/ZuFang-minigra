@@ -93,51 +93,51 @@ Page({
     this.touchStartPoint = null;
 
     if (!authUtils.requireLogin({ redirect: true })) {
-      logger.info("publish_tab_onload_end", { blocked: "not_login" });
+      logger.debug("publish_tab_onload_end", { blocked: "not_login" });
       return;
     }
 
     if (!authUtils.hasRole(USER_ROLE.LANDLORD)) {
       wx.showToast({ title: "仅房东可管理房源", icon: "none" });
-      logger.info("publish_tab_onload_end", { blocked: "role_denied" });
+      logger.debug("publish_tab_onload_end", { blocked: "role_denied" });
       return;
     }
 
     await this.refreshList();
-    logger.info("publish_tab_onload_end", {});
+    logger.debug("publish_tab_onload_end", {});
   },
 
   async onShow() {
-    logger.info("publish_tab_onshow_start", {});
+    logger.debug("publish_tab_onshow_start", {});
     if (!authUtils.isLoggedIn() || !authUtils.hasRole(USER_ROLE.LANDLORD)) {
-      logger.info("publish_tab_onshow_end", { blocked: "permission_denied" });
+      logger.debug("publish_tab_onshow_end", { blocked: "permission_denied" });
       return;
     }
 
     if (!this.hasFirstShowHandled) {
       this.hasFirstShowHandled = true;
-      logger.info("publish_tab_onshow_end", { blocked: "first_show" });
+      logger.debug("publish_tab_onshow_end", { blocked: "first_show" });
       return;
     }
 
     await this.refreshList();
-    logger.info("publish_tab_onshow_end", {});
+    logger.debug("publish_tab_onshow_end", {});
   },
 
   async onPullDownRefresh() {
-    logger.info("publish_tab_pulldown_start", {});
+    logger.debug("publish_tab_pulldown_start", {});
     try {
       await this.refreshList();
     } finally {
       wx.stopPullDownRefresh();
-      logger.info("publish_tab_pulldown_end", {});
+      logger.debug("publish_tab_pulldown_end", {});
     }
   },
 
   async onReachBottom() {
-    logger.info("publish_tab_reach_bottom_start", { hasMore: this.data.hasMore });
+    logger.debug("publish_tab_reach_bottom_start", { hasMore: this.data.hasMore });
     await this.loadMore();
-    logger.info("publish_tab_reach_bottom_end", {});
+    logger.debug("publish_tab_reach_bottom_end", {});
   },
 
   normalizeList(list = []) {
@@ -186,14 +186,14 @@ Page({
   },
 
   async fetchHousePage({ page, pageSize }) {
-    logger.info("api_call", {
+    logger.debug("api_call", {
       func: "house.getMine",
       params: { page, pageSize }
     });
 
     const result = await houseService.getMyHouseList({ page, pageSize });
 
-    logger.info("api_resp", {
+    logger.debug("api_resp", {
       func: "house.getMine",
       code: 0,
       count: Array.isArray(result.list) ? result.list.length : 0,
@@ -207,7 +207,7 @@ Page({
   },
 
   async refreshList() {
-    logger.info("publish_tab_refresh_start", {});
+    logger.debug("publish_tab_refresh_start", {});
     this.resetPaginationState();
     this.setData({
       loading: true,
@@ -240,18 +240,18 @@ Page({
       logger.error("api_error", { func: "house.getMine", err: normalizedError.message });
     } finally {
       this.setData({ loading: false });
-      logger.info("publish_tab_refresh_end", {});
+      logger.debug("publish_tab_refresh_end", {});
     }
   },
 
   async loadMore() {
-    logger.info("publish_tab_load_more_start", {
+    logger.debug("publish_tab_load_more_start", {
       hasMore: this.data.hasMore,
       listLoading: this.data.listLoading
     });
 
     if (!this.data.hasMore || this.data.listLoading) {
-      logger.info("publish_tab_load_more_end", { blocked: true });
+      logger.debug("publish_tab_load_more_end", { blocked: true });
       return;
     }
 
@@ -276,7 +276,7 @@ Page({
       logger.error("api_error", { func: "house.getMine", err: normalizedError.message });
     } finally {
       this.setData({ loading: false });
-      logger.info("publish_tab_load_more_end", {});
+      logger.debug("publish_tab_load_more_end", {});
     }
   },
 
@@ -294,22 +294,22 @@ Page({
 
   onStatCardTap(event) {
     const filterKey = String(event.currentTarget.dataset.filter || "").trim() || "all";
-    logger.info("publish_tab_stat_filter_start", { filterKey });
+    logger.debug("publish_tab_stat_filter_start", { filterKey });
     this.applyDerivedState(this.data.list, filterKey);
-    logger.info("publish_tab_stat_filter_end", { filterKey });
+    logger.debug("publish_tab_stat_filter_end", { filterKey });
   },
 
   onGoPublish() {
-    logger.info("publish_tab_go_publish_start", {});
+    logger.debug("publish_tab_go_publish_start", {});
     navigateTo(ROUTES.PUBLISH_EDIT);
-    logger.info("publish_tab_go_publish_end", {});
+    logger.debug("publish_tab_go_publish_end", {});
   },
 
   async onGoEdit(event) {
     const houseId = String(event.currentTarget.dataset.houseId || "").trim();
-    logger.info("publish_tab_go_edit_start", { houseId });
+    logger.debug("publish_tab_go_edit_start", { houseId });
     if (!houseId) {
-      logger.info("publish_tab_go_edit_end", { blocked: "empty_house_id" });
+      logger.debug("publish_tab_go_edit_end", { blocked: "empty_house_id" });
       return;
     }
 
@@ -320,7 +320,7 @@ Page({
       logger.error("publish_tab_go_edit_failed", { houseId, err: error.message });
       wx.showToast({ title: error.message || "跳转编辑页失败", icon: "none" });
     }
-    logger.info("publish_tab_go_edit_end", { houseId });
+    logger.debug("publish_tab_go_edit_end", { houseId });
   },
 
   onCardTouchStart(event) {
@@ -382,9 +382,9 @@ Page({
     }
 
     try {
-      logger.info("api_call", { func: "house.update", params: { houseId, status: nextStatus } });
+      logger.debug("api_call", { func: "house.update", params: { houseId, status: nextStatus } });
       await houseService.updateHouseStatus(houseId, nextStatus);
-      logger.info("api_resp", { func: "house.update", code: 0 });
+      logger.debug("api_resp", { func: "house.update", code: 0 });
       wx.showToast({ title: nextStatus === "hidden" ? "已下架" : "已重新上架", icon: "success" });
       this.setData({ openActionHouseId: "" });
       await this.refreshList();
@@ -429,9 +429,9 @@ Page({
     }
 
     try {
-      logger.info("api_call", { func: "house.remove", params: { houseId } });
+      logger.debug("api_call", { func: "house.remove", params: { houseId } });
       await houseService.deleteHouse(houseId);
-      logger.info("api_resp", { func: "house.remove", code: 0 });
+      logger.debug("api_resp", { func: "house.remove", code: 0 });
       wx.showToast({ title: "删除成功", icon: "success" });
       this.onCloseDeleteModal();
       await this.refreshList();

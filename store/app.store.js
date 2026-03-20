@@ -5,7 +5,7 @@ const appState = {
   initialized: false,
   bootstrapping: false,
   globalLoading: false,
-  currentRoute: "",
+
   lastError: null,
   env: getEnvConfig()
 };
@@ -53,9 +53,7 @@ function setGlobalLoading(globalLoading) {
   setState({ globalLoading: Boolean(globalLoading) });
 }
 
-function setCurrentRoute(currentRoute) {
-  setState({ currentRoute: currentRoute || "" });
-}
+
 
 function setLastError(error) {
   setState({ lastError: error || null });
@@ -72,7 +70,7 @@ module.exports = {
   setInitialized,
   setBootstrapping,
   setGlobalLoading,
-  setCurrentRoute,
+
   setLastError,
   refreshEnv
 };

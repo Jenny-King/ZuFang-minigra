@@ -55,14 +55,20 @@
           <view class="section-marker"></view>
           <view class="section-title">位置</view>
         </view>
-        <view class="map-wrap">
+        <view class="map-wrap" bindtap="onOpenLocationTap">
           <map
             class="detail-map"
             latitude="{{houseDetail.latitude}}"
             longitude="{{houseDetail.longitude}}"
             markers="{{mapMarkers}}"
             scale="15"
+            enable-scroll="{{false}}"
+            enable-zoom="{{false}}"
+            bindtap="onOpenLocationTap"
           />
+          <view class="map-preview-cta">
+            <text class="map-preview-cta__text">点击全屏查看地图</text>
+          </view>
         </view>
       </view>
 

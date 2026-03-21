@@ -1154,32 +1154,6 @@ Page({
     }
   },
 
-  onTenantSheetTouchStart(event) {
-    const touch = event?.changedTouches?.[0];
-    this.tenantSheetTouchStartY = Number(touch?.clientY || 0);
-  },
-
-  onTenantSheetTouchEnd(event) {
-    const touch = event?.changedTouches?.[0];
-    const endY = Number(touch?.clientY || 0);
-    const startY = Number(this.tenantSheetTouchStartY || 0);
-    this.tenantSheetTouchStartY = 0;
-
-    if (!startY || !endY) {
-      return;
-    }
-
-    const deltaY = endY - startY;
-    if (deltaY <= -30 && !this.data.tenantSheetExpanded) {
-      this.setData({ tenantSheetExpanded: true });
-      return;
-    }
-
-    if (deltaY >= 30 && this.data.tenantSheetExpanded) {
-      this.setData({ tenantSheetExpanded: false });
-    }
-  },
-
   onTenantMarkerTap(event) {
     const markerId = Number(event?.detail?.markerId || 0);
     const selectedHouse = this.data.tenantHouseList.find(

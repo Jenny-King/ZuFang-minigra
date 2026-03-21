@@ -40,7 +40,9 @@
               <view wx:if="{{item.uploading}}" class="upload-overlay">
                 <view class="upload-overlay__progress">{{item.progress || 0}}%</view>
               </view>
-              <view class="remove-btn" data-index="{{index}}" bindtap="onRemoveImage">×</view>
+              <view class="remove-btn-hitbox" data-index="{{index}}" bindtap="onRemoveImage">
+                <view class="remove-btn">×</view>
+              </view>
             </view>
             <view wx:if="{{imageList.length < 9}}" class="image-add" bindtap="onChooseImages">
               <view class="image-add__icon">+</view>

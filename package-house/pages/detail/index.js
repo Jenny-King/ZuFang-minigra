@@ -260,6 +260,33 @@ Page({
     });
   },
 
+  onOpenLocationTap() {
+    const houseDetail = this.data.houseDetail;
+    const latitude = Number(houseDetail?.latitude || 0);
+    const longitude = Number(houseDetail?.longitude || 0);
+
+    logger.debug("house_detail_open_location_start", {
+      latitude,
+      longitude
+    });
+
+    if (!latitude || !longitude) {
+      toast.info("暂无可查看的地图位置");
+      logger.debug("house_detail_open_location_end", { blocked: "missing_location" });
+      return;
+    }
+
+    wx.openLocation({
+      latitude,
+      longitude,
+      scale: 18,
+      name: houseDetail?.displayTitle || "房源位置",
+      address: houseDetail?.displayAddress || ""
+    });
+
+    logger.debug("house_detail_open_location_end", {});
+  },
+
   async onToggleFavoriteTap() {
     logger.debug("house_detail_toggle_fav_start", {});
     if (!authUtils.requireLogin({ redirect: true })) {

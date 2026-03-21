@@ -210,10 +210,9 @@
             <view
               class="tenant-sheet-handle"
               bindtap="onToggleTenantSheet"
-              bindtouchstart="onTenantSheetTouchStart"
-              bindtouchend="onTenantSheetTouchEnd"
             >
               <view class="tenant-sheet-grabber"></view>
+              <text class="tenant-sheet-handle-label">{{tenantSheetExpanded ? '收起列表' : '展开列表'}}</text>
             </view>
 
             <view class="tenant-sheet-head">

@@ -482,6 +482,15 @@
   font-weight: var(--weight-bold);
 }
 
+.remove-btn-hitbox {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 88rpx;
+  height: 88rpx;
+  z-index: 2;
+}
+
 .remove-btn {
   position: absolute;
   top: 12rpx;

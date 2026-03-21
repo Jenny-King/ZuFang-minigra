@@ -658,7 +658,10 @@
 
 .tenant-sheet-handle {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 10rpx;
   padding: 8rpx 0 18rpx;
 }
 
@@ -667,6 +670,12 @@
   height: 8rpx;
   border-radius: 999rpx;
   background: #d1d5db;
+}
+
+.tenant-sheet-handle-label {
+  color: #9ca3af;
+  font-size: 20rpx;
+  line-height: 1;
 }
 
 .tenant-sheet-head {

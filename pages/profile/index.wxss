@@ -12,7 +12,7 @@
   margin: var(--space-md);
   padding: var(--card-padding);
   background: var(--color-background-card);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
 }
 
 /* Hero */
@@ -22,7 +22,7 @@
   position: relative;
   overflow: visible;
   flex-shrink: 0;
-  padding-bottom: 88rpx;
+  padding-bottom: 32rpx;
 }
 .hero::before {
   content: '';
@@ -124,7 +124,7 @@
   backdrop-filter: blur(24rpx);
   -webkit-backdrop-filter: blur(24rpx);
   border: 2rpx solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
   overflow: hidden;
   position: relative;
   z-index: 1;
@@ -185,9 +185,9 @@
 
 /* Sections -> Card groups */
 .card-group {
-  margin: 24rpx 24rpx 0;
+  margin: 24rpx 0 0;
   background: var(--color-background-card);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06), 0 0 0 1rpx rgba(0,0,0,0.04);
   overflow: hidden;
 }
@@ -224,7 +224,7 @@
 .appt-empty-icon {
   width: 88rpx;
   height: 88rpx;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   background: var(--color-primary-bg);
   display: flex;
   align-items: center;
@@ -271,7 +271,7 @@
 .menu-icon {
   width: 72rpx;
   height: 72rpx;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -406,7 +406,7 @@
   height: 92rpx;
   background: var(--color-background-card);
   border: 3rpx solid #fecaca !important;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
   color: var(--color-danger);
   font-size: var(--font-title-sm);
   font-weight: var(--weight-bold);
@@ -424,7 +424,7 @@
 .guest-card {
   margin: 32rpx;
   padding: var(--space-xl) var(--space-lg);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
   background: var(--color-background-card);
   box-shadow: var(--shadow-card);
 }

@@ -10,7 +10,10 @@
           <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/avatar-placeholder.png'}}" mode="aspectFill" />
         </view>
         <view class="hero-info">
-          <view class="hero-name">{{userInfo.displayName}}</view>
+          <view class="hero-name-row" bindtap="onSwitchAccountTap">
+            <text class="hero-name">{{userInfo.displayName}}</text>
+            <text class="hero-chevron">▼</text>
+          </view>
           <view class="hero-phone">{{userInfo.displayPhone}}</view>
         </view>
       </view>
@@ -106,34 +109,7 @@
       </view>
     </view>
 
-    <!-- 已缓存账号：inline pill switcher -->
-    <view class="card-group" wx:if="{{isLoggedIn}}">
-      <view class="card-header">
-        <text class="card-header-title">已缓存账号</text>
-        <text class="card-header-action" bindtap="onSwitchAccountTap">管理</text>
-      </view>
-      <scroll-view class="acct-switcher" scroll-x enhanced show-scrollbar="{{false}}">
-        <view class="acct-inline-container">
-          <view
-            class="acct-pill {{item.isActive ? 'active' : ''}}"
-            wx:for="{{cachedAccounts}}"
-            wx:key="userId"
-            data-user-id="{{item.userId}}"
-            bindtap="onSelectAccountTap"
-          >
-            <view class="acct-pill-avatar">
-              <lazy-image class="acct-pill-image" src="{{item.avatarUrl}}" mode="aspectFill" radius="50%" width="100%" height="100%" />
-            </view>
-            <text class="acct-pill-name">{{item.displayName}}</text>
-            <text wx:if="{{item.isActive}}" class="acct-pill-check">✓</text>
-          </view>
-          <view class="acct-add-pill" bindtap="onAddAccountTap">
-             <text class="acct-add-icon">+</text>
-             <text>添加</text>
-          </view>
-        </view>
-      </scroll-view>
-    </view>
+
 
     <view class="logout-wrap" wx:if="{{isLoggedIn}}">
       <button class="logout-btn" bindtap="onLogoutTap">

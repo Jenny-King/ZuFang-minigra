@@ -2,7 +2,7 @@ module.exports = {
   testEnvironment: "node",
   testMatch: [
     "**/cloudfunctions/**/__tests__/**/*.test.js",
-    "**/tests/**/*.test.js"
+    "**/test-scripts/unit/**/*.test.js"
   ],
   collectCoverageFrom: [
     "cloudfunctions/**/*.js",
@@ -17,5 +17,5 @@ module.exports = {
       statements: 70
     }
   },
-  setupFiles: ["./tests/setup.js"]
+  setupFiles: ["./test-scripts/unit/setup.js"]
 };

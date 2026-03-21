@@ -1,5 +1,0 @@
-Launching WeChat Developer Tools via CLI...
-Automation error: Error: Failed to launch wechat web devTools, please make sure cliPath is correctly specified
-    at Launcher.launch (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\node_modules\miniprogram-automator\out\Launcher.js:1:2351)
-    at async Automator.launch (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\node_modules\miniprogram-automator\out\Automator.js:1:1406)
-    at async run (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\screenshot.js:6:25)

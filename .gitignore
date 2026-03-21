@@ -1,5 +1,6 @@
 node_modules/
 coverage/
+*.log
 
 # WeChat DevTools local-only settings
 project.private.config.json

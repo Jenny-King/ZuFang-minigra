@@ -86,7 +86,7 @@ coding4-1/
 │  ├─ app.store.js
 │  └─ user.store.js
 ├─ styles/
-├─ tests/
+├─ test-scripts/
 └─ utils/
    ├─ auth.js
    ├─ format.js

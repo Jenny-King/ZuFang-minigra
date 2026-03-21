@@ -1,9 +1,0 @@
-正在连接微信开发者工具...
-Launch failed: Failed to launch wechat web devTools, please make sure cliPath is correctly specified
-尝试通过 wsEndpoint 附加至现已打开的开发者工具...
-运行失败: Error: Failed connecting to ws://127.0.0.1:46255, check if target project window is opened with automation enabled
-    at Launcher.connectTool (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\node_modules\miniprogram-automator\out\Launcher.js:1:3020)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async Launcher.connect (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\node_modules\miniprogram-automator\out\Launcher.js:1:2600)
-    at async Automator.connect (C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\node_modules\miniprogram-automator\out\Automator.js:1:1352)
-    at async C:\Users\Q12\.gemini\antigravity\scratch\ZuFang-minigra\scripts\test-publish-toast.js:19:19

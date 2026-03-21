@@ -60,10 +60,6 @@
       },
       {
         "type": "folder",
-        "value": "tests"
-      },
-      {
-        "type": "folder",
         "value": "test-scripts"
       },
       {
@@ -101,30 +97,6 @@
       {
         "type": "file",
         "value": "jest.config.js"
-      },
-      {
-        "type": "file",
-        "value": "generateIcons.js"
-      },
-      {
-        "type": "file",
-        "value": "screenshot.js"
-      },
-      {
-        "type": "file",
-        "value": "uploadCloudFunction.sh"
-      },
-      {
-        "type": "file",
-        "value": "tmp.log"
-      },
-      {
-        "type": "file",
-        "value": "out.log"
-      },
-      {
-        "type": "file",
-        "value": "out2.log"
       },
       {
         "type": "file",

@@ -1,0 +1,75 @@
+<view class="container my-bookings-page">
+  <view class="page-head">
+    <text class="page-title">我的预约</text>
+    <text class="page-subtitle">查看和管理您提交的看房预约</text>
+  </view>
+
+  <!-- 状态筛选 -->
+  <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="filter-list">
+      <view
+        wx:for="{{filterOptions}}"
+        wx:key="value"
+        class="filter-chip {{activeFilter === item.value ? 'active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onFilterTap"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <skeleton wx:if="{{loading && !bookings.length}}" type="list-item" count="{{3}}" />
+
+  <empty-state
+    wx:elif="{{!loading && bookings.length === 0}}"
+    title="暂无预约记录"
+    subtitle="浏览房源详情页可预约看房"
+  />
+
+  <view wx:else class="booking-list">
+    <view
+      wx:for="{{bookings}}"
+      wx:key="bookingId"
+      class="booking-card card"
+    >
+      <view class="booking-card__header">
+        <text class="booking-card__house-title text-ellipsis">{{item.houseTitle}}</text>
+        <text class="booking-card__status {{item.statusClass}}">{{item.statusText}}</text>
+      </view>
+
+      <view class="booking-card__detail-row">
+        <text class="booking-card__icon">📅</text>
+        <text class="booking-card__text">{{item.date}}  {{item.timeSlotLabel}}</text>
+      </view>
+
+      <view wx:if="{{item.rescheduleDate}}" class="booking-card__detail-row reschedule">
+        <text class="booking-card__icon">🔄</text>
+        <text class="booking-card__text">改期至：{{item.rescheduleDate}}  {{item.rescheduleTimeSlotLabel}}</text>
+      </view>
+
+      <view class="booking-card__detail-row">
+        <text class="booking-card__icon">📱</text>
+        <text class="booking-card__text">{{item.contactName}}  {{item.contactPhone}}</text>
+      </view>
+
+      <view wx:if="{{item.remark}}" class="booking-card__detail-row">
+        <text class="booking-card__icon">📝</text>
+        <text class="booking-card__text remark">{{item.remark}}</text>
+      </view>
+
+      <view class="booking-card__footer">
+        <text class="booking-card__time">{{item.displayCreateTime}}</text>
+        <button
+          wx:if="{{item.canCancel}}"
+          class="booking-card__action cancel"
+          size="mini"
+          data-booking-id="{{item.bookingId}}"
+          bindtap="onCancelTap"
+        >取消预约</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!loading && bookings.length > 0 && !hasMore}}" class="loading-tip">— 没有更多了 —</view>
+</view>

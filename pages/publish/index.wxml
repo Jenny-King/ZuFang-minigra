@@ -3,7 +3,10 @@
     <view class="head-copy">
       <view class="page-title">房源管理</view>
     </view>
-    <button class="publish-entry-btn" size="mini" bindtap="onGoPublish">发布新房源</button>
+    <view class="head-actions">
+      <button class="booking-manage-btn" size="mini" bindtap="onGoBookingManage">预约管理</button>
+      <button class="publish-entry-btn" size="mini" bindtap="onGoPublish">发布新房源</button>
+    </view>
   </view>
 
   <view class="stats-bar" catchtap="noop">

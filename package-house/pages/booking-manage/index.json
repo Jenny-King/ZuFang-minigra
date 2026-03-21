@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "预约管理",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#f7f8fa",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "empty-state": "/components/empty/index",
+    "skeleton": "/components/skeleton/index"
+  }
+}

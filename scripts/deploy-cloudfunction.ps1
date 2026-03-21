@@ -139,7 +139,7 @@ if (-not $resolvedEnvId) {
   throw "Env ID is required. Use -EnvId or set CLOUDBASE_ENV_ID."
 }
 
-if (-not $requestedFunctionNames.Count) {
+if (-not @($requestedFunctionNames).Count) {
   throw "At least one function name is required."
 }
 
@@ -149,7 +149,7 @@ if (-not $tcbCommand) {
 }
 
 $allFunctionDirectories = Get-ChildItem $resolvedCloudFunctionRoot -Directory | Sort-Object Name
-if (-not $allFunctionDirectories.Count) {
+if (-not @($allFunctionDirectories).Count) {
   throw "No cloud function directories found: $resolvedCloudFunctionRoot"
 }
 

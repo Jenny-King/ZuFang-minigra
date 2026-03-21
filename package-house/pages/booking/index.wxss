@@ -1,0 +1,245 @@
+@import "../../../styles/variables.wxss";
+
+.booking-page {
+  padding: var(--page-padding);
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+  background: var(--color-background-page);
+}
+
+/* ---- 房源摘要 ---- */
+.house-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--card-padding);
+  border-radius: var(--radius-panel);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-card-soft);
+}
+
+.house-summary__image {
+  width: 120rpx;
+  height: 120rpx;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-background-subtle);
+}
+
+.house-summary__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.house-summary__title {
+  display: block;
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+  line-height: var(--lh-snug);
+}
+
+.house-summary__price {
+  display: block;
+  margin-top: var(--space-2xs);
+  color: var(--color-price-highlight);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-bold);
+}
+
+.house-summary__meta {
+  display: block;
+  margin-top: var(--space-2xs);
+  color: var(--color-text-3);
+  font-size: var(--font-caption);
+}
+
+/* ---- 表单区块 ---- */
+.form-section {
+  margin-top: var(--space-lg);
+  padding: var(--card-padding);
+  border-radius: var(--radius-panel);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-card-soft);
+}
+
+.form-section__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-lg);
+}
+
+.form-section__title {
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+  font-weight: var(--weight-heavy);
+}
+
+.form-section__required {
+  color: var(--color-danger);
+  font-size: var(--font-sm);
+}
+
+.form-section__optional {
+  color: var(--color-text-3);
+  font-size: var(--font-caption);
+}
+
+/* ---- 日期选择 ---- */
+.date-scroll {
+  margin: 0 calc(var(--card-padding) * -1);
+  padding: 0 var(--card-padding);
+  white-space: nowrap;
+}
+
+.date-list {
+  display: inline-flex;
+  gap: var(--space-sm);
+}
+
+.date-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: var(--radius-lg);
+  background: var(--color-background-subtle);
+  transition: all var(--duration-fast) var(--easing-standard);
+}
+
+.date-chip.active {
+  background: var(--gradient-brand);
+  box-shadow: 0 6rpx 20rpx rgba(37, 99, 235, 0.28);
+}
+
+.date-chip.disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
+.date-chip__week {
+  color: var(--color-text-2);
+  font-size: var(--font-caption);
+}
+
+.date-chip.active .date-chip__week {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.date-chip__day {
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+}
+
+.date-chip.active .date-chip__day {
+  color: var(--color-text-inverse);
+}
+
+/* ---- 时间段选择 ---- */
+.time-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.time-chip {
+  width: calc(50% - var(--space-sm) / 2);
+  box-sizing: border-box;
+  padding: var(--space-sm) 0;
+  border-radius: var(--radius-md);
+  background: var(--color-background-subtle);
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+  text-align: center;
+  transition: all var(--duration-fast) var(--easing-standard);
+}
+
+.time-chip.active {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: var(--weight-bold);
+  box-shadow: inset 0 0 0 2rpx var(--color-primary);
+}
+
+/* ---- 表单输入 ---- */
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: var(--line-width-hairline) solid var(--color-background-subtle);
+}
+
+.form-row:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  flex-shrink: 0;
+  width: 120rpx;
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+}
+
+.form-input {
+  flex: 1;
+  height: var(--input-height);
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 160rpx;
+  box-sizing: border-box;
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-background-subtle);
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+  line-height: var(--lh-relaxed);
+}
+
+.textarea-count {
+  display: block;
+  margin-top: var(--space-xs);
+  color: var(--color-text-3);
+  font-size: var(--font-caption);
+  text-align: right;
+}
+
+/* ---- 提交按钮 ---- */
+.submit-section {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--space-md) var(--page-padding);
+  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
+  background: var(--color-background-card);
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.submit-btn {
+  width: 100%;
+  height: var(--button-height);
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+  font-size: var(--font-md);
+  font-weight: var(--weight-heavy);
+  box-shadow: var(--shadow-float);
+  line-height: var(--button-height);
+}
+
+.submit-btn::after {
+  border: none;
+}
+
+.submit-btn[disabled] {
+  opacity: 0.5;
+}

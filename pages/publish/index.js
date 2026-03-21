@@ -305,6 +305,12 @@ Page({
     logger.debug("publish_tab_go_publish_end", {});
   },
 
+  onGoBookingManage() {
+    logger.debug("publish_tab_go_booking_manage_start", {});
+    navigateTo(ROUTES.BOOKING_MANAGE);
+    logger.debug("publish_tab_go_booking_manage_end", {});
+  },
+
   async onGoEdit(event) {
     const houseId = String(event.currentTarget.dataset.houseId || "").trim();
     logger.debug("publish_tab_go_edit_start", { houseId });

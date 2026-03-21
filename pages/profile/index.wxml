@@ -45,6 +45,10 @@
         <text class="stat-number">{{quickStats.historyLabel}}</text>
         <text class="stat-label">浏览历史</text>
       </view>
+      <view class="stat-card {{activeQuickAction === 'bookings' ? 'active' : ''}}" data-action="bookings" bindtap="onQuickActionTap">
+        <text class="stat-number">{{quickStats.bookingLabel}}</text>
+        <text class="stat-label">我的预约</text>
+      </view>
       <view class="stat-card {{activeQuickAction === 'notifications' ? 'active' : ''}}" data-action="notifications" bindtap="onQuickActionTap">
         <text class="stat-number">{{quickStats.notificationLabel}}</text>
         <text class="stat-label">消息通知</text>

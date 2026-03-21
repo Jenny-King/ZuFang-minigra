@@ -1,0 +1,131 @@
+<view class="container booking-manage-page">
+  <view class="page-head">
+    <text class="page-title">预约管理</text>
+    <text class="page-subtitle">管理租客提交的看房预约</text>
+  </view>
+
+  <!-- 状态筛选 -->
+  <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="filter-list">
+      <view
+        wx:for="{{filterOptions}}"
+        wx:key="value"
+        class="filter-chip {{activeFilter === item.value ? 'active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onFilterTap"
+      >
+        <text>{{item.label}}</text>
+        <text wx:if="{{item.value === 'pending' && pendingCount > 0}}" class="filter-badge">{{pendingCount}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <skeleton wx:if="{{loading && !bookings.length}}" type="list-item" count="{{3}}" />
+
+  <empty-state
+    wx:elif="{{!loading && bookings.length === 0}}"
+    title="暂无预约"
+    subtitle="当有租客预约您的房源时会显示在这里"
+  />
+
+  <view wx:else class="booking-list">
+    <view
+      wx:for="{{bookings}}"
+      wx:key="bookingId"
+      class="booking-card card"
+    >
+      <view class="booking-card__header">
+        <view class="booking-card__user-info">
+          <text class="booking-card__user-name">{{item.contactName || '租客'}}</text>
+          <text class="booking-card__user-phone">{{item.contactPhone}}</text>
+        </view>
+        <text class="booking-card__status {{item.statusClass}}">{{item.statusText}}</text>
+      </view>
+
+      <view class="booking-card__house-row">
+        <text class="booking-card__icon">🏠</text>
+        <text class="booking-card__text text-ellipsis">{{item.houseTitle}}</text>
+      </view>
+
+      <view class="booking-card__detail-row">
+        <text class="booking-card__icon">📅</text>
+        <text class="booking-card__text">{{item.date}}  {{item.timeSlotLabel}}</text>
+      </view>
+
+      <view wx:if="{{item.remark}}" class="booking-card__detail-row">
+        <text class="booking-card__icon">📝</text>
+        <text class="booking-card__text remark">{{item.remark}}</text>
+      </view>
+
+      <view class="booking-card__footer">
+        <text class="booking-card__time">{{item.displayCreateTime}}</text>
+        <view wx:if="{{item.canOperate}}" class="booking-card__actions">
+          <button
+            class="action-btn reject"
+            size="mini"
+            data-booking-id="{{item.bookingId}}"
+            bindtap="onRejectTap"
+          >拒绝</button>
+          <button
+            class="action-btn reschedule"
+            size="mini"
+            data-booking-id="{{item.bookingId}}"
+            bindtap="onRescheduleTap"
+          >改期</button>
+          <button
+            class="action-btn confirm"
+            size="mini"
+            data-booking-id="{{item.bookingId}}"
+            bindtap="onConfirmTap"
+          >确认</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!loading && bookings.length > 0 && !hasMore}}" class="loading-tip">— 没有更多了 —</view>
+
+  <!-- 改期弹窗 -->
+  <view wx:if="{{showRescheduleModal}}" class="modal-mask" bindtap="onCloseReschedule">
+    <view class="modal-panel" catchtap="noop">
+      <view class="modal-title">改期看房</view>
+      <view class="modal-subtitle">请选择新的日期和时间段</view>
+
+      <scroll-view class="modal-date-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="date-list">
+          <view
+            wx:for="{{rescheduleeDateOptions}}"
+            wx:key="value"
+            class="date-chip {{rescheduleDate === item.value ? 'active' : ''}}"
+            data-value="{{item.value}}"
+            bindtap="onRescheduleDateTap"
+          >
+            <text class="date-chip__week">{{item.weekday}}</text>
+            <text class="date-chip__day">{{item.dayLabel}}</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="modal-time-grid">
+        <view
+          wx:for="{{timeSlots}}"
+          wx:key="value"
+          class="time-chip {{rescheduleTimeSlot === item.value ? 'active' : ''}}"
+          data-value="{{item.value}}"
+          bindtap="onRescheduleTimeTap"
+        >
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+
+      <view class="modal-actions">
+        <button class="modal-btn cancel" bindtap="onCloseReschedule">取消</button>
+        <button
+          class="modal-btn submit"
+          disabled="{{!rescheduleDate || !rescheduleTimeSlot}}"
+          bindtap="onConfirmReschedule"
+        >确认改期</button>
+      </view>
+    </view>
+  </view>
+</view>

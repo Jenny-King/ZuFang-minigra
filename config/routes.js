@@ -23,7 +23,10 @@ const SUBPACKAGE_ROUTES = {
   PROFILE_HISTORY: "/package-profile/pages/history/index",
   PROFILE_EDIT: "/package-profile/pages/edit-profile/index",
   PROFILE_NOTIFICATIONS: "/package-profile/pages/notifications/index",
-  CHAT_DETAIL: "/package-chat/pages/detail/index"
+  CHAT_DETAIL: "/package-chat/pages/detail/index",
+  BOOKING_FORM: "/package-house/pages/booking/index",
+  BOOKING_MANAGE: "/package-house/pages/booking-manage/index",
+  MY_BOOKINGS: "/package-profile/pages/my-bookings/index"
 };
 
 const ROUTES = {

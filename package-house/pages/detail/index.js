@@ -330,5 +330,23 @@ Page({
     } finally {
       logger.debug("house_detail_contact_end", {});
     }
+  },
+
+  onBookingTap() {
+    logger.debug("house_detail_booking_start", {});
+    if (!authUtils.requireLogin({ redirect: true })) {
+      logger.debug("house_detail_booking_end", { blocked: "not_login" });
+      return;
+    }
+    const detail = this.data.houseDetail;
+    if (!detail) {
+      logger.debug("house_detail_booking_end", { blocked: "no_detail" });
+      return;
+    }
+    navigateTo(ROUTES.BOOKING_FORM, {
+      houseId: this.data.houseId,
+      landlordUserId: detail.landlordUserId || ""
+    });
+    logger.debug("house_detail_booking_end", {});
   }
 });

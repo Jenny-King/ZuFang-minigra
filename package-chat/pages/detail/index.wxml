@@ -69,6 +69,17 @@
                   height="220rpx"
                 />
               </view>
+              <view wx:elif="{{item.isBooking}}" class="booking-bubble">
+                <view class="booking-bubble__header">
+                  <text class="booking-bubble__icon">📅</text>
+                  <text class="booking-bubble__label">预约看房</text>
+                  <text class="booking-bubble__status {{item.bookingData.status}}">{{item.bookingData.statusText}}</text>
+                </view>
+                <view class="booking-bubble__info">
+                  <text class="booking-bubble__house text-ellipsis">{{item.bookingData.houseTitle}}</text>
+                  <text class="booking-bubble__time">{{item.bookingData.date}}  {{item.bookingData.timeSlotLabel}}</text>
+                </view>
+              </view>
               <text wx:else class="content">{{item.content}}</text>
             </view>
           </view>
@@ -85,6 +96,14 @@
       </view>
     </block>
   </scroll-view>
+
+  <!-- 快捷功能栏 -->
+  <view class="quick-actions-bar">
+    <view class="quick-action-item" bindtap="onQuickBookingTap">
+      <text class="quick-action-icon">📅</text>
+      <text class="quick-action-text">预约看房</text>
+    </view>
+  </view>
 
   <view class="input-bar">
     <view class="composer-shell">

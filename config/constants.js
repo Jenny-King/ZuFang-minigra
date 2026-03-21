@@ -42,8 +42,28 @@ const HOUSE_SORT_FIELD = {
 const MESSAGE_TYPE = {
   TEXT: "text",
   IMAGE: "image",
-  SYSTEM: "system"
+  SYSTEM: "system",
+  BOOKING: "booking"
 };
+
+const BOOKING_STATUS = {
+  PENDING: "pending",
+  CONFIRMED: "confirmed",
+  REJECTED: "rejected",
+  RESCHEDULED: "rescheduled",
+  CANCELLED: "cancelled"
+};
+
+const BOOKING_TIME_SLOTS = [
+  { value: "09:00-10:00", label: "09:00 - 10:00" },
+  { value: "10:00-11:00", label: "10:00 - 11:00" },
+  { value: "11:00-12:00", label: "11:00 - 12:00" },
+  { value: "14:00-15:00", label: "14:00 - 15:00" },
+  { value: "15:00-16:00", label: "15:00 - 16:00" },
+  { value: "16:00-17:00", label: "16:00 - 17:00" },
+  { value: "17:00-18:00", label: "17:00 - 18:00" },
+  { value: "19:00-20:00", label: "19:00 - 20:00" }
+];
 
 const NOTIFICATION_TYPE = {
   SYSTEM: "system",
@@ -98,6 +118,8 @@ module.exports = {
   HOUSE_SORT_FIELD,
 
   MESSAGE_TYPE,
+  BOOKING_STATUS,
+  BOOKING_TIME_SLOTS,
   NOTIFICATION_TYPE,
   DATA_STATUS,
   STORAGE_KEY,

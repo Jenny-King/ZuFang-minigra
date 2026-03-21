@@ -1,6 +1,6 @@
 const chatService = require("../../../services/chat.service");
 const houseService = require("../../../services/house.service");
-const { MESSAGE_TYPE } = require("../../../config/constants");
+const { MESSAGE_TYPE, BOOKING_STATUS } = require("../../../config/constants");
 const authUtils = require("../../../utils/auth");
 const { ROUTES, navigateTo } = require("../../../config/routes");
 const { formatPrice, fallbackText } = require("../../../utils/format");
@@ -8,6 +8,14 @@ const { logger } = require("../../../utils/logger");
 const toast = require("../../../utils/toast");
 
 const POLL_INTERVAL = 5000;
+
+const BOOKING_STATUS_TEXT = {
+  [BOOKING_STATUS.PENDING]: "待确认",
+  [BOOKING_STATUS.CONFIRMED]: "已确认",
+  [BOOKING_STATUS.REJECTED]: "已拒绝",
+  [BOOKING_STATUS.RESCHEDULED]: "已改期",
+  [BOOKING_STATUS.CANCELLED]: "已取消"
+};
 
 Page({
   data: {
@@ -213,13 +221,41 @@ Page({
     logger.debug("chat_detail_normalize_start", { count: Array.isArray(list) ? list.length : 0 });
     const currentUser = authUtils.getLoginUser() || {};
     const currentUserId = currentUser.userId || "";
-    const normalized = (Array.isArray(list) ? list : []).map((item, index) => ({
-      ...item,
-      _viewId: `msg_${item._id || index}`,
-      isImage: item.messageType === MESSAGE_TYPE.IMAGE,
-      isSelf: item.senderId === currentUserId,
-      displayTime: item.createTime ? this.formatTime(item.createTime) : ""
-    }));
+    const normalized = (Array.isArray(list) ? list : []).map((item, index) => {
+      const isBooking = item.messageType === MESSAGE_TYPE.BOOKING;
+      let bookingData = null;
+      if (isBooking) {
+        try {
+          const parsed = typeof item.content === "string" ? JSON.parse(item.content) : item.content;
+          bookingData = {
+            bookingId: parsed.bookingId || "",
+            houseTitle: parsed.houseTitle || "房源",
+            date: parsed.date || "",
+            timeSlotLabel: parsed.timeSlotLabel || parsed.timeSlot || "",
+            status: parsed.status || BOOKING_STATUS.PENDING,
+            statusText: BOOKING_STATUS_TEXT[parsed.status] || "待确认"
+          };
+        } catch (err) {
+          bookingData = {
+            bookingId: "",
+            houseTitle: "预约看房",
+            date: "",
+            timeSlotLabel: "",
+            status: BOOKING_STATUS.PENDING,
+            statusText: "待确认"
+          };
+        }
+      }
+      return {
+        ...item,
+        _viewId: `msg_${item._id || index}`,
+        isImage: item.messageType === MESSAGE_TYPE.IMAGE,
+        isBooking,
+        bookingData,
+        isSelf: item.senderId === currentUserId,
+        displayTime: item.createTime ? this.formatTime(item.createTime) : ""
+      };
+    });
     const processed = this.processMessages(normalized);
     logger.debug("chat_detail_normalize_end", { count: processed.length });
     return processed;
@@ -450,5 +486,20 @@ Page({
       this.setData({ sending: false });
       logger.debug("chat_detail_send_end", {});
     }
+  },
+
+  onQuickBookingTap() {
+    logger.debug("chat_detail_quick_booking_start", {});
+    if (!this.data.houseId) {
+      toast.error("缺少房源信息");
+      logger.debug("chat_detail_quick_booking_end", { blocked: "no_house_id" });
+      return;
+    }
+    navigateTo(ROUTES.BOOKING_FORM, {
+      houseId: this.data.houseId,
+      landlordUserId: this.data.targetUserId || "",
+      conversationId: this.data.conversationId || ""
+    });
+    logger.debug("chat_detail_quick_booking_end", {});
   }
 });

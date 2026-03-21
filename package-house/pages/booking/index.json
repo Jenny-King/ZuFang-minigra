@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "预约看房",
+  "backgroundColor": "#f7f8fa",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "lazy-image": "/components/lazy-image/index"
+  }
+}

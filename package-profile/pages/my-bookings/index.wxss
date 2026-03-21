@@ -1,0 +1,187 @@
+@import "../../../styles/variables.wxss";
+
+.my-bookings-page {
+  padding: var(--page-padding);
+  background: var(--color-background-page);
+  min-height: 100vh;
+}
+
+.page-head {
+  margin-bottom: var(--space-lg);
+}
+
+.page-title {
+  display: block;
+  color: var(--color-text-1);
+  font-size: var(--font-2xl);
+  font-weight: var(--weight-heavy);
+}
+
+.page-subtitle {
+  display: block;
+  margin-top: var(--space-xs);
+  color: var(--color-text-3);
+  font-size: var(--font-sm);
+}
+
+/* ---- 筛选栏 ---- */
+.filter-bar {
+  margin-bottom: var(--space-lg);
+  white-space: nowrap;
+}
+
+.filter-list {
+  display: inline-flex;
+  gap: var(--space-sm);
+}
+
+.filter-chip {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-lg);
+  border-radius: var(--radius-pill);
+  background: var(--color-background-card);
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-card);
+  transition: all var(--duration-fast) var(--easing-standard);
+}
+
+.filter-chip.active {
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+  box-shadow: 0 4rpx 16rpx rgba(37, 99, 235, 0.22);
+}
+
+/* ---- 预约卡片 ---- */
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.booking-card {
+  padding: var(--card-padding);
+  border-radius: var(--radius-panel);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-card-soft);
+}
+
+.booking-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.booking-card__house-title {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+}
+
+.booking-card__status {
+  flex-shrink: 0;
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+}
+
+.booking-card__status.pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.booking-card__status.confirmed {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.booking-card__status.rejected {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.booking-card__status.rescheduled {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.booking-card__status.cancelled {
+  background: var(--color-background-subtle);
+  color: var(--color-text-3);
+}
+
+/* ---- 详情行 ---- */
+.booking-card__detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
+}
+
+.booking-card__detail-row.reschedule {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-info-bg);
+}
+
+.booking-card__icon {
+  flex-shrink: 0;
+  font-size: var(--font-sm);
+  line-height: var(--lh-normal);
+}
+
+.booking-card__text {
+  flex: 1;
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+  line-height: var(--lh-normal);
+}
+
+.booking-card__text.remark {
+  color: var(--color-text-3);
+}
+
+/* ---- 底栏 ---- */
+.booking-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: var(--line-width-hairline) solid var(--color-background-subtle);
+}
+
+.booking-card__time {
+  color: var(--color-text-3);
+  font-size: var(--font-caption);
+}
+
+.booking-card__action {
+  margin: 0;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+}
+
+.booking-card__action::after {
+  border: none;
+}
+
+.booking-card__action.cancel {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.loading-tip {
+  padding: var(--space-xl) 0;
+  color: var(--color-text-3);
+  font-size: var(--font-sm);
+  text-align: center;
+}

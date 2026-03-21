@@ -117,6 +117,7 @@
       <text class="favorite-icon">{{isFavorite ? '♥' : '♡'}}</text>
       <text class="favorite-label">{{isFavorite ? '已收藏' : '收藏'}}</text>
     </button>
+    <button class="booking-btn" bindtap="onBookingTap">预约看房</button>
     <button class="contact-btn" bindtap="onContactTap">联系房东</button>
   </view>
 </view>

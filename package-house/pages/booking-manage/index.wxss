@@ -1,0 +1,370 @@
+@import "../../../styles/variables.wxss";
+
+.booking-manage-page {
+  padding: var(--page-padding);
+  background: var(--color-background-page);
+  min-height: 100vh;
+}
+
+.page-head {
+  margin-bottom: var(--space-lg);
+}
+
+.page-title {
+  display: block;
+  color: var(--color-text-1);
+  font-size: var(--font-2xl);
+  font-weight: var(--weight-heavy);
+}
+
+.page-subtitle {
+  display: block;
+  margin-top: var(--space-xs);
+  color: var(--color-text-3);
+  font-size: var(--font-sm);
+}
+
+/* ---- 筛选栏 ---- */
+.filter-bar {
+  margin-bottom: var(--space-lg);
+  white-space: nowrap;
+}
+
+.filter-list {
+  display: inline-flex;
+  gap: var(--space-sm);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: var(--space-xs) var(--space-lg);
+  border-radius: var(--radius-pill);
+  background: var(--color-background-card);
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-card);
+  transition: all var(--duration-fast) var(--easing-standard);
+}
+
+.filter-chip.active {
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+  box-shadow: 0 4rpx 16rpx rgba(37, 99, 235, 0.22);
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 var(--space-2xs);
+  border-radius: var(--radius-pill);
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+  font-size: var(--font-xxs);
+  font-weight: var(--weight-bold);
+}
+
+.filter-chip.active .filter-badge {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- 预约卡片 ---- */
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.booking-card {
+  padding: var(--card-padding);
+  border-radius: var(--radius-panel);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-card-soft);
+}
+
+.booking-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.booking-card__user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.booking-card__user-name {
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+}
+
+.booking-card__user-phone {
+  margin-left: var(--space-sm);
+  color: var(--color-text-3);
+  font-size: var(--font-sm);
+}
+
+.booking-card__status {
+  flex-shrink: 0;
+  padding: var(--space-2xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+}
+
+.booking-card__status.pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.booking-card__status.confirmed {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.booking-card__status.rejected {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.booking-card__status.rescheduled {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.booking-card__status.cancelled {
+  background: var(--color-background-subtle);
+  color: var(--color-text-3);
+}
+
+/* ---- 详情行 ---- */
+.booking-card__house-row,
+.booking-card__detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
+}
+
+.booking-card__icon {
+  flex-shrink: 0;
+  font-size: var(--font-sm);
+  line-height: var(--lh-normal);
+}
+
+.booking-card__text {
+  flex: 1;
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+  line-height: var(--lh-normal);
+}
+
+.booking-card__text.remark {
+  color: var(--color-text-3);
+}
+
+/* ---- 底栏 ---- */
+.booking-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: var(--line-width-hairline) solid var(--color-background-subtle);
+}
+
+.booking-card__time {
+  color: var(--color-text-3);
+  font-size: var(--font-caption);
+}
+
+.booking-card__actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.action-btn {
+  margin: 0;
+  padding: 0 var(--space-lg);
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.action-btn.reject {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.action-btn.reschedule {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.action-btn.confirm {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+/* ---- 改期弹窗 ---- */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: var(--overlay-bg);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-panel {
+  width: 100%;
+  max-height: 80vh;
+  padding: var(--space-xl) var(--page-padding) calc(var(--space-xl) + env(safe-area-inset-bottom));
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  background: var(--color-background-card);
+  overflow-y: auto;
+}
+
+.modal-title {
+  color: var(--color-text-1);
+  font-size: var(--font-lg);
+  font-weight: var(--weight-heavy);
+}
+
+.modal-subtitle {
+  margin-top: var(--space-xs);
+  margin-bottom: var(--space-xl);
+  color: var(--color-text-3);
+  font-size: var(--font-sm);
+}
+
+.modal-date-scroll {
+  margin-bottom: var(--space-xl);
+  white-space: nowrap;
+}
+
+.date-list {
+  display: inline-flex;
+  gap: var(--space-sm);
+}
+
+.date-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: var(--radius-lg);
+  background: var(--color-background-subtle);
+  transition: all var(--duration-fast) var(--easing-standard);
+}
+
+.date-chip.active {
+  background: var(--gradient-brand);
+  box-shadow: 0 6rpx 20rpx rgba(37, 99, 235, 0.28);
+}
+
+.date-chip__week {
+  color: var(--color-text-2);
+  font-size: var(--font-caption);
+}
+
+.date-chip.active .date-chip__week {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.date-chip__day {
+  color: var(--color-text-1);
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+}
+
+.date-chip.active .date-chip__day {
+  color: var(--color-text-inverse);
+}
+
+.modal-time-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.time-chip {
+  width: calc(50% - var(--space-sm) / 2);
+  box-sizing: border-box;
+  padding: var(--space-sm) 0;
+  border-radius: var(--radius-md);
+  background: var(--color-background-subtle);
+  color: var(--color-text-2);
+  font-size: var(--font-sm);
+  text-align: center;
+  transition: all var(--duration-fast) var(--easing-standard);
+}
+
+.time-chip.active {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: var(--weight-bold);
+  box-shadow: inset 0 0 0 2rpx var(--color-primary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.modal-btn {
+  flex: 1;
+  height: var(--button-height);
+  line-height: var(--button-height);
+  margin: 0;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-md);
+  font-weight: var(--weight-bold);
+}
+
+.modal-btn::after {
+  border: none;
+}
+
+.modal-btn.cancel {
+  background: var(--color-background-subtle);
+  color: var(--color-text-2);
+}
+
+.modal-btn.submit {
+  background: var(--gradient-brand);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-float);
+}
+
+.modal-btn.submit[disabled] {
+  opacity: 0.5;
+}
+
+.loading-tip {
+  padding: var(--space-xl) 0;
+  color: var(--color-text-3);
+  font-size: var(--font-sm);
+  text-align: center;
+}

@@ -1,4 +1,5 @@
 const authService = require("../../services/auth.service");
+const bookingService = require("../../services/booking.service");
 const chatService = require("../../services/chat.service");
 const favoriteService = require("../../services/favorite.service");
 const historyService = require("../../services/history.service");
@@ -46,13 +47,15 @@ function formatCountLabel(value) {
   return String(count);
 }
 
-function buildQuickStats(favoriteCount = 0, historyCount = 0) {
+function buildQuickStats(favoriteCount = 0, historyCount = 0, bookingCount = 0) {
   return {
     favoriteCount,
     historyCount,
+    bookingCount,
     notificationCount: 0,
     favoriteLabel: formatCountLabel(favoriteCount),
     historyLabel: formatCountLabel(historyCount),
+    bookingLabel: formatCountLabel(bookingCount),
     notificationLabel: "0"
   };
 }
@@ -235,10 +238,11 @@ Page({
     const requests = [
       favoriteService.getFavoriteList({ page: 1, pageSize: 1 }),
       historyService.getHistoryList({ page: 1, pageSize: 1 }),
-      chatService.getNotificationList({ page: 1, pageSize: 10 })
+      chatService.getNotificationList({ page: 1, pageSize: 10 }),
+      bookingService.getMyBookingCount()
     ];
 
-    const [favoriteRes, historyRes, notificationRes] = await Promise.allSettled(requests);
+    const [favoriteRes, historyRes, notificationRes, bookingRes] = await Promise.allSettled(requests);
     const favoriteCount = favoriteRes.status === "fulfilled" ? Number(favoriteRes.value.total || 0) : 0;
     const historyCount = historyRes.status === "fulfilled" ? Number(historyRes.value.total || 0) : 0;
     const unreadNotificationCount = notificationRes.status === "fulfilled"
@@ -250,9 +254,11 @@ Page({
       )
       : 0;
 
+    const bookingCount = bookingRes.status === "fulfilled" ? Number(bookingRes.value.count || 0) : 0;
+
     this.setData({
       quickStats: {
-        ...buildQuickStats(favoriteCount, historyCount),
+        ...buildQuickStats(favoriteCount, historyCount, bookingCount),
         notificationCount: unreadNotificationCount,
         notificationLabel: formatCountLabel(unreadNotificationCount)
       },
@@ -262,6 +268,7 @@ Page({
     logger.debug("profile_refresh_stats_end", {
       favoriteCount,
       historyCount,
+      bookingCount,
       unreadNotificationCount
     });
   },
@@ -396,6 +403,10 @@ Page({
       this.onGoHistory({ highlight: true });
     }
 
+    if (action === "bookings") {
+      this.onGoBookings();
+    }
+
     if (action === "notifications") {
       this.onGoNotifications();
     }
@@ -431,6 +442,16 @@ Page({
     }
     navigateTo(ROUTES.PROFILE_NOTIFICATIONS);
     logger.debug("profile_go_notifications_end", {});
+  },
+
+  onGoBookings() {
+    logger.debug("profile_go_bookings_start", {});
+    if (!authUtils.requireLogin({ redirect: true })) {
+      logger.debug("profile_go_bookings_end", { blocked: "not_login" });
+      return;
+    }
+    navigateTo(ROUTES.MY_BOOKINGS);
+    logger.debug("profile_go_bookings_end", {});
   },
 
   onGoSupportCenter() {

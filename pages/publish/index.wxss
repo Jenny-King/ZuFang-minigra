@@ -46,6 +46,33 @@
   box-shadow: 0 16rpx 32rpx rgba(37, 99, 235, 0.22);
 }
 
+.head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.booking-manage-btn {
+  margin: 0;
+  height: 68rpx;
+  line-height: 68rpx;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-bold);
+}
+
+.booking-manage-btn::after {
+  border: none;
+}
+
+.publish-entry-btn::after {
+  border: none;
+}
+
 .stats-bar {
   display: flex;
   gap: var(--space-xs);

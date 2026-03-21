@@ -275,3 +275,19 @@
   font-weight: var(--weight-heavy);
   box-shadow: var(--shadow-float);
 }
+
+.booking-btn {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: var(--font-md);
+  font-weight: var(--weight-heavy);
+}
+
+.booking-btn::after {
+  border: none;
+}

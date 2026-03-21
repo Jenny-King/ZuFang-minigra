@@ -285,3 +285,117 @@
 .send-btn[disabled] {
   opacity: 0.7;
 }
+
+/* ---- 预约气泡 ---- */
+.booking-bubble {
+  width: 380rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #eef4ff 0%, #f0f7ff 100%);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.message-row.self .booking-bubble {
+  background: linear-gradient(135deg, #e0ecff 0%, #d6e8ff 100%);
+}
+
+.booking-bubble__header {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.booking-bubble__icon {
+  font-size: 28rpx;
+}
+
+.booking-bubble__label {
+  flex: 1;
+  color: var(--color-primary);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-bold);
+}
+
+.booking-bubble__status {
+  padding: 2rpx 12rpx;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-xxs);
+  font-weight: var(--weight-medium);
+}
+
+.booking-bubble__status.pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.booking-bubble__status.confirmed {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.booking-bubble__status.rejected {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.booking-bubble__status.rescheduled {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.booking-bubble__status.cancelled {
+  background: var(--color-background-subtle);
+  color: var(--color-text-3);
+}
+
+.booking-bubble__info {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.booking-bubble__house {
+  color: var(--color-text-1);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+}
+
+.booking-bubble__time {
+  color: var(--color-text-2);
+  font-size: var(--font-caption);
+}
+
+/* ---- 快捷功能栏 ---- */
+.quick-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 12rpx 24rpx;
+  background: #ffffff;
+  border-top: 2rpx solid #f2f2f2;
+}
+
+.quick-action-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 8rpx 20rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-bg);
+  transition: all var(--duration-fast) var(--easing-standard);
+}
+
+.quick-action-item:active {
+  transform: scale(0.96);
+}
+
+.quick-action-icon {
+  font-size: 24rpx;
+}
+
+.quick-action-text {
+  color: var(--color-primary);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+}

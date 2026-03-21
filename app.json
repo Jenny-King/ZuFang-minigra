@@ -10,7 +10,9 @@
     {
       "root": "package-house",
       "pages": [
-        "pages/detail/index"
+        "pages/detail/index",
+        "pages/booking/index",
+        "pages/booking-manage/index"
       ]
     },
     {
@@ -32,7 +34,8 @@
         "pages/edit-profile/index",
         "pages/favorites/index",
         "pages/history/index",
-        "pages/notifications/index"
+        "pages/notifications/index",
+        "pages/my-bookings/index"
       ]
     },
     {

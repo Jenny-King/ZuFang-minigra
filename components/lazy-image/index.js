@@ -14,7 +14,7 @@ const HEIGHT_CLASS_MAP = {
   "var(--listing-card-thumb-height)": "lazy-image--height-168",
   "180rpx": "lazy-image--height-180",
   "190rpx": "lazy-image--height-190",
-  "var(--image-thumb-featured-height)": "lazy-image--height-190",
+  "var(--image-thumb-featured-height)": "lazy-image--height-featured",
   "200rpx": "lazy-image--height-200",
   "220rpx": "lazy-image--height-220",
   "240rpx": "lazy-image--height-240",
@@ -43,6 +43,15 @@ const RADIUS_CLASS_MAP = {
   "var(--radius-pill)": "lazy-image--radius-pill",
   "50%": "lazy-image--radius-pill"
 };
+
+const LOADED_SRC_CACHE = new Set();
+const SKELETON_DELAY_MS = 120;
+
+function isInstantSource(src) {
+  return src.startsWith("/")
+    || src.startsWith("data:image/")
+    || src.startsWith("wxfile://");
+}
 
 function resolveHeightClass(height) {
   return HEIGHT_CLASS_MAP[height] || HEIGHT_CLASS_MAP["340rpx"];
@@ -88,8 +97,13 @@ Component({
 
   lifetimes: {
     attached() {
+      this.loadingTimer = null;
       this.syncShape();
       this.syncSourceState(this.data.src);
+    },
+
+    detached() {
+      this.clearLoadingTimer();
     }
   },
 
@@ -103,6 +117,23 @@ Component({
   },
 
   methods: {
+    clearLoadingTimer() {
+      if (this.loadingTimer) {
+        clearTimeout(this.loadingTimer);
+        this.loadingTimer = null;
+      }
+    },
+
+    scheduleSkeleton() {
+      this.clearLoadingTimer();
+      this.loadingTimer = setTimeout(() => {
+        this.loadingTimer = null;
+        if (!this.data.loaded && this.data.hasSource && !this.data.error) {
+          this.setData({ loading: true });
+        }
+      }, SKELETON_DELAY_MS);
+    },
+
     syncShape() {
       const width = typeof this.data.width === "string" ? this.data.width.trim() : "";
       this.setData({
@@ -113,16 +144,45 @@ Component({
     },
 
     syncSourceState(src) {
-      const hasSource = typeof src === "string" && Boolean(src.trim());
+      const normalizedSrc = typeof src === "string" ? src.trim() : "";
+      const hasSource = Boolean(normalizedSrc);
+      this.clearLoadingTimer();
+
+      if (!hasSource) {
+        this.setData({
+          hasSource: false,
+          loading: false,
+          loaded: false,
+          error: true
+        });
+        return;
+      }
+
+      if (isInstantSource(normalizedSrc) || LOADED_SRC_CACHE.has(normalizedSrc)) {
+        this.setData({
+          hasSource: true,
+          loading: false,
+          loaded: true,
+          error: false
+        });
+        return;
+      }
+
       this.setData({
-        hasSource,
-        loading: hasSource,
+        hasSource: true,
+        loading: false,
         loaded: false,
-        error: !hasSource
+        error: false
       });
+      this.scheduleSkeleton();
     },
 
     handleLoad() {
+      const src = typeof this.data.src === "string" ? this.data.src.trim() : "";
+      this.clearLoadingTimer();
+      if (src) {
+        LOADED_SRC_CACHE.add(src);
+      }
       this.setData({
         loading: false,
         loaded: true,
@@ -132,6 +192,7 @@ Component({
     },
 
     handleError(event) {
+      this.clearLoadingTimer();
       this.setData({
         loading: false,
         loaded: false,

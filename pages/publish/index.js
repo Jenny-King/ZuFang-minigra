@@ -23,6 +23,7 @@ const TENANT_FALLBACK_CENTER = {
   latitude: 22.5431,
   longitude: 114.0579
 };
+const TENANT_COLLAPSED_RENDER_COUNT = 6;
 const TENANT_MAP_MIN_SCALE = 11;
 const TENANT_MAP_MAX_SCALE = 18;
 const TENANT_SORT_OPTIONS = [
@@ -150,13 +151,19 @@ function buildTenantAddress(item = {}) {
     : address;
 }
 
+function getTenantMarkerBgColor(item = {}, isSelected = false) {
+  const price = Number(item.price || 0);
+  if (isSelected) {
+    return "#05a251";
+  }
+
+  return price >= 5000 ? "#ff6b35" : "#07c160";
+}
+
 function buildTenantMarker(item = {}, index = 0) {
   const price = Number(item.price || 0);
-  const markerBgColor = item.isSelected
-    ? "#05a251"
-    : price >= 5000
-      ? "#ff6b35"
-      : "#07c160";
+  const isSelected = Boolean(item.isSelected);
+  const markerBgColor = getTenantMarkerBgColor(item, isSelected);
 
   return {
     id: Number(item.markerId || index + 1),
@@ -166,6 +173,7 @@ function buildTenantMarker(item = {}, index = 0) {
     iconPath: "/assets/images/map-pin.png",
     width: 24,
     height: 24,
+    zIndex: 100,
     anchor: {
       x: 0.5,
       y: 1
@@ -173,10 +181,10 @@ function buildTenantMarker(item = {}, index = 0) {
     callout: {
       content: `${price || 0}元`,
       color: "#ffffff",
-      fontSize: 10,
+      fontSize: isSelected ? 12 : 10,
       borderRadius: 14,
       bgColor: markerBgColor,
-      padding: 6,
+      padding: isSelected ? 8 : 6,
       display: "ALWAYS",
       textAlign: "center"
     }
@@ -258,21 +266,28 @@ function sortTenantHouseList(list = [], sortMode = "distance") {
   });
 }
 
-function buildTenantSheetHouseList(list = [], selectedHouseId = "") {
+function buildTenantSheetHouseList(list = [], options = {}) {
   const normalizedList = Array.isArray(list) ? list.slice() : [];
-  const currentHouseId = String(selectedHouseId || "").trim();
+  const expanded = Boolean(options.expanded);
+  const selectedHouseId = String(options.selectedHouseId || "").trim();
 
-  if (!currentHouseId) {
+  if (expanded) {
     return normalizedList;
   }
 
-  const targetIndex = normalizedList.findIndex((item) => item.houseId === currentHouseId);
-  if (targetIndex <= 0) {
-    return normalizedList;
+  const visibleList = normalizedList.slice(0, TENANT_COLLAPSED_RENDER_COUNT);
+  if (!selectedHouseId || visibleList.some((item) => item.houseId === selectedHouseId)) {
+    return visibleList;
   }
 
-  const [selectedHouse] = normalizedList.splice(targetIndex, 1);
-  return [selectedHouse].concat(normalizedList);
+  const selectedHouse = normalizedList.find((item) => item.houseId === selectedHouseId);
+  if (!selectedHouse) {
+    return visibleList;
+  }
+
+  return visibleList
+    .slice(0, Math.max(TENANT_COLLAPSED_RENDER_COUNT - 1, 0))
+    .concat(selectedHouse);
 }
 
 Page({
@@ -309,7 +324,6 @@ Page({
     tenantMapLongitude: TENANT_FALLBACK_CENTER.longitude,
     tenantMapScale: 13,
     tenantSheetExpanded: false,
-    tenantSheetSubtitle: "地图和下方列表会保持同步",
     tenantSortMode: "distance",
     tenantSortLabel: getTenantSortLabel("distance"),
     tenantRawHouseList: [],
@@ -746,36 +760,14 @@ Page({
     return TENANT_FALLBACK_CENTER;
   },
 
-  buildTenantSheetSubtitle(overrideState = {}) {
-    const mergedState = {
-      ...this.data,
-      ...overrideState
-    };
-
-    if (mergedState.tenantErrorText) {
-      return "房源加载失败，请下拉重试";
-    }
-
-    if (mergedState.tenantLocationErrorText) {
-      return `${mergedState.tenantLocationErrorText}，已按当前城市为你展示房源`;
-    }
-
-    if (mergedState.tenantMarkers.length === 0 && mergedState.tenantHouseList.length > 0) {
-      return "部分房源暂无地图坐标，可以先从列表里挑选";
-    }
-
-    if (mergedState.tenantSelectedHouseId) {
-      return "已高亮你选中的房源，地图和列表会联动";
-    }
-
-    return "地图和下方列表会保持同步";
-  },
-
   applyTenantHouseState(rawTenantHouseList = [], options = {}) {
     const tenantSortMode = String(options.tenantSortMode || this.data.tenantSortMode || "distance").trim() || "distance";
     const tenantHouseList = sortTenantHouseList(rawTenantHouseList, tenantSortMode);
     const tenantSelectedHouseId = this.resolveTenantSelectedHouseId(tenantHouseList);
-    const tenantSheetHouseList = buildTenantSheetHouseList(tenantHouseList, tenantSelectedHouseId);
+    const tenantSheetHouseList = buildTenantSheetHouseList(tenantHouseList, {
+      expanded: this.data.tenantSheetExpanded,
+      selectedHouseId: tenantSelectedHouseId
+    });
     const tenantMarkers = tenantHouseList
       .filter((item) => item.hasLocation)
       .map((item, index) => buildTenantMarker({
@@ -808,34 +800,53 @@ Page({
       tenantMapScale: Math.max(
         TENANT_MAP_MIN_SCALE,
         Math.min(TENANT_MAP_MAX_SCALE, Number(nextMapScale || 13))
-      ),
-      tenantSheetSubtitle: this.buildTenantSheetSubtitle({
-        tenantHouseList,
-        tenantMarkers,
-        tenantSelectedHouseId
-      })
+      )
     });
   },
 
-  syncTenantSheetHouseList(selectedHouseId = this.data.tenantSelectedHouseId, tenantHouseList = this.data.tenantHouseList) {
+  syncTenantSheetHouseList(
+    tenantSheetExpanded = this.data.tenantSheetExpanded,
+    tenantHouseList = this.data.tenantHouseList,
+    selectedHouseId = this.data.tenantSelectedHouseId
+  ) {
     this.setData({
-      tenantSheetHouseList: buildTenantSheetHouseList(tenantHouseList, selectedHouseId),
-      tenantSheetSubtitle: this.buildTenantSheetSubtitle({
-        tenantSelectedHouseId: selectedHouseId,
-        tenantHouseList
+      tenantSheetHouseList: buildTenantSheetHouseList(tenantHouseList, {
+        expanded: tenantSheetExpanded,
+        selectedHouseId
       })
     });
   },
 
-  syncTenantMarkers(selectedHouseId = this.data.tenantSelectedHouseId, tenantHouseList = this.data.tenantHouseList) {
-    const tenantMarkers = (Array.isArray(tenantHouseList) ? tenantHouseList : [])
-      .filter((item) => item.hasLocation)
-      .map((item, index) => buildTenantMarker({
-        ...item,
-        isSelected: item.houseId === selectedHouseId
-      }, index));
+  syncTenantMarkerSelection(nextSelectedHouseId = "", previousSelectedHouseId = this.data.tenantSelectedHouseId) {
+    const nextHouseId = String(nextSelectedHouseId || "").trim();
+    const prevHouseId = String(previousSelectedHouseId || "").trim();
+    if (!nextHouseId || nextHouseId === prevHouseId) {
+      return;
+    }
 
-    this.setData({ tenantMarkers });
+    const tenantHouseList = Array.isArray(this.data.tenantHouseList) ? this.data.tenantHouseList : [];
+    const currentMarkers = Array.isArray(this.data.tenantMarkers) ? this.data.tenantMarkers : [];
+    const updates = {};
+
+    const prevHouse = tenantHouseList.find((item) => item.houseId === prevHouseId && item.hasLocation);
+    if (prevHouse) {
+      const prevMarkerIndex = currentMarkers.findIndex((marker) => Number(marker.id) === Number(prevHouse.markerId));
+      if (prevMarkerIndex >= 0) {
+        updates[`tenantMarkers[${prevMarkerIndex}].callout.bgColor`] = getTenantMarkerBgColor(prevHouse, false);
+      }
+    }
+
+    const nextHouse = tenantHouseList.find((item) => item.houseId === nextHouseId && item.hasLocation);
+    if (nextHouse) {
+      const nextMarkerIndex = currentMarkers.findIndex((marker) => Number(marker.id) === Number(nextHouse.markerId));
+      if (nextMarkerIndex >= 0) {
+        updates[`tenantMarkers[${nextMarkerIndex}].callout.bgColor`] = getTenantMarkerBgColor(nextHouse, true);
+      }
+    }
+
+    if (Object.keys(updates).length) {
+      this.setData(updates);
+    }
   },
 
   async refreshTenantHouseList() {
@@ -888,13 +899,7 @@ Page({
         tenantHouseList: [],
         tenantSheetHouseList: [],
         tenantMarkers: [],
-        tenantSelectedHouseId: "",
-        tenantSheetSubtitle: this.buildTenantSheetSubtitle({
-          tenantErrorText: normalizedError.message || "地图房源加载失败",
-          tenantHouseList: [],
-          tenantMarkers: [],
-          tenantSelectedHouseId: ""
-        })
+        tenantSelectedHouseId: ""
       });
       logger.error("api_error", { func: "house.getList", err: normalizedError.message });
     } finally {
@@ -1102,8 +1107,13 @@ Page({
   },
 
   onToggleTenantSheet() {
+    const nextExpanded = !this.data.tenantSheetExpanded;
     this.setData({
-      tenantSheetExpanded: !this.data.tenantSheetExpanded
+      tenantSheetExpanded: nextExpanded,
+      tenantSheetHouseList: buildTenantSheetHouseList(this.data.tenantHouseList, {
+        expanded: nextExpanded,
+        selectedHouseId: this.data.tenantSelectedHouseId
+      })
     });
   },
 
@@ -1113,8 +1123,13 @@ Page({
       return;
     }
 
+    const nextExpanded = mode === "list";
     this.setData({
-      tenantSheetExpanded: mode === "list"
+      tenantSheetExpanded: nextExpanded,
+      tenantSheetHouseList: buildTenantSheetHouseList(this.data.tenantHouseList, {
+        expanded: nextExpanded,
+        selectedHouseId: this.data.tenantSelectedHouseId
+      })
     });
   },
 
@@ -1164,17 +1179,18 @@ Page({
       return;
     }
 
+    const previousSelectedHouseId = this.data.tenantSelectedHouseId;
     this.setData({
       tenantSelectedHouseId: selectedHouse.houseId,
       tenantMapLatitude: selectedHouse.latitude || this.data.tenantMapLatitude,
       tenantMapLongitude: selectedHouse.longitude || this.data.tenantMapLongitude,
       tenantMapScale: selectedHouse.hasLocation ? 15 : this.data.tenantMapScale,
-      tenantSheetSubtitle: this.buildTenantSheetSubtitle({
-        tenantSelectedHouseId: selectedHouse.houseId
+      tenantSheetHouseList: buildTenantSheetHouseList(this.data.tenantHouseList, {
+        expanded: this.data.tenantSheetExpanded,
+        selectedHouseId: selectedHouse.houseId
       })
     });
-    this.syncTenantSheetHouseList(selectedHouse.houseId);
-    this.syncTenantMarkers(selectedHouse.houseId);
+    this.syncTenantMarkerSelection(selectedHouse.houseId, previousSelectedHouseId);
   },
 
   onTenantCardTap(event) {
@@ -1184,20 +1200,28 @@ Page({
     }
 
     const selectedHouse = this.data.tenantHouseList.find((item) => item.houseId === houseId);
-    if (selectedHouse && selectedHouse.hasLocation) {
+    if (!selectedHouse) {
+      return;
+    }
+
+    if (this.data.tenantSelectedHouseId === houseId || !selectedHouse.hasLocation) {
+      navigateTo(ROUTES.HOUSE_DETAIL, { houseId });
+      return;
+    }
+
+    if (selectedHouse.hasLocation) {
+      const previousSelectedHouseId = this.data.tenantSelectedHouseId;
       this.setData({
         tenantSelectedHouseId: houseId,
         tenantMapLatitude: selectedHouse.latitude,
         tenantMapLongitude: selectedHouse.longitude,
         tenantMapScale: 15,
-        tenantSheetSubtitle: this.buildTenantSheetSubtitle({
-          tenantSelectedHouseId: houseId
+        tenantSheetHouseList: buildTenantSheetHouseList(this.data.tenantHouseList, {
+          expanded: this.data.tenantSheetExpanded,
+          selectedHouseId: houseId
         })
       });
-      this.syncTenantSheetHouseList(houseId);
-      this.syncTenantMarkers(houseId);
+      this.syncTenantMarkerSelection(houseId, previousSelectedHouseId);
     }
-
-    navigateTo(ROUTES.HOUSE_DETAIL, { houseId });
   }
 });

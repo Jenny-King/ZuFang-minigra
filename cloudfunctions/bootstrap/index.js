@@ -124,6 +124,12 @@ const DEFAULT_TEST_PHONES = [
   "13387395714",
   "17364071058"
 ];
+const HOUSING_DATA_COLLECTIONS = [
+  "houses",
+  "favorites",
+  "history",
+  "bookings"
+];
 
 const CURRENT_CLOUD_ENV_ID = String(cloud.DYNAMIC_CURRENT_ENV || "").trim().toLowerCase();
 const PRODUCTION_ENV_ALIASES = ["prod", "production", "release"];
@@ -469,15 +475,75 @@ async function removeDocuments(collectionName, docs) {
   };
 }
 
+function normalizeHousingCleanupCollections(inputCollections) {
+  const sourceCollections = Array.isArray(inputCollections) && inputCollections.length
+    ? inputCollections
+    : HOUSING_DATA_COLLECTIONS;
+
+  return Array.from(new Set(
+    sourceCollections
+      .map((item) => String(item || "").trim())
+      .filter((item) => HOUSING_DATA_COLLECTIONS.includes(item))
+  ));
+}
+
+async function cleanupCollections(collectionNames = [], { dryRun = true } = {}) {
+  const summary = {};
+  let totalDocuments = 0;
+  let totalRemoved = 0;
+
+  for (const collectionName of collectionNames) {
+    // 多集合清理需要按顺序执行，便于日志排查并避免同时删库放大失败面。
+    // eslint-disable-next-line no-await-in-loop
+    const docs = await listAllDocuments(collectionName, {});
+    const total = docs.length;
+    let removed = 0;
+
+    totalDocuments += total;
+
+    if (!dryRun && total > 0) {
+      // eslint-disable-next-line no-await-in-loop
+      const removedResult = await removeDocuments(collectionName, docs);
+      removed = removedResult.count;
+      totalRemoved += removed;
+    }
+
+    summary[collectionName] = {
+      total,
+      removed,
+      dryRun: Boolean(dryRun)
+    };
+  }
+
+  return {
+    dryRun: Boolean(dryRun),
+    collections: collectionNames,
+    summary,
+    totalDocuments,
+    totalRemoved
+  };
+}
+
 async function handleCleanupHouses() {
-  const houses = await listAllDocuments("houses", {});
-  const removedHouses = await removeDocuments("houses", houses);
+  const cleanupResult = await cleanupCollections(["houses"], { dryRun: false });
 
   return success({
     removed: {
-      houses: removedHouses.count
+      houses: cleanupResult.summary.houses?.removed || 0
     }
   });
+}
+
+async function handleCleanupHousingData(payload = {}) {
+  const collections = normalizeHousingCleanupCollections(payload.collections);
+  if (!collections.length) {
+    return fail("未提供合法的房源相关集合名称");
+  }
+
+  const dryRun = payload.dryRun !== false;
+  const cleanupResult = await cleanupCollections(collections, { dryRun });
+
+  return success(cleanupResult);
 }
 
 async function handleCleanupTestUsers(payload = {}) {
@@ -547,6 +613,7 @@ exports.main = async (event, context) => {
     if (action === "initRegions") result = await handleInitRegions();
     if (action === "initAll") result = await handleInitAll();
     if (action === "cleanupHouses") result = await handleCleanupHouses();
+    if (action === "cleanupHousingData") result = await handleCleanupHousingData(event?.payload);
     if (action === "cleanupTestUsers") result = await handleCleanupTestUsers(event?.payload);
 
     logger.info("success", { action, code: result.code });

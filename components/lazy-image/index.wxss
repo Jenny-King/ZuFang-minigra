@@ -159,6 +159,10 @@
   height: 190rpx;
 }
 
+.lazy-image--height-featured {
+  height: var(--image-thumb-featured-height);
+}
+
 .lazy-image--height-200 {
   height: 200rpx;
 }

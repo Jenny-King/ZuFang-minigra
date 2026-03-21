@@ -33,9 +33,28 @@ async function cleanupTestUsers(phones = []) {
   });
 }
 
+async function cleanupHousingData(options = {}) {
+  assertBootstrapAllowed();
+
+  const payload = {
+    allowBootstrap: true
+  };
+
+  if (Array.isArray(options.collections) && options.collections.length) {
+    payload.collections = options.collections;
+  }
+
+  if (typeof options.dryRun === "boolean") {
+    payload.dryRun = options.dryRun;
+  }
+
+  return callCloud("bootstrap", "cleanupHousingData", payload);
+}
+
 module.exports = {
   initAll,
   initRegions,
   initCollections,
-  cleanupTestUsers
+  cleanupTestUsers,
+  cleanupHousingData
 };

@@ -173,63 +173,46 @@
             show-location
             bindmarkertap="onTenantMarkerTap"
           >
-            <cover-view class="tenant-map-status">
-              <cover-view class="tenant-map-status-title">{{tenantCurrentCityLabel}}{{tenantCurrentDistrict ? ' · ' + tenantCurrentDistrict : ''}}</cover-view>
-              <cover-view class="tenant-map-status-subtitle">
-                {{tenantLocationLoading ? '正在定位附近房源' : (tenantLocationErrorText || '点击地图标记可同步定位下方卡片')}}
-              </cover-view>
-            </cover-view>
-
-            <cover-view class="tenant-map-tools">
-              <cover-view class="tenant-map-tool" bindtap="onTenantZoomIn">+</cover-view>
-              <cover-view class="tenant-map-tool" bindtap="onTenantZoomOut">-</cover-view>
-              <cover-view class="tenant-map-tool tenant-map-tool-location" bindtap="onTenantRefreshTap">
-                {{tenantLocationLoading ? '...' : '定'}}
-              </cover-view>
-            </cover-view>
-
-            <cover-view class="tenant-view-toggle {{tenantSheetExpanded ? 'raised' : ''}}">
-              <cover-view class="tenant-view-toggle-pill">
-                <cover-view
-                  class="tenant-view-toggle-btn {{!tenantSheetExpanded ? 'active' : ''}}"
-                  data-mode="map"
-                  bindtap="onTenantViewModeTap"
-                >地图</cover-view>
-                <cover-view
-                  class="tenant-view-toggle-btn {{tenantSheetExpanded ? 'active' : ''}}"
-                  data-mode="list"
-                  bindtap="onTenantViewModeTap"
-                >列表</cover-view>
-              </cover-view>
-            </cover-view>
+            <view class="tenant-map-tools">
+              <view class="tenant-map-tool" bindtap="onTenantZoomIn">
+                <image class="tenant-map-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMTExODI3JyBzdHJva2Utd2lkdGg9JzEuNScgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJz48bGluZSB4MT0nMTInIHkxPSc1JyB4Mj0nMTInIHkyPScxOScvPjxsaW5lIHgxPSc1JyB5MT0nMTInIHgyPScxOScgeTI9JzEyJy8+PC9zdmc+" />
+              </view>
+              <view class="tenant-map-tool" bindtap="onTenantZoomOut">
+                <image class="tenant-map-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMTExODI3JyBzdHJva2Utd2lkdGg9JzEuNScgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJz48bGluZSB4MT0nNScgeTE9JzEyJyB4Mj0nMTknIHkyPScxMicvPjwvc3ZnPg==" />
+              </view>
+              <view class="tenant-map-tool tenant-map-tool-location" bindtap="onTenantRefreshTap">
+                <image wx:if="{{!tenantLocationLoading}}" class="tenant-map-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMTExODI3JyBzdHJva2Utd2lkdGg9JzEuNScgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJz48Y2lyY2xlIGN4PScxMicgY3k9JzEyJyByPSc0Jy8+PGxpbmUgeDE9JzEyJyB5MT0nMicgeDI9JzEyJyB5Mj0nNicvPjxsaW5lIHgxPScxMicgeTE9JzE4JyB4Mj0nMTInIHkyPScyMicvPjxsaW5lIHgxPScyJyB5MT0nMTInIHgyPSc2JyB5Mj0nMTInLz48bGluZSB4MT0nMTgnIHkxPScxMicgeDI9JzIyJyB5Mj0nMTInLz48L3N2Zz4=" />
+                <image wx:else class="tenant-map-icon loading-spin" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPScjMTA4ZWVlJyBzdHJva2Utd2lkdGg9JzInIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCc+PHBhdGggZD0nTTIxIDEydjFhOSA5IDAgMSAxLTktOScgLz48L3N2Zz4=" />
+              </view>
+            </view>
           </map>
         </view>
 
         <view class="tenant-bottom-sheet {{tenantSheetExpanded ? 'expanded' : 'collapsed'}}">
           <view class="tenant-sheet-panel">
-            <view
-              class="tenant-sheet-handle"
-              bindtap="onToggleTenantSheet"
-            >
-              <view class="tenant-sheet-grabber"></view>
-              <text class="tenant-sheet-handle-label">{{tenantSheetExpanded ? '收起列表' : '展开列表'}}</text>
-            </view>
-
             <view class="tenant-sheet-head">
               <view class="tenant-sheet-head-main">
                 <view class="tenant-sheet-title">附近房源</view>
                 <view class="tenant-sheet-count">共 {{tenantHouseList.length}} 套可租</view>
               </view>
+              <view class="tenant-view-toggle tenant-view-toggle-inline">
+                <view class="tenant-view-toggle-pill">
+                  <view
+                    class="tenant-view-toggle-btn {{!tenantSheetExpanded ? 'active' : ''}}"
+                    data-mode="map"
+                    bindtap="onTenantViewModeTap"
+                  >地图</view>
+                  <view
+                    class="tenant-view-toggle-btn {{tenantSheetExpanded ? 'active' : ''}}"
+                    data-mode="list"
+                    bindtap="onTenantViewModeTap"
+                  >列表</view>
+                </view>
+              </view>
               <view class="tenant-sheet-sort" bindtap="onTenantSortTap">
                 <text class="tenant-sheet-sort-text">{{tenantSortLabel}}</text>
                 <text class="tenant-sheet-sort-arrow">▾</text>
               </view>
-            </view>
-
-            <view class="tenant-sheet-notice">
-              <text class="tenant-sheet-notice-location">{{tenantCurrentCityLabel}}{{tenantCurrentDistrict ? ' · ' + tenantCurrentDistrict : ''}}</text>
-              <view class="tenant-sheet-notice-divider"></view>
-              <text class="tenant-sheet-notice-text">{{tenantSheetSubtitle}}</text>
             </view>
 
             <view wx:if="{{tenantErrorText}}" class="error-box tenant-sheet-error">{{tenantErrorText}}</view>
@@ -247,7 +230,6 @@
               wx:else
               class="tenant-sheet-list-scroll {{tenantSheetExpanded ? 'expanded' : ''}}"
               scroll-y
-              enhanced
               show-scrollbar="{{false}}"
             >
               <view class="tenant-sheet-list">
@@ -259,8 +241,8 @@
                   bindtap="onTenantCardTap"
                 >
                   <view class="tenant-sheet-thumb-wrap">
-                    <image class="tenant-sheet-thumb" src="{{item.displayImage}}" mode="aspectFill" />
-                    <view wx:if="{{tenantSelectedHouseId === item.houseId}}" class="tenant-sheet-badge active">已选中</view>
+                    <image class="tenant-sheet-thumb" src="{{item.displayImage}}" mode="aspectFill" lazy-load />
+                    <view wx:if="{{tenantSelectedHouseId === item.houseId}}" class="tenant-sheet-badge active">再次点击查看</view>
                     <view wx:elif="{{!item.hasLocation}}" class="tenant-sheet-badge">无坐标</view>
                   </view>
 

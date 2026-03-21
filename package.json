@@ -9,6 +9,7 @@
     "test": "jest",
     "test:auth:devtools": "node scripts/devtools-auth-smoke.js",
     "cleanup:test-users": "node scripts/cleanup-test-users.js",
+    "cleanup:housing-data": "node scripts/cleanup-housing-data.js",
     "deploy:cf": "powershell -ExecutionPolicy Bypass -File scripts/deploy-cloudfunction.ps1",
     "seed:houses6": "node scripts/seed-six-house-test-data.js",
     "test:watch": "jest --watch",

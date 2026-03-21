@@ -178,4 +178,141 @@ describe("cloudfunction/bootstrap", () => {
       db.collection = originalCollection;
     }
   });
+
+  it("cleanupHousingData returns dry-run stats without deleting documents", async () => {
+    const db = cloud.database();
+    const originalCollection = db.collection;
+    const removeMocks = {};
+    const dataset = {
+      houses: [
+        { _id: "house_1", title: "测试房源1" },
+        { _id: "house_2", title: "测试房源2" }
+      ],
+      favorites: [
+        { _id: "favorite_1", houseId: "house_1" }
+      ],
+      history: [
+        { _id: "history_1", houseId: "house_1" },
+        { _id: "history_2", houseId: "house_2" }
+      ],
+      bookings: [
+        { _id: "booking_1", houseId: "house_1" }
+      ]
+    };
+
+    db.collection = jest.fn((name) => ({
+      where() {
+        return this;
+      },
+      skip() {
+        return this;
+      },
+      limit() {
+        return this;
+      },
+      get: jest.fn(async () => ({
+        data: dataset[name] || []
+      })),
+      doc: jest.fn((id) => {
+        if (!removeMocks[name]) {
+          removeMocks[name] = {};
+        }
+        if (!removeMocks[name][id]) {
+          removeMocks[name][id] = jest.fn(async () => ({ stats: { removed: 1 } }));
+        }
+        return {
+          remove: removeMocks[name][id]
+        };
+      })
+    }));
+
+    try {
+      const res = await main({ action: "cleanupHousingData", payload: { allowBootstrap: true } }, {});
+      expect(res.code).toBe(0);
+      expect(res.data).toEqual(expect.objectContaining({
+        dryRun: true,
+        collections: ["houses", "favorites", "history", "bookings"],
+        totalDocuments: 6,
+        totalRemoved: 0
+      }));
+      expect(res.data.summary).toEqual({
+        houses: { total: 2, removed: 0, dryRun: true },
+        favorites: { total: 1, removed: 0, dryRun: true },
+        history: { total: 2, removed: 0, dryRun: true },
+        bookings: { total: 1, removed: 0, dryRun: true }
+      });
+      expect(removeMocks.houses).toBeUndefined();
+      expect(removeMocks.favorites).toBeUndefined();
+      expect(removeMocks.history).toBeUndefined();
+      expect(removeMocks.bookings).toBeUndefined();
+    } finally {
+      db.collection = originalCollection;
+    }
+  });
+
+  it("cleanupHousingData removes multiple housing collections when dryRun is false", async () => {
+    const db = cloud.database();
+    const originalCollection = db.collection;
+    const removeMocks = {};
+    const dataset = {
+      houses: [
+        { _id: "house_1", title: "测试房源1" }
+      ],
+      favorites: [
+        { _id: "favorite_1", houseId: "house_1" }
+      ]
+    };
+
+    db.collection = jest.fn((name) => ({
+      where() {
+        return this;
+      },
+      skip() {
+        return this;
+      },
+      limit() {
+        return this;
+      },
+      get: jest.fn(async () => ({
+        data: dataset[name] || []
+      })),
+      doc: jest.fn((id) => {
+        if (!removeMocks[name]) {
+          removeMocks[name] = {};
+        }
+        if (!removeMocks[name][id]) {
+          removeMocks[name][id] = jest.fn(async () => ({ stats: { removed: 1 } }));
+        }
+        return {
+          remove: removeMocks[name][id]
+        };
+      })
+    }));
+
+    try {
+      const res = await main({
+        action: "cleanupHousingData",
+        payload: {
+          allowBootstrap: true,
+          dryRun: false,
+          collections: ["houses", "favorites"]
+        }
+      }, {});
+      expect(res.code).toBe(0);
+      expect(res.data).toEqual(expect.objectContaining({
+        dryRun: false,
+        collections: ["houses", "favorites"],
+        totalDocuments: 2,
+        totalRemoved: 2
+      }));
+      expect(res.data.summary).toEqual({
+        houses: { total: 1, removed: 1, dryRun: false },
+        favorites: { total: 1, removed: 1, dryRun: false }
+      });
+      expect(removeMocks.houses.house_1).toHaveBeenCalledTimes(1);
+      expect(removeMocks.favorites.favorite_1).toHaveBeenCalledTimes(1);
+    } finally {
+      db.collection = originalCollection;
+    }
+  });
 });

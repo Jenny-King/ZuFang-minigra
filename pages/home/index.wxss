@@ -448,27 +448,31 @@
   align-items: flex-start;
   width: 100%;
   white-space: nowrap;
-  padding-right: var(--space-xs);
-  padding-bottom: var(--space-2xs);
+  padding-right: var(--space-sm);
+  padding-bottom: var(--space-xs);
 }
 
 .featured-card {
   display: inline-block;
   align-self: flex-start;
   width: var(--card-width-featured);
-  margin-right: var(--space-md);
-  border-radius: var(--radius-xl);
+  margin-right: var(--space-sm);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
   background: var(--color-background-card);
-  box-shadow: var(--shadow-card-raised);
+  box-shadow: 0 10rpx 24rpx rgba(15, 23, 42, 0.08);
   vertical-align: top;
-  transform: scale(1);
-  transition: transform var(--duration-fast);
+  transform: translateY(0);
+  transition: transform var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.featured-card:last-child {
+  margin-right: var(--page-padding);
 }
 
 .card-active {
-  transform: scale(0.98) !important;
-  opacity: 0.95;
+  transform: scale(0.985) !important;
+  opacity: 0.96;
 }
 
 .featured-thumb-wrap,
@@ -478,7 +482,7 @@
 }
 
 .featured-thumb-wrap {
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   background: var(--color-background-subtle);
 }
 
@@ -496,22 +500,23 @@
 }
 .featured-badge {
   position: absolute;
-  left: var(--space-md);
-  top: var(--space-md);
+  left: var(--space-xs);
+  top: var(--space-xs);
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  min-height: 40rpx;
-  padding: 0 var(--space-sm);
+  min-height: 36rpx;
+  padding: 0 10rpx;
   border-radius: var(--radius-pill);
-  border: 1rpx solid var(--color-glass-border-light);
+  border: 1rpx solid rgba(255, 255, 255, 0.14);
   color: var(--color-text-inverse);
-  font-size: var(--font-caption);
+  font-size: var(--font-xs-plus);
   font-weight: var(--weight-heavy);
   line-height: 1;
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(12rpx);
-  -webkit-backdrop-filter: blur(12rpx);
+  letter-spacing: 0.2rpx;
+  box-shadow: none;
+  backdrop-filter: blur(8rpx);
+  -webkit-backdrop-filter: blur(8rpx);
 }
 
 .featured-badge-red {
@@ -527,7 +532,7 @@
 }
 
 .featured-body {
-  padding: 18rpx var(--space-md) var(--space-md);
+  padding: 16rpx 18rpx 18rpx;
 }
 
 .featured-price,
@@ -538,14 +543,17 @@
 }
 
 .featured-price {
-  margin-bottom: 8rpx;
+  gap: 4rpx;
+  margin-bottom: 6rpx;
+  line-height: 1;
 }
 
 .featured-price-main {
   color: var(--color-price-highlight);
-  font-size: var(--font-price-lg);
+  font-size: var(--font-lg);
   font-weight: var(--weight-heavy);
-  letter-spacing: -1rpx;
+  line-height: 1;
+  letter-spacing: -0.8rpx;
 }
 
 .latest-card-price-main {
@@ -557,19 +565,20 @@
 
 .featured-price-unit,
 .latest-card-price-unit {
-  padding-bottom: var(--space-3xs);
+  padding-bottom: 2rpx;
   color: var(--color-text-3);
-  font-size: var(--font-xs-plus);
+  font-size: var(--font-caption);
 }
 
 .featured-title {
   margin-top: 0;
-  margin-bottom: 10rpx;
+  margin-bottom: 6rpx;
   min-height: var(--featured-card-title-min-height);
   color: var(--color-text-1);
-  font-size: var(--font-sm-plus);
+  font-size: var(--font-sm);
   font-weight: var(--weight-medium);
-  line-height: 1.4;
+  line-height: 1.42;
+  white-space: normal;
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -579,7 +588,7 @@
 .featured-meta {
   display: flex;
   align-items: center;
-  gap: var(--space-2xs);
+  gap: 6rpx;
   flex-wrap: wrap;
 }
 
@@ -589,16 +598,16 @@
 
 .featured-meta-item {
   color: var(--color-text-3);
-  font-size: var(--font-caption);
-  line-height: var(--lh-normal);
+  font-size: var(--font-xs-plus);
+  line-height: 1.45;
 }
 
 .featured-meta-dot,
 .latest-card-meta-dot {
-  width: 4rpx;
-  height: 4rpx;
+  width: 3rpx;
+  height: 3rpx;
   border-radius: var(--radius-pill);
-  background: var(--color-border-strong);
+  background: var(--color-border);
   flex-shrink: 0;
 }
 
@@ -708,7 +717,7 @@
 
 .latest-card-footer {
   margin-top: auto;
-  padding-top: var(--space-md);
+  padding-top: var(--space-xs);
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;

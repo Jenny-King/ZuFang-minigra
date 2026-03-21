@@ -5,13 +5,11 @@
   </view>
 
   <view wx:if="{{houseCard}}" class="house-card card" bindtap="onHouseCardTap">
-    <lazy-image
+    <image
       class="house-card__image"
       src="{{houseCard.imageUrl}}"
       mode="aspectFill"
-      radius="16rpx"
-      width="148rpx"
-      height="148rpx"
+      lazy-load="{{false}}"
     />
     <view class="house-card__content">
       <view class="house-card__header">
@@ -48,14 +46,12 @@
       >
         <view wx:if="{{item.showTime}}" class="time-divider">{{item.timeLabel}}</view>
         <view class="message-row {{item.isSelf ? 'self' : 'other'}}">
-          <lazy-image
+          <image
             wx:if="{{!item.isSelf}}"
             class="message-avatar"
             src="{{targetUserAvatar}}"
             mode="aspectFill"
-            radius="var(--radius-pill)"
-            width="80rpx"
-            height="80rpx"
+            lazy-load="{{false}}"
           />
           <view class="message-stack">
             <view class="bubble {{item.isImage ? 'image-bubble' : ''}}">
@@ -83,14 +79,12 @@
               <text wx:else class="content">{{item.content}}</text>
             </view>
           </view>
-          <lazy-image
+          <image
             wx:if="{{item.isSelf}}"
             class="message-avatar"
             src="{{currentUserAvatar}}"
             mode="aspectFill"
-            radius="var(--radius-pill)"
-            width="80rpx"
-            height="80rpx"
+            lazy-load="{{false}}"
           />
         </view>
       </view>

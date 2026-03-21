@@ -164,14 +164,19 @@ Page({
       return;
     }
 
+    const pinColor = "#07c160";
+    const svgMarkup = `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'><path d='M12 2C8.1 2 5 5.1 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-3.9-3.1-7-7-7z' fill='${pinColor}'/><circle cx='12' cy='9' r='3.5' fill='#ffffff'/></svg>`;
+    const dynamicIconPath = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMarkup)}`;
+
     const mapMarkers = [{
       id: 0,
       latitude,
       longitude,
       title: houseDetail.displayTitle,
-      iconPath: "/assets/images/map-pin.png",
-      width: 30,
-      height: 30
+      iconPath: dynamicIconPath,
+      width: 36,
+      height: 36,
+      anchor: { x: 0.5, y: 1 }
     }];
 
     this.setData({

@@ -33,13 +33,11 @@
         bindtap="onConversationTap"
       >
         <view class="avatar-wrap">
-          <lazy-image
+          <image
             class="avatar"
             src="{{item.displayAvatar || '/assets/images/avatar-placeholder.png'}}"
             mode="aspectFill"
-            radius="50%"
-            width="96rpx"
-            height="96rpx"
+            lazy-load="{{false}}"
           />
           <view wx:if="{{item.unreadCount > 0}}" class="badge">{{item.unreadCount}}</view>
         </view>
@@ -51,13 +49,11 @@
           </view>
           
           <view class="house-card" wx:if="{{item.houseId}}">
-            <lazy-image
+            <image
               class="house-thumb"
               src="{{item.displayHouseCover}}"
               mode="aspectFill"
-              radius="12rpx"
-              width="88rpx"
-              height="88rpx"
+              lazy-load="{{false}}"
             />
             <view class="house-info">
               <text class="house-name">{{item.displayHouseTitle}}</text>

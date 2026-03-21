@@ -132,9 +132,9 @@ page {
   --fab-size: 88rpx;
   --avatar-size-md: 80rpx;
   --avatar-size-lg: 92rpx;
-  --card-width-featured: 304rpx;
-  --featured-card-title-min-height: 70rpx;
-  --image-thumb-featured-height: 190rpx;
+  --card-width-featured: 320rpx;
+  --featured-card-title-min-height: 64rpx;
+  --image-thumb-featured-height: 180rpx;
   --image-thumb-size: 148rpx;
   --listing-card-thumb-width: 180rpx;
   --listing-card-thumb-height: 168rpx;

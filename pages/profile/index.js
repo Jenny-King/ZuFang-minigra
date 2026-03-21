@@ -320,7 +320,11 @@ Page({
       bookingService.getMyBookings(1, 2)
     ];
 
-    const [favoriteRes, historyRes, notificationRes, bookingRes] = await Promise.allSettled(requests);
+    const settledResults = await Promise.allSettled(requests);
+    const favoriteRes = settledResults[0];
+    const historyRes = settledResults[1];
+    const notificationRes = settledResults[2];
+    const bookingRes = settledResults[3];
     const favoriteCount = favoriteRes.status === "fulfilled" ? Number(favoriteRes.value.total || 0) : 0;
     const historyCount = historyRes.status === "fulfilled" ? Number(historyRes.value.total || 0) : 0;
     const unreadNotificationCount = notificationRes.status === "fulfilled"

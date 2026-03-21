@@ -754,7 +754,12 @@ Page({
   },
 
   onConfirmLayoutSheet() {
-    const [selectedRoomIndex, selectedHallIndex, selectedBathIndex] = this.data.layoutPickerValue;
+    const layoutPickerValue = Array.isArray(this.data.layoutPickerValue)
+      ? this.data.layoutPickerValue
+      : [0, 0, 0];
+    const selectedRoomIndex = Number(layoutPickerValue[0] || 0);
+    const selectedHallIndex = Number(layoutPickerValue[1] || 0);
+    const selectedBathIndex = Number(layoutPickerValue[2] || 0);
     const layoutFields = this.updateLayoutSelection({
       selectedRoomIndex,
       selectedHallIndex,

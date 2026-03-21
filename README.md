@@ -39,6 +39,7 @@
 - [docs/接口设计说明.md](D:/Grade4-2/coding4-1/docs/接口设计说明.md)：前端 service 与云函数 action 约定
 - [docs/数据库设计说明.md](D:/Grade4-2/coding4-1/docs/数据库设计说明.md)：集合设计与数据约束
 - [docs/开发规范说明.md](D:/Grade4-2/coding4-1/docs/开发规范说明.md)：编码与分层规范
+- [docs/测试计划.md](D:/Grade4-2/coding4-1/docs/测试计划.md)：按测试层次与业务主链路组织的整体测试方案
 - [docs/测试与联调指南.md](D:/Grade4-2/coding4-1/docs/测试与联调指南.md)：测试账号、联调命令与核心验收清单
 
 ## 自动化 UI 测试说明

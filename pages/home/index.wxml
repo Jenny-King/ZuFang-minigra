@@ -181,7 +181,7 @@
         <view class="content-section">
           <view class="section-heading">
             <text class="section-heading-title">精选推荐</text>
-            <text class="section-heading-link">今日精选</text>
+            <text class="section-heading-link">为你精选 ›</text>
           </view>
           <skeleton type="card" count="{{2}}" />
         </view>
@@ -201,7 +201,7 @@
         <view wx:if="{{featuredList.length > 0}}" class="content-section">
           <view class="section-heading">
             <text class="section-heading-title">精选推荐</text>
-            <text class="section-heading-link">为你精选</text>
+            <text class="section-heading-link">为你精选 ›</text>
           </view>
           <scroll-view class="featured-row" scroll-x enhanced enable-flex show-scrollbar="{{false}}">
             <view
@@ -216,8 +216,8 @@
                   class="featured-thumb"
                   src="{{item.displayImage}}"
                   mode="aspectFill"
-                  radius="var(--radius-lg)"
-                  height="200rpx"
+                  radius="var(--radius-xl)"
+                  height="var(--image-thumb-featured-height)"
                 />
                 <view class="featured-thumb-overlay"></view>
                 <view class="featured-badge featured-badge-{{item.featuredBadgeType}}">
@@ -229,11 +229,11 @@
                   <text class="featured-price-main">{{item.displayPrice}}</text>
                   <text class="featured-price-unit">/月</text>
                 </view>
-                <view class="featured-title text-ellipsis">{{item.displayTitle}}</view>
-                <view class="featured-tags">
-                  <text class="featured-tag">{{item.displayType}}</text>
-                  <text class="featured-tag">{{item.displayArea}}</text>
-                  <text class="featured-tag featured-tag-highlight">{{item.displayRegion}}</text>
+                <view class="featured-title">{{item.displayTitle}}</view>
+                <view class="featured-meta">
+                  <text class="featured-meta-item">{{item.displayType}}</text>
+                  <view class="featured-meta-dot"></view>
+                  <text class="featured-meta-item">{{item.displayArea}}</text>
                 </view>
               </view>
             </view>
@@ -282,7 +282,7 @@
                   class="latest-card-thumb"
                   src="{{item.displayImage}}"
                   mode="aspectFill"
-                  radius="var(--radius-lg)"
+                  radius="var(--radius-md)"
                   height="148rpx"
                 />
               </view>
@@ -292,13 +292,14 @@
                   <text class="latest-card-price-main">{{item.displayPrice}}</text>
                   <text class="latest-card-price-unit">/月</text>
                 </view>
-                <view class="latest-card-tags">
-                  <text class="latest-card-tag">{{item.displayType}}</text>
-                  <text class="latest-card-tag">{{item.displayArea}}</text>
-                  <text class="latest-card-tag latest-card-tag-highlight">{{item.displayRegion}}</text>
+                <view class="latest-card-meta">
+                  <text class="latest-card-meta-item">{{item.displayType}}</text>
+                  <view class="latest-card-meta-dot"></view>
+                  <text class="latest-card-meta-item">{{item.displayArea}}</text>
+                  <view class="latest-card-meta-dot"></view>
+                  <text class="latest-card-meta-item latest-card-meta-item-region text-ellipsis">{{item.displayRegion}}</text>
                 </view>
-                <view class="latest-card-address text-ellipsis">{{item.displayAddress}}</view>
-                <view class="latest-card-time">{{item.displayCreateTime}}</view>
+                <view wx:if="{{item.displayCreateTime}}" class="latest-card-time">{{item.displayCreateTime}}</view>
               </view>
             </view>
           </view>

@@ -151,6 +151,10 @@
   height: 180rpx;
 }
 
+.lazy-image--height-190 {
+  height: 190rpx;
+}
+
 .lazy-image--height-200 {
   height: 200rpx;
 }

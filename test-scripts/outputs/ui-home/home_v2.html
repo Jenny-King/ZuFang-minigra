@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>找房 - ZuFang</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563eb;--blue-bg:#eff6ff;
+  --green:#07c160;--green-bg:#e8f9ee;
+  --red:#ef4444;--orange:#f59e0b;
+  --text-1:#111827;--text-2:#6b7280;--text-3:#9ca3af;
+  --bg:#f2f2f7;--white:#fff;--border:#e5e5ea;
+  --radius:12px;
+  --shadow:0 1px 4px rgba(0,0,0,.07);
+  --shadow-md:0 4px 16px rgba(0,0,0,.10);
+}
+body{
+  font-family:'Noto Sans SC',-apple-system,sans-serif;
+  background:#9ea3ad;
+  display:flex;justify-content:center;padding:32px 0;min-height:100vh;
+}
+
+/* iPhone 13 standard: 390 × 844 */
+.phone{
+  width:390px;min-height:844px;
+  background:var(--bg);
+  border-radius:48px;
+  box-shadow:0 28px 80px rgba(0,0,0,.28),0 0 0 1.5px rgba(0,0,0,.12);
+  overflow:hidden;display:flex;flex-direction:column;
+}
+
+/* ── Status bar ── */
+.status{
+  height:47px;background:var(--white);
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 22px 9px;flex-shrink:0;
+}
+.status-time{font-size:15px;font-weight:600;color:var(--text-1)}
+.status-icons{display:flex;align-items:center;gap:6px}
+.status-icons svg{width:16px;height:16px;fill:var(--text-1)}
+
+/* ── Top bar ── */
+.topbar{
+  background:var(--white);
+  padding:8px 14px 10px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom:0.5px solid var(--border);
+  flex-shrink:0;
+}
+.city-pill{
+  display:flex;align-items:center;gap:4px;
+  padding:6px 10px;border-radius:20px;
+  background:var(--bg);border:1px solid var(--border);
+  cursor:pointer;flex-shrink:0;
+  transition:all .15s;white-space:nowrap;
+}
+.city-pill:hover{background:var(--blue-bg);border-color:#bfdbfe}
+.city-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.city-name{font-size:13px;font-weight:600;color:var(--text-1)}
+.city-chev{width:12px;height:12px;stroke:var(--text-3);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.search-bar{
+  flex:1;display:flex;align-items:center;gap:7px;
+  padding:8px 12px;border-radius:20px;
+  background:#f2f2f7;border:1px solid var(--border);
+  cursor:text;
+}
+.search-bar svg{width:14px;height:14px;stroke:var(--text-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.search-placeholder{font-size:13px;color:var(--text-3)}
+
+/* ── Filter chips ── */
+.filter-bar{
+  background:var(--white);
+  padding:8px 14px 10px;
+  display:flex;align-items:center;gap:7px;
+  border-bottom:0.5px solid var(--border);
+  flex-shrink:0;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 11px;border-radius:20px;
+  border:1px solid var(--border);background:var(--bg);
+  font-size:12.5px;font-weight:500;color:var(--text-2);
+  cursor:pointer;transition:all .18s;user-select:none;
+}
+.chip svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.chip:hover{background:var(--blue-bg);border-color:#93c5fd;color:var(--blue)}
+.chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip.active svg{transform:rotate(180deg)}
+.chip-filter{margin-left:auto}
+
+/* ── Scroll ── */
+.page-scroll{flex:1;overflow-y:auto;padding:14px 0 82px}
+.page-scroll::-webkit-scrollbar{display:none}
+
+/* ── Section header ── */
+.sec-hd{display:flex;align-items:baseline;justify-content:space-between;padding:0 14px 10px}
+.sec-title{font-size:15.5px;font-weight:700;color:var(--text-1)}
+.sec-sub{font-size:12px;color:var(--text-3);cursor:pointer}
+.sec-sub:hover{color:var(--blue)}
+
+/* ── Featured: horizontal scroll ── */
+.feat-scroll{
+  display:flex;gap:10px;
+  padding:0 14px 4px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.feat-scroll::-webkit-scrollbar{display:none}
+
+.feat-card{
+  flex-shrink:0;width:152px;
+  background:var(--white);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-md);
+  overflow:hidden;cursor:pointer;
+  transition:transform .18s;
+}
+.feat-card:hover{transform:translateY(-2px)}
+
+/* Thumbnail — 16:10 ratio, ready for real images */
+.feat-thumb{
+  width:152px;height:108px;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.feat-thumb img{
+  width:100%;height:100%;object-fit:cover;
+  display:block;
+}
+/* Gradient overlay for text legibility */
+.feat-thumb-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(0,0,0,.08) 0%,rgba(0,0,0,.28) 100%);
+  pointer-events:none;
+}
+/* Property tag: top-left pill */
+.feat-tag{
+  position:absolute;top:8px;left:8px;z-index:2;
+  font-size:11px;font-weight:700;
+  padding:3px 8px;border-radius:20px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  letter-spacing:.2px;
+}
+.tag-hot{background:rgba(239,68,68,.85);color:#fff}
+.tag-metro{background:rgba(37,99,235,.85);color:#fff}
+.tag-quality{background:rgba(7,193,96,.85);color:#fff}
+.tag-whole{background:rgba(0,0,0,.40);color:#fff}
+/* Fallback icon when no image */
+.feat-thumb-icon{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.feat-thumb-icon svg{
+  width:36px;height:36px;
+  stroke:rgba(255,255,255,.5);fill:none;
+  stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
+}
+
+.feat-body{padding:9px 10px 11px}
+.feat-price{
+  display:flex;align-items:baseline;gap:1px;
+  line-height:1;
+}
+.feat-price-num{font-size:18px;font-weight:700;color:var(--red);letter-spacing:-.4px}
+.feat-price-unit{font-size:11.5px;color:var(--text-3);font-weight:500}
+.feat-title{
+  font-size:12.5px;color:var(--text-1);font-weight:500;
+  margin-top:5px;line-height:1.4;
+  overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.feat-meta{
+  display:flex;align-items:center;gap:4px;
+  margin-top:5px;flex-wrap:wrap;
+}
+.feat-meta-item{font-size:11px;color:var(--text-3)}
+.feat-meta-dot{width:2px;height:2px;border-radius:50%;background:var(--border);flex-shrink:0}
+
+/* ── Latest section ── */
+.latest-wrap{margin-top:20px}
+.sort-tabs{display:flex;align-items:center;gap:6px;padding:0 14px 10px}
+.sort-tab{
+  padding:5px 14px;border-radius:20px;
+  font-size:12.5px;font-weight:500;
+  cursor:pointer;transition:all .15s;
+  border:1px solid transparent;
+}
+.sort-tab.active{
+  background:var(--blue);color:#fff;
+  box-shadow:0 2px 8px rgba(37,99,235,.28);
+}
+.sort-tab:not(.active){
+  color:var(--text-2);border-color:var(--border);background:var(--white);
+}
+.sort-tab:not(.active):hover{border-color:#93c5fd;color:var(--blue)}
+
+/* List items */
+.list-item{
+  display:flex;gap:11px;
+  background:var(--white);
+  margin:0 12px 8px;
+  border-radius:var(--radius);
+  padding:11px;
+  box-shadow:var(--shadow);
+  cursor:pointer;transition:box-shadow .15s;
+}
+.list-item:hover{box-shadow:var(--shadow-md)}
+
+.list-thumb{
+  width:92px;height:74px;border-radius:9px;
+  flex-shrink:0;overflow:hidden;position:relative;
+}
+.list-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.list-thumb-icon{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.list-thumb-icon svg{
+  width:24px;height:24px;
+  stroke:rgba(255,255,255,.45);fill:none;
+  stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+}
+.list-thumb-tag{
+  position:absolute;bottom:5px;left:5px;z-index:2;
+  font-size:10px;font-weight:700;
+  padding:2px 5px;border-radius:5px;
+  background:rgba(0,0,0,.38);color:#fff;
+}
+
+.list-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between}
+.list-title{
+  font-size:13.5px;font-weight:600;color:var(--text-1);
+  line-height:1.4;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.list-price{
+  font-size:17px;font-weight:700;color:var(--red);
+  letter-spacing:-.4px;margin-top:4px;
+}
+.list-price span{font-size:12px;font-weight:500;color:var(--text-3)}
+.list-meta{
+  display:flex;align-items:center;gap:4px;
+  margin-top:3px;flex-wrap:wrap;
+}
+.list-meta-item{font-size:11.5px;color:var(--text-3)}
+.list-meta-dot{width:2px;height:2px;border-radius:50%;background:#d1d5db;flex-shrink:0}
+
+/* ── TabBar ── */
+.tabbar{
+  height:56px;background:var(--white);
+  border-top:0.5px solid var(--border);
+  display:flex;align-items:center;flex-shrink:0;
+  padding-bottom:4px;
+}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 0}
+.tab-icon svg{width:22px;height:22px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-3)}
+.tab.active .tab-icon svg{stroke:var(--blue)}
+.tab-label{font-size:10px;color:var(--text-3);font-weight:500}
+.tab.active .tab-label{color:var(--blue);font-weight:600}
+.tab-publish .tab-icon{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,#3b82f6,#1d4ed8);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(37,99,235,.38);margin-top:-10px;
+}
+.tab-publish .tab-icon svg{stroke:#fff;width:20px;height:20px}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status -->
+  <div class="status">
+    <span class="status-time">15:44</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 6s4.5-4 11-4 11 4 11 4M5 10s3-2.5 7-2.5S19 10 19 10M9 14s1.5-1 3-1 3 1 3 1M12 18h.01"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="11" rx="2"/><path d="M18 10h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2"/></svg>
+    </div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="city-pill">
+      <span class="city-dot"></span>
+      <span class="city-name">广州</span>
+      <svg class="city-chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="search-placeholder">搜索小区、地铁、房源关键词</span>
+    </div>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="filter-bar">
+    <div class="chip" onclick="toggleChip(this)">
+      区域<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="chip" onclick="toggleChip(this)">
+      居室<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="chip" onclick="toggleChip(this)">
+      租金<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="chip chip-filter" onclick="toggleChip(this)">
+      <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      筛选
+    </div>
+  </div>
+
+  <div class="page-scroll">
+
+    <!-- 精选推荐 -->
+    <div>
+      <div class="sec-hd"><span class="sec-title">精选推荐</span><span class="sec-sub">为你精选 ›</span></div>
+      <div class="feat-scroll">
+
+        <!-- card 1 — 热门精选 -->
+        <div class="feat-card">
+          <div class="feat-thumb" style="background:linear-gradient(135deg,#374151,#1f2937)">
+            <!-- 有真实图片时: <img src="..." alt=""> -->
+            <div class="feat-thumb-overlay"></div>
+            <div class="feat-thumb-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span class="feat-tag tag-hot">🔥 热门精选</span>
+          </div>
+          <div class="feat-body">
+            <div class="feat-price"><span class="feat-price-num">5800</span><span class="feat-price-unit">&nbsp;/月</span></div>
+            <div class="feat-title">[测试房源6]北京朝阳望京一室一厅近地铁</div>
+            <div class="feat-meta">
+              <span class="feat-meta-item">1室1厅</span><span class="feat-meta-dot"></span>
+              <span class="feat-meta-item">51㎡</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- card 2 — 近地铁 -->
+        <div class="feat-card">
+          <div class="feat-thumb" style="background:linear-gradient(135deg,#94a3b8,#64748b)">
+            <div class="feat-thumb-overlay"></div>
+            <div class="feat-thumb-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span class="feat-tag tag-metro">🚇 近地铁</span>
+          </div>
+          <div class="feat-body">
+            <div class="feat-price"><span class="feat-price-num">6900</span><span class="feat-price-unit">&nbsp;/月</span></div>
+            <div class="feat-title">[测试房源5]上海浦东精装两室配套完善</div>
+            <div class="feat-meta">
+              <span class="feat-meta-item">2室1厅</span><span class="feat-meta-dot"></span>
+              <span class="feat-meta-item">74㎡</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- card 3 — 品质房源 -->
+        <div class="feat-card">
+          <div class="feat-thumb" style="background:linear-gradient(135deg,#b45309,#92400e)">
+            <div class="feat-thumb-overlay"></div>
+            <div class="feat-thumb-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span class="feat-tag tag-quality">✨ 品质房源</span>
+          </div>
+          <div class="feat-body">
+            <div class="feat-price"><span class="feat-price-num">4600</span><span class="feat-price-unit">&nbsp;/月</span></div>
+            <div class="feat-title">[测试房源4]广州天河 CBD 采光充足</div>
+            <div class="feat-meta">
+              <span class="feat-meta-item">1室0厅</span><span class="feat-meta-dot"></span>
+              <span class="feat-meta-item">42㎡</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- card 4 -->
+        <div class="feat-card">
+          <div class="feat-thumb" style="background:linear-gradient(135deg,#1e3a5f,#1e40af)">
+            <div class="feat-thumb-overlay"></div>
+            <div class="feat-thumb-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span class="feat-tag tag-whole">整租</span>
+          </div>
+          <div class="feat-body">
+            <div class="feat-price"><span class="feat-price-num">3800</span><span class="feat-price-unit">&nbsp;/月</span></div>
+            <div class="feat-title">[测试房源3]深圳南山科技园两居室精装</div>
+            <div class="feat-meta">
+              <span class="feat-meta-item">2室1厅</span><span class="feat-meta-dot"></span>
+              <span class="feat-meta-item">60㎡</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 最新发布 -->
+    <div class="latest-wrap">
+      <div class="sec-hd" style="padding-top:18px;padding-bottom:6px">
+        <span class="sec-title">最新发布</span>
+        <span class="sec-sub">共 6 套在租房源</span>
+      </div>
+      <div class="sort-tabs">
+        <div class="sort-tab active" onclick="switchTab(this)">最新</div>
+        <div class="sort-tab" onclick="switchTab(this)">价格 ↑</div>
+        <div class="sort-tab" onclick="switchTab(this)">面积 ↑</div>
+      </div>
+
+      <div class="list-item">
+        <div class="list-thumb" style="background:linear-gradient(135deg,#374151,#1f2937)">
+          <div class="list-thumb-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <span class="list-thumb-tag">整租</span>
+        </div>
+        <div class="list-body">
+          <div class="list-title">[测试房源6]北京朝阳望京一室一厅近地铁</div>
+          <div class="list-price">5800<span>/月</span></div>
+          <div class="list-meta">
+            <span class="list-meta-item">1室1厅</span><span class="list-meta-dot"></span>
+            <span class="list-meta-item">51㎡</span><span class="list-meta-dot"></span>
+            <span class="list-meta-item">朝阳区</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-item">
+        <div class="list-thumb" style="background:linear-gradient(135deg,#94a3b8,#64748b)">
+          <div class="list-thumb-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <span class="list-thumb-tag">合租</span>
+        </div>
+        <div class="list-body">
+          <div class="list-title">[测试房源5]上海浦东精装两室配套完善</div>
+          <div class="list-price">6900<span>/月</span></div>
+          <div class="list-meta">
+            <span class="list-meta-item">2室1厅</span><span class="list-meta-dot"></span>
+            <span class="list-meta-item">74㎡</span><span class="list-meta-dot"></span>
+            <span class="list-meta-item">浦东新区</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-item">
+        <div class="list-thumb" style="background:linear-gradient(135deg,#b45309,#92400e)">
+          <div class="list-thumb-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <span class="list-thumb-tag">整租</span>
+        </div>
+        <div class="list-body">
+          <div class="list-title">[测试房源4]广州天河 CBD 一室一厅采光充足</div>
+          <div class="list-price">4600<span>/月</span></div>
+          <div class="list-meta">
+            <span class="list-meta-item">1室0厅</span><span class="list-meta-dot"></span>
+            <span class="list-meta-item">42㎡</span><span class="list-meta-dot"></span>
+            <span class="list-meta-item">天河区</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TabBar -->
+  <div class="tabbar">
+    <div class="tab active">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <span class="tab-label">找房</span>
+    </div>
+    <div class="tab tab-publish">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      <span class="tab-label">发布</span>
+    </div>
+    <div class="tab">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <span class="tab-label">消息</span>
+    </div>
+    <div class="tab">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <span class="tab-label">我的</span>
+    </div>
+  </div>
+
+</div>
+<script>
+function toggleChip(el){el.classList.toggle('active')}
+function switchTab(el){
+  el.closest('.sort-tabs').querySelectorAll('.sort-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

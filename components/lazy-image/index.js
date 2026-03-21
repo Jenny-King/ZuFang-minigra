@@ -10,6 +10,8 @@ const HEIGHT_CLASS_MAP = {
   "148rpx": "lazy-image--height-148",
   "160rpx": "lazy-image--height-160",
   "180rpx": "lazy-image--height-180",
+  "190rpx": "lazy-image--height-190",
+  "var(--image-thumb-featured-height)": "lazy-image--height-190",
   "200rpx": "lazy-image--height-200",
   "220rpx": "lazy-image--height-220",
   "240rpx": "lazy-image--height-240",

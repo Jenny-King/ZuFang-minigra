@@ -44,12 +44,17 @@ page {
   /* Typography */
   --font-xxs: 18rpx;
   --font-xs: 20rpx;
+  --font-xs-plus: 23rpx;
   --font-caption: 22rpx;
   --font-sm: 24rpx;
+  --font-sm-plus: 25rpx;
   --font-label: 26rpx;
+  --font-label-plus: 27rpx;
   --font-md: 28rpx;
+  --font-title-xs: 31rpx;
   --font-title-sm: 30rpx;
   --font-lg: 32rpx;
+  --font-price-lg: 36rpx;
   --font-xl: 40rpx;
   --font-2xl: 40rpx;
   --weight-regular: 400;
@@ -97,11 +102,14 @@ page {
   --opacity-disabled: 0.4;
   --shadow-card: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
   --shadow-card-soft: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  --shadow-card-raised: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  --shadow-primary-soft: 0 4rpx 16rpx rgba(37, 99, 235, 0.22);
   --shadow-float: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
   --shadow-focus: 0 0 0 4rpx rgba(37, 99, 235, 0.22);
   --gradient-brand: linear-gradient(180deg, #2f64f5 0%, #1f4fd7 100%);
   --gradient-panel: linear-gradient(180deg, #fbfcff 0%, #f4f7ff 100%);
   --gradient-card-active: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
+  --gradient-image-featured-overlay: linear-gradient(180deg, rgba(17, 24, 39, 0.08) 0%, rgba(17, 24, 39, 0.28) 100%);
 
   /* Component-specific tokens */
   --skeleton-base-color: #eef2f7;
@@ -119,8 +127,15 @@ page {
   --fab-size: 88rpx;
   --avatar-size-md: 80rpx;
   --avatar-size-lg: 92rpx;
+  --card-width-featured: 304rpx;
+  --image-thumb-featured-height: 190rpx;
   --image-thumb-size: 148rpx;
+  --image-thumb-list-width: 184rpx;
   --image-upload-size: 200rpx;
+  --color-featured-badge-hot: rgba(239, 68, 68, 0.82);
+  --color-featured-badge-metro: rgba(37, 99, 235, 0.82);
+  --color-featured-badge-quality: rgba(7, 193, 96, 0.82);
+  --color-glass-border-light: rgba(255, 255, 255, 0.18);
 
   /* DEPRECATED: Legacy aliases — to be removed in next version */
   --color-primary-background: var(--color-primary-bg);   /* → --color-primary-bg */

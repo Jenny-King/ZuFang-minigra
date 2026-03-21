@@ -64,10 +64,12 @@
         <view class="form-row">
           <text class="label">户型</text>
           <view class="input layout-trigger" bindtap="onOpenLayoutSheet">
-            <text class="layout-trigger__value {{formData.layoutText ? '' : 'layout-trigger__value--placeholder'}}">
-              {{formData.layoutText || '请选择户型'}}
-            </text>
-            <text class="layout-trigger__arrow">></text>
+            <view class="layout-trigger__content">
+              <text class="layout-trigger__value {{formData.layoutText ? '' : 'layout-trigger__value--placeholder'}}" style="height: 100rpx; display: block; box-sizing: border-box">
+                {{formData.layoutText || '请选择户型'}}
+              </text>
+            </view>
+            <view class="layout-trigger__arrow">></view>
           </view>
         </view>
 

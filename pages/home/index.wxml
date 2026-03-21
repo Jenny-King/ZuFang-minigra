@@ -57,10 +57,7 @@
           data-key="all"
           bindtap="onFilterChipTap"
         >
-          <view class="filter-chip-funnel">
-            <view class="filter-chip-funnel-top"></view>
-            <view class="filter-chip-funnel-stem"></view>
-          </view>
+          <view class="filter-chip-icon"></view>
           筛选
         </view>
       </view>
@@ -204,6 +201,7 @@
           <scroll-view class="featured-row" scroll-x enhanced enable-flex show-scrollbar="{{false}}">
             <view
               class="featured-card"
+              hover-class="card-active"
               wx:for="{{featuredList}}"
               wx:key="_id"
               data-house-id="{{item._id}}"
@@ -214,7 +212,6 @@
                   class="featured-thumb"
                   src="{{item.displayImage}}"
                   mode="aspectFill"
-                  radius="var(--radius-xl)"
                   height="var(--image-thumb-featured-height)"
                 />
                 <view class="featured-thumb-overlay"></view>
@@ -270,6 +267,7 @@
           <view wx:else class="latest-list">
             <view
               class="latest-card"
+              hover-class="card-active"
               wx:for="{{latestList}}"
               wx:key="_id"
               data-house-id="{{item._id}}"
@@ -280,24 +278,25 @@
                   class="latest-card-thumb"
                   src="{{item.displayImage}}"
                   mode="aspectFill"
-                  radius="18rpx"
-                  height="var(--image-thumb-list-height)"
+                  radius="var(--radius-lg)"
+                  height="var(--listing-card-thumb-height)"
                 />
               </view>
               <view class="latest-card-body">
-                <view class="latest-card-title">{{item.displayTitle}}</view>
-                <view class="latest-card-price">
-                  <text class="latest-card-price-main">{{item.displayPrice}}</text>
-                  <text class="latest-card-price-unit">/月</text>
-                </view>
+                <view class="latest-card-title text-ellipsis">{{item.displayTitle}}</view>
                 <view class="latest-card-meta">
                   <text class="latest-card-meta-item">{{item.displayType}}</text>
                   <view class="latest-card-meta-dot"></view>
                   <text class="latest-card-meta-item">{{item.displayArea}}</text>
-                  <view class="latest-card-meta-dot"></view>
-                  <text class="latest-card-meta-item latest-card-meta-item-region text-ellipsis">{{item.displayRegion}}</text>
                 </view>
-                <view wx:if="{{item.displayCreateTime}}" class="latest-card-time">{{item.displayCreateTime}}</view>
+                <view class="latest-card-address">{{item.displayAddress}}</view>
+                <view class="latest-card-footer">
+                  <view class="latest-card-price">
+                    <text class="latest-card-price-main">{{item.displayPrice}}</text>
+                    <text class="latest-card-price-unit">/月</text>
+                  </view>
+                  <text wx:if="{{item.displayCreateTime}}" class="latest-card-time">{{item.displayCreateTime}}</text>
+                </view>
               </view>
             </view>
           </view>

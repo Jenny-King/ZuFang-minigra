@@ -1,140 +1,292 @@
-<view class="container listings-page" bindtap="onPageTap">
-  <view class="listings-head" catchtap="noop">
-    <view class="head-copy">
+<view class="container listings-page {{pageMode === 'tenant' ? 'tenant-page' : ''}}" bindtap="onPageTap">
+  <block wx:if="{{pageMode === 'landlord'}}">
+    <view class="listings-head" catchtap="noop">
       <view class="page-title">房源管理</view>
+      <view class="head-actions">
+        <button class="booking-manage-btn" size="mini" bindtap="onGoBookingManage">预约管理</button>
+        <button class="publish-entry-btn" size="mini" bindtap="onGoPublish">发布新房源</button>
+      </view>
     </view>
-    <view class="head-actions">
-      <button class="booking-manage-btn" size="mini" bindtap="onGoBookingManage">预约管理</button>
-      <button class="publish-entry-btn" size="mini" bindtap="onGoPublish">发布新房源</button>
+
+    <view class="segment-wrap" catchtap="noop">
+      <view class="segment-control">
+        <view
+          class="segment-tab {{activeFilter === 'all' ? 'active' : ''}}"
+          data-filter="all"
+          bindtap="onStatCardTap"
+        >
+          <text class="segment-label">全部</text>
+          <view class="segment-badge">{{stats.all}}</view>
+        </view>
+        <view
+          class="segment-tab {{activeFilter === 'active' ? 'active' : ''}}"
+          data-filter="active"
+          bindtap="onStatCardTap"
+        >
+          <text class="segment-label">在租中</text>
+          <view class="segment-badge">{{stats.active}}</view>
+        </view>
+        <view
+          class="segment-tab {{activeFilter === 'pending' ? 'active' : ''}}"
+          data-filter="pending"
+          bindtap="onStatCardTap"
+        >
+          <text class="segment-label">审核中</text>
+          <view class="segment-badge">{{stats.pending}}</view>
+        </view>
+        <view
+          class="segment-tab {{activeFilter === 'hidden' ? 'active' : ''}}"
+          data-filter="hidden"
+          bindtap="onStatCardTap"
+        >
+          <text class="segment-label">已下架</text>
+          <view class="segment-badge">{{stats.hidden}}</view>
+        </view>
+      </view>
     </view>
-  </view>
 
-  <view class="stats-bar" catchtap="noop">
-    <view
-      class="stat-card blue {{activeFilter === 'all' ? 'active' : ''}}"
-      data-filter="all"
-      bindtap="onStatCardTap"
-    >
-      <view class="stat-number">{{stats.all}}</view>
-      <view class="stat-label">全部</view>
+    <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
+
+    <view wx:if="{{empty && !loading}}" class="empty-state" catchtap="noop">
+      <view class="empty-icon">🏠</view>
+      <view class="empty-title">还没有发布的房源</view>
+      <view class="empty-subtitle">从这里开始创建第一套房源，发布成功后会自动回到此页面</view>
+      <button class="empty-action-btn" bindtap="onGoPublish">发布新房源</button>
     </view>
-    <view
-      class="stat-card green {{activeFilter === 'active' ? 'active' : ''}}"
-      data-filter="active"
-      bindtap="onStatCardTap"
-    >
-      <view class="stat-number">{{stats.active}}</view>
-      <view class="stat-label">在租中</view>
+
+    <view wx:elif="{{!loading && visibleList.length === 0}}" class="empty-state slim" catchtap="noop">
+      <view class="empty-icon">🔎</view>
+      <view class="empty-title">暂无符合当前筛选条件的房源</view>
+      <view class="empty-subtitle">试试切换到其他状态查看</view>
     </view>
-    <view
-      class="stat-card amber {{activeFilter === 'pending' ? 'active' : ''}}"
-      data-filter="pending"
-      bindtap="onStatCardTap"
-    >
-      <view class="stat-number">{{stats.pending}}</view>
-      <view class="stat-label">审核中</view>
-    </view>
-    <view
-      class="stat-card gray {{activeFilter === 'hidden' ? 'active' : ''}}"
-      data-filter="hidden"
-      bindtap="onStatCardTap"
-    >
-      <view class="stat-number">{{stats.hidden}}</view>
-      <view class="stat-label">已下架</view>
-    </view>
-  </view>
 
-  <view wx:if="{{hintVisible}}" class="hint-bar" catchtap="noop">
-    <view class="hint-icon">
-      <text class="hint-icon-mark">i</text>
-    </view>
-    <text class="hint-text">左滑卡片可快速下架或删除，也可通过右下角更多按钮操作</text>
-    <text class="hint-close" bindtap="onCloseHintTap">×</text>
-  </view>
+    <view wx:else class="listing-list">
+      <view
+        wx:for="{{visibleList}}"
+        wx:key="houseId"
+        class="listing-card status-{{item.statusKey}} {{openActionHouseId === item.houseId ? 'swiped' : ''}}"
+        data-house-id="{{item.houseId}}"
+        data-status-key="{{item.statusKey}}"
+        bindtouchstart="onCardTouchStart"
+        bindtouchend="onCardTouchEnd"
+        catchtap="noop"
+      >
+        <view class="card-inner">
+          <view class="card-main">
+            <view class="thumb-box">
+              <image wx:if="{{item.displayImage}}" class="thumb-image" src="{{item.displayImage}}" mode="aspectFill" />
+              <view wx:else class="thumb-fallback">房</view>
+            </view>
 
-  <view wx:if="{{errorText}}" class="error-box">{{errorText}}</view>
-
-  <view wx:if="{{empty && !loading}}" class="empty-state" catchtap="noop">
-    <view class="empty-icon">🏠</view>
-    <view class="empty-title">还没有发布的房源</view>
-    <view class="empty-subtitle">从这里开始创建第一套房源，发布成功后会自动回到此页面</view>
-    <button class="empty-action-btn" bindtap="onGoPublish">发布新房源</button>
-  </view>
-
-  <view wx:elif="{{!loading && visibleList.length === 0}}" class="empty-state slim" catchtap="noop">
-    <view class="empty-icon">🔎</view>
-    <view class="empty-title">暂无符合当前筛选条件的房源</view>
-    <view class="empty-subtitle">试试切换到其他状态查看</view>
-  </view>
-
-  <view wx:else class="listing-list">
-    <view
-      wx:for="{{visibleList}}"
-      wx:key="houseId"
-      class="listing-card {{openActionHouseId === item.houseId ? 'swiped' : ''}}"
-      data-house-id="{{item.houseId}}"
-      bindtouchstart="onCardTouchStart"
-      bindtouchend="onCardTouchEnd"
-      catchtap="noop"
-    >
-      <view class="card-inner">
-        <view class="card-body">
-          <view class="thumb-box">
-            <image wx:if="{{item.displayImage}}" class="thumb-image" src="{{item.displayImage}}" mode="aspectFill" />
-            <view wx:else class="thumb-fallback">房</view>
-          </view>
-
-          <view class="card-info">
-            <view class="card-title">{{item.displayTitle}}</view>
-            <view class="card-price">{{item.displayPrice}}<text class="price-unit">/月</text></view>
-            <view class="card-tags">
-              <text class="tag neutral">{{item.displayLayout}}</text>
-              <text class="tag neutral">{{item.displayArea}}</text>
-              <text class="tag neutral">{{item.displayFloor}}</text>
-              <text class="tag {{item.statusBadgeClass}}">{{item.displayStatus}}</text>
+            <view class="card-content">
+              <view class="card-title-row">
+                <view class="card-title">{{item.displayTitle}}</view>
+                <text class="status-chip {{item.statusBadgeClass}}">{{item.displayStatus}}</text>
+              </view>
+              <view class="card-price">
+                {{item.displayPriceValue}}
+                <text class="price-unit">元/月</text>
+              </view>
+              <view class="card-meta">
+                <text class="card-meta-item">{{item.displayLayout}}</text>
+                <view class="card-meta-dot"></view>
+                <text class="card-meta-item">{{item.displayArea}}</text>
+                <view class="card-meta-dot"></view>
+                <text class="card-meta-item">{{item.displayFloor}}</text>
+                <text class="card-meta-date">发布于 {{item.displayCreateTime || '--'}}</text>
+              </view>
             </view>
           </view>
+
+          <view class="card-actions-bar">
+            <block wx:if="{{item.isHidden}}">
+              <button class="card-action-btn primary" size="mini" data-house-id="{{item.houseId}}" bindtap="onRepublishTap">重新发布</button>
+              <view class="card-action-divider"></view>
+              <button
+                class="card-action-btn danger"
+                size="mini"
+                data-house-id="{{item.houseId}}"
+                data-title="{{item.displayTitle}}"
+                bindtap="onDeleteHouseTap"
+              >删除</button>
+            </block>
+            <block wx:else>
+              <button class="card-action-btn primary" size="mini" data-house-id="{{item.houseId}}" bindtap="onGoEdit">编辑</button>
+              <view class="card-action-divider"></view>
+              <button
+                class="card-action-btn"
+                size="mini"
+                data-house-id="{{item.houseId}}"
+                data-house-title="{{item.displayTitle}}"
+                bindtap="onGoBookingManage"
+              >预约记录</button>
+              <view class="card-action-divider"></view>
+              <button class="card-action-btn" size="mini" data-house-id="{{item.houseId}}" bindtap="onToggleActionsTap">更多</button>
+            </block>
+          </view>
         </view>
 
-        <view class="card-footer">
-          <text class="card-time">发布于 {{item.displayCreateTime || '--'}}</text>
-          <view class="card-actions">
-            <button class="action-btn edit" size="mini" data-house-id="{{item.houseId}}" bindtap="onGoEdit">编辑</button>
-            <button class="action-btn more" size="mini" data-house-id="{{item.houseId}}" bindtap="onToggleActionsTap">···</button>
+        <view wx:if="{{!item.isHidden}}" class="swipe-actions">
+          <view
+            class="swipe-btn {{item.actionButtonClass}}"
+            data-house-id="{{item.houseId}}"
+            data-status="{{item.actionStatus}}"
+            bindtap="onToggleStatusTap"
+          >
+            <text class="swipe-btn-text">{{item.actionLabel}}</text>
+          </view>
+          <view
+            class="swipe-btn swipe-delete"
+            data-house-id="{{item.houseId}}"
+            data-title="{{item.displayTitle}}"
+            bindtap="onDeleteHouseTap"
+          >
+            <text class="swipe-btn-text">删除</text>
           </view>
         </view>
       </view>
+    </view>
 
-      <view class="swipe-actions">
-        <view
-          class="swipe-btn {{item.actionButtonClass}}"
-          data-house-id="{{item.houseId}}"
-          data-status="{{item.actionStatus}}"
-          bindtap="onToggleStatusTap"
-        >
-          <text class="swipe-btn-text">{{item.actionLabelTop}}{{item.actionLabelBottom}}</text>
+    <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
+    <view wx:if="{{!loading && visibleList.length > 0 && !hasMore}}" class="loading-tip">— 没有更多了 —</view>
+
+    <view wx:if="{{showDeleteModal}}" class="delete-modal-mask" bindtap="onCloseDeleteModal">
+      <view class="delete-modal-panel" catchtap="noop">
+        <view class="delete-modal-title">确认删除“{{pendingDeleteTitle || '未命名房源'}}”？</view>
+        <view class="delete-modal-subtitle">删除后不可恢复，该房源将从平台永久下线。</view>
+        <button class="delete-confirm-btn" bindtap="onConfirmDeleteTap">确认删除</button>
+        <button class="delete-cancel-btn" bindtap="onCloseDeleteModal">取消</button>
+      </view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="tenant-shell">
+      <view class="tenant-map-stage">
+        <view class="tenant-map-card">
+          <map
+            class="tenant-map"
+            latitude="{{tenantMapLatitude}}"
+            longitude="{{tenantMapLongitude}}"
+            markers="{{tenantMarkers}}"
+            scale="{{tenantMapScale}}"
+            show-location
+            bindmarkertap="onTenantMarkerTap"
+          >
+            <cover-view class="tenant-map-status">
+              <cover-view class="tenant-map-status-title">{{tenantCurrentCityLabel}}{{tenantCurrentDistrict ? ' · ' + tenantCurrentDistrict : ''}}</cover-view>
+              <cover-view class="tenant-map-status-subtitle">
+                {{tenantLocationLoading ? '正在定位附近房源' : (tenantLocationErrorText || '点击地图标记可同步定位下方卡片')}}
+              </cover-view>
+            </cover-view>
+
+            <cover-view class="tenant-map-tools">
+              <cover-view class="tenant-map-tool" bindtap="onTenantZoomIn">+</cover-view>
+              <cover-view class="tenant-map-tool" bindtap="onTenantZoomOut">-</cover-view>
+              <cover-view class="tenant-map-tool tenant-map-tool-location" bindtap="onTenantRefreshTap">
+                {{tenantLocationLoading ? '...' : '定'}}
+              </cover-view>
+            </cover-view>
+
+            <cover-view class="tenant-view-toggle {{tenantSheetExpanded ? 'raised' : ''}}">
+              <cover-view class="tenant-view-toggle-pill">
+                <cover-view
+                  class="tenant-view-toggle-btn {{!tenantSheetExpanded ? 'active' : ''}}"
+                  data-mode="map"
+                  bindtap="onTenantViewModeTap"
+                >地图</cover-view>
+                <cover-view
+                  class="tenant-view-toggle-btn {{tenantSheetExpanded ? 'active' : ''}}"
+                  data-mode="list"
+                  bindtap="onTenantViewModeTap"
+                >列表</cover-view>
+              </cover-view>
+            </cover-view>
+          </map>
         </view>
-        <view
-          class="swipe-btn swipe-delete"
-          data-house-id="{{item.houseId}}"
-          data-title="{{item.displayTitle}}"
-          bindtap="onDeleteHouseTap"
-        >
-          <text class="swipe-btn-text">删除</text>
+
+        <view class="tenant-bottom-sheet {{tenantSheetExpanded ? 'expanded' : 'collapsed'}}">
+          <view class="tenant-sheet-panel">
+            <view
+              class="tenant-sheet-handle"
+              bindtap="onToggleTenantSheet"
+              bindtouchstart="onTenantSheetTouchStart"
+              bindtouchend="onTenantSheetTouchEnd"
+            >
+              <view class="tenant-sheet-grabber"></view>
+            </view>
+
+            <view class="tenant-sheet-head">
+              <view class="tenant-sheet-head-main">
+                <view class="tenant-sheet-title">附近房源</view>
+                <view class="tenant-sheet-count">共 {{tenantHouseList.length}} 套可租</view>
+              </view>
+              <view class="tenant-sheet-sort" bindtap="onTenantSortTap">
+                <text class="tenant-sheet-sort-text">{{tenantSortLabel}}</text>
+                <text class="tenant-sheet-sort-arrow">▾</text>
+              </view>
+            </view>
+
+            <view class="tenant-sheet-notice">
+              <text class="tenant-sheet-notice-location">{{tenantCurrentCityLabel}}{{tenantCurrentDistrict ? ' · ' + tenantCurrentDistrict : ''}}</text>
+              <view class="tenant-sheet-notice-divider"></view>
+              <text class="tenant-sheet-notice-text">{{tenantSheetSubtitle}}</text>
+            </view>
+
+            <view wx:if="{{tenantErrorText}}" class="error-box tenant-sheet-error">{{tenantErrorText}}</view>
+
+            <view wx:if="{{tenantLoading}}" class="loading-tip tenant-sheet-loading">地图房源加载中...</view>
+
+            <view wx:elif="{{tenantHouseList.length === 0}}" class="empty-state slim tenant-sheet-empty" catchtap="noop">
+              <view class="empty-icon">🏘</view>
+              <view class="empty-title">当前城市暂无房源</view>
+              <view class="empty-subtitle">试试刷新定位，或者稍后再来看看</view>
+              <button class="empty-action-btn" bindtap="onTenantRefreshTap">刷新定位</button>
+            </view>
+
+            <scroll-view
+              wx:else
+              class="tenant-sheet-list-scroll {{tenantSheetExpanded ? 'expanded' : ''}}"
+              scroll-y
+              enhanced
+              show-scrollbar="{{false}}"
+            >
+              <view class="tenant-sheet-list">
+                <view
+                  wx:for="{{tenantSheetHouseList}}"
+                  wx:key="houseId"
+                  class="tenant-sheet-card {{tenantSelectedHouseId === item.houseId ? 'active' : ''}}"
+                  data-house-id="{{item.houseId}}"
+                  bindtap="onTenantCardTap"
+                >
+                  <view class="tenant-sheet-thumb-wrap">
+                    <image class="tenant-sheet-thumb" src="{{item.displayImage}}" mode="aspectFill" />
+                    <view wx:if="{{tenantSelectedHouseId === item.houseId}}" class="tenant-sheet-badge active">已选中</view>
+                    <view wx:elif="{{!item.hasLocation}}" class="tenant-sheet-badge">无坐标</view>
+                  </view>
+
+                  <view class="tenant-sheet-card-body">
+                    <view class="tenant-sheet-card-title">{{item.displayTitle}}</view>
+                    <view class="tenant-sheet-card-tags">
+                      <text wx:if="{{item.hasLocation}}" class="tenant-sheet-tag tenant-sheet-tag-primary">地图可看</text>
+                      <text class="tenant-sheet-tag">{{item.region || tenantCurrentDistrict || tenantCurrentCityLabel}}</text>
+                      <text wx:if="{{item.displayDistance}}" class="tenant-sheet-tag">{{'距你 ' + item.displayDistance}}</text>
+                    </view>
+                    <view class="tenant-sheet-card-meta">{{item.displayMeta}}</view>
+                    <view class="tenant-sheet-card-address">{{item.displayAddress}}</view>
+                    <view class="tenant-sheet-card-price-row">
+                      <view class="tenant-sheet-card-price">{{item.displayPrice}}</view>
+                      <view class="tenant-sheet-card-distance">
+                        {{item.displayDistance ? '距你 ' + item.displayDistance : (item.hasLocation ? '地图可见' : '查看详情')}}
+                      </view>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </scroll-view>
+          </view>
         </view>
       </view>
     </view>
-  </view>
-
-  <view wx:if="{{loading}}" class="loading-tip">加载中...</view>
-  <view wx:if="{{!loading && visibleList.length > 0 && !hasMore}}" class="loading-tip">— 没有更多了 —</view>
-
-  <view wx:if="{{showDeleteModal}}" class="delete-modal-mask" bindtap="onCloseDeleteModal">
-    <view class="delete-modal-panel" catchtap="noop">
-      <view class="delete-modal-title">确认删除“{{pendingDeleteTitle || '未命名房源'}}”？</view>
-      <view class="delete-modal-subtitle">删除后不可恢复，该房源将从平台永久下线。</view>
-      <button class="delete-confirm-btn" bindtap="onConfirmDeleteTap">确认删除</button>
-      <button class="delete-cancel-btn" bindtap="onCloseDeleteModal">取消</button>
-    </view>
-  </view>
+  </block>
 </view>

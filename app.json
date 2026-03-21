@@ -75,7 +75,7 @@
       },
       {
         "pagePath": "pages/publish/index",
-        "text": "发布",
+        "text": "房源",
         "iconPath": "assets/icons/publish.png",
         "selectedIconPath": "assets/icons/publish-active.png"
       },

@@ -4,6 +4,14 @@
     <text class="page-subtitle">管理租客提交的看房预约</text>
   </view>
 
+  <view wx:if="{{activeHouseId}}" class="house-scope" catchtap="noop">
+    <view class="house-scope__content">
+      <text class="house-scope__label">当前房源</text>
+      <text class="house-scope__title">{{activeHouseTitle}}</text>
+    </view>
+    <button class="house-scope__clear" size="mini" bindtap="onClearHouseFilter">查看全部</button>
+  </view>
+
   <!-- 状态筛选 -->
   <scroll-view class="filter-bar" scroll-x enhanced show-scrollbar="{{false}}">
     <view class="filter-list">
@@ -24,8 +32,8 @@
 
   <empty-state
     wx:elif="{{!loading && bookings.length === 0}}"
-    title="暂无预约"
-    subtitle="当有租客预约您的房源时会显示在这里"
+    title="{{activeHouseId ? '该房源暂无预约' : '暂无预约'}}"
+    subtitle="{{activeHouseId ? '切换到全部预约可查看其他房源的看房记录' : '当有租客预约您的房源时会显示在这里'}}"
   />
 
   <view wx:else class="booking-list">

@@ -23,6 +23,11 @@
   overflow: visible;
   flex-shrink: 0;
   padding-bottom: 0;
+  height: 441rpx;
+  display: block;
+  box-sizing: border-box;
+  left: 0rpx;
+  top: 0rpx;
 }
 .hero::before {
   content: '';
@@ -53,6 +58,9 @@
   padding: 44rpx 40rpx 28rpx;
   position: relative;
   z-index: 1;
+  position: relative;
+  left: 0rpx;
+  top: -87rpx;
 }
 .avatar-wrap {
   position: relative;
@@ -101,6 +109,9 @@
   position: relative;
   z-index: 1;
   flex-wrap: wrap;
+  position: relative;
+  left: 0rpx;
+  top: -107rpx;
 }
 .badge {
   display: inline-flex;
@@ -140,6 +151,9 @@
   overflow: hidden;
   position: relative;
   z-index: 1;
+  position: relative;
+  left: 0rpx;
+  top: -107rpx;
 }
 .stat {
   flex: 1;
@@ -148,6 +162,16 @@
   align-items: center;
   padding: 26rpx 12rpx;
   position: relative;
+}
+.stat-favorites {
+  position: relative;
+  left: 0rpx;
+  top: 2rpx;
+}
+.stat-notifications {
+  position: relative;
+  left: 0rpx;
+  top: 2rpx;
 }
 .stat:active {
   background: rgba(255, 255, 255, 0.08);
@@ -308,6 +332,9 @@
   align-items: center;
   padding: 44rpx 32rpx 40rpx;
   gap: 16rpx;
+  height: 222rpx;
+  display: flex;
+  box-sizing: border-box;
 }
 .appt-empty-icon {
   width: 88rpx;
@@ -378,10 +405,22 @@
 .menu-icon.bg-orange {
   background: linear-gradient(135deg, #f59e0b, #d97706);
 }
-.menu-icon-text {
-  font-size: var(--font-title-sm);
-  font-weight: var(--weight-bold);
-  color: var(--color-text-inverse);
+.menu-icon-svg {
+  width: 44rpx;
+  height: 44rpx;
+  background-color: var(--color-text-inverse);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+}
+.icon-support {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 18v-6a9 9 0 0 1 18 0v6'/%3E%3Cpath d='M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z'/%3E%3C/svg%3E");
+}
+.icon-settings {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z'/%3E%3C/svg%3E");
+}
+.icon-switch-role {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17 1l4 4-4 4'/%3E%3Cpath d='M3 11V9a4 4 0 0 1 4-4h14'/%3E%3Cpath d='M7 23l-4-4 4-4'/%3E%3Cpath d='M21 13v2a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E");
 }
 .menu-text {
   flex: 1;

@@ -4,8 +4,8 @@
   </view>
 
   <block wx:if="{{isLoggedIn && userInfo}}">
-    <view class="hero" style="height: 535rpx; display: block; box-sizing: border-box; left: 0rpx; top: 0rpx" style="height: 441rpx; display: block; box-sizing: border-box; left: 0rpx; top: 0rpx">
-      <view class="hero-main" style="position: relative; left: 0rpx; top: -87rpx">
+    <view class="hero">
+      <view class="hero-main">
         <view class="avatar-wrap" bindtap="onAvatarTap">
           <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/avatar-placeholder.png'}}" mode="aspectFill" />
         </view>
@@ -17,7 +17,7 @@
           <view class="hero-phone">{{userInfo.displayPhone}}</view>
         </view>
       </view>
-      <view class="badges" style="position: relative; left: 0rpx; top: -107rpx">
+      <view class="badges">
         <view class="badge badge-role {{userInfo.roleBadgeClass}}">
           <text>{{userInfo.displayRole}}</text>
         </view>
@@ -30,8 +30,8 @@
       </view>
       
       <!-- Stats 3-col inline row -->
-      <view class="stats-row" style="position: relative; left: 0rpx; top: -107rpx">
-        <view class="stat {{activeQuickAction === 'favorites' ? 'active' : ''}}" data-action="favorites" bindtap="onQuickActionTap" style="position: relative; left: 0rpx; top: 2rpx">
+      <view class="stats-row">
+        <view class="stat stat-favorites {{activeQuickAction === 'favorites' ? 'active' : ''}}" data-action="favorites" bindtap="onQuickActionTap">
           <text class="stat-num">{{quickStats.favoriteLabel}}</text>
           <text class="stat-label">我的收藏</text>
         </view>
@@ -39,7 +39,7 @@
           <text class="stat-num">{{quickStats.historyLabel}}</text>
           <text class="stat-label">浏览历史</text>
         </view>
-        <view class="stat {{activeQuickAction === 'notifications' ? 'active' : ''}}" data-action="notifications" bindtap="onQuickActionTap" style="position: relative; left: 0rpx; top: 2rpx">
+        <view class="stat stat-notifications {{activeQuickAction === 'notifications' ? 'active' : ''}}" data-action="notifications" bindtap="onQuickActionTap">
           <text class="stat-num">{{quickStats.notificationLabel}}</text>
           <text class="stat-label">消息通知</text>
           <text class="stat-badge" wx:if="{{unreadNotificationCount > 0}}">新</text>
@@ -83,7 +83,7 @@
           <text class="appt-preview-status {{item.statusClass}}">{{item.statusText}}</text>
         </view>
       </view>
-      <view wx:else class="appt-empty" style="height: 222rpx; display: flex; box-sizing: border-box">
+      <view wx:else class="appt-empty">
         <text class="appt-empty-text">快速查看预约看房记录</text>
         <button class="appt-empty-btn" data-action="bookings" bindtap="onQuickActionTap">去查看预约</button>
       </view>
@@ -93,7 +93,7 @@
     <view class="card-group">
       <view class="menu-item" bindtap="onGoSupportCenter">
         <view class="menu-icon bg-blue">
-          <text class="menu-icon-text">客</text>
+          <view class="menu-icon-svg icon-support"></view>
         </view>
         <view class="menu-text">
           <view class="menu-title">客服中心</view>
@@ -103,7 +103,7 @@
       </view>
       <view class="menu-item" bindtap="onOpenSettingsTap">
         <view class="menu-icon bg-purple">
-          <text class="menu-icon-text">设</text>
+          <view class="menu-icon-svg icon-settings"></view>
         </view>
         <view class="menu-text">
           <view class="menu-title">设置</view>
@@ -113,7 +113,7 @@
       </view>
       <view class="menu-item" bindtap="onSwitchRoleTap">
         <view class="menu-icon bg-orange">
-           <text class="menu-icon-text">角</text>
+           <view class="menu-icon-svg icon-switch-role"></view>
         </view>
         <view class="menu-text">
           <view class="menu-title">切换角色</view>

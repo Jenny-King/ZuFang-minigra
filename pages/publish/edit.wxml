@@ -65,7 +65,7 @@
           <text class="label">户型</text>
           <view class="input layout-trigger" bindtap="onOpenLayoutSheet">
             <view class="layout-trigger__content">
-              <text class="layout-trigger__value {{formData.layoutText ? '' : 'layout-trigger__value--placeholder'}}" style="height: 100rpx; display: block; box-sizing: border-box">
+              <text class="layout-trigger__value {{formData.layoutText ? '' : 'layout-trigger__value--placeholder'}}">
                 {{formData.layoutText || '请选择户型'}}
               </text>
             </view>

@@ -1,7 +1,7 @@
 const bookingService = require("../../../services/booking.service");
 const authUtils = require("../../../utils/auth");
 const { BOOKING_STATUS, BOOKING_TIME_SLOTS } = require("../../../config/constants");
-const { formatDate } = require("../../../utils/format");
+const { formatDate, fallbackText } = require("../../../utils/format");
 const { logger } = require("../../../utils/logger");
 const toast = require("../../../utils/toast");
 
@@ -46,6 +46,19 @@ function generateDateOptions(count = 14) {
   return list;
 }
 
+function decodeQueryText(value) {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return "";
+  }
+
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 Page({
   data: {
     loading: false,
@@ -53,6 +66,8 @@ Page({
     allBookings: [],
     filterOptions: FILTER_OPTIONS,
     activeFilter: "all",
+    activeHouseId: "",
+    activeHouseTitle: "",
     pendingCount: 0,
     hasMore: true,
     // 改期弹窗
@@ -69,6 +84,13 @@ Page({
     if (!authUtils.requireLogin({ redirect: true })) {
       return;
     }
+    const activeHouseId = String(options?.houseId || "").trim();
+    this.setData({
+      activeHouseId,
+      activeHouseTitle: activeHouseId
+        ? fallbackText(decodeQueryText(options?.houseTitle), "未命名房源")
+        : ""
+    });
     await this.loadBookings();
   },
 
@@ -83,13 +105,20 @@ Page({
   async loadBookings() {
     this.setData({ loading: true });
     try {
-      const result = await bookingService.getLandlordBookings(1, 50);
+      const result = await bookingService.getLandlordBookings(1, 50, {
+        houseId: this.data.activeHouseId
+      });
       const list = Array.isArray(result.list) ? result.list : [];
       const allBookings = list.map((item) => this.normalizeBooking(item));
-      const pendingCount = allBookings.filter(
-        (item) => item.status === BOOKING_STATUS.PENDING
-      ).length;
-      this.setData({ allBookings, pendingCount, hasMore: false });
+      const nextHouseTitle = this.data.activeHouseId && allBookings.length
+        ? fallbackText(this.data.activeHouseTitle || allBookings[0].houseTitle, "未命名房源")
+        : this.data.activeHouseTitle;
+
+      this.setData({
+        allBookings,
+        hasMore: false,
+        activeHouseTitle: nextHouseTitle
+      });
       this.applyFilter();
     } catch (error) {
       logger.error("booking_manage_load_failed", { err: error.message });
@@ -104,6 +133,7 @@ Page({
     return {
       ...item,
       bookingId: item._id || item.bookingId || "",
+      houseId: item.houseId || "",
       houseTitle: item.houseTitle || "未命名房源",
       date: item.date || "",
       timeSlotLabel: getTimeSlotLabel(item.timeSlot),
@@ -126,13 +156,26 @@ Page({
   applyFilter() {
     const filter = this.data.activeFilter;
     const all = this.data.allBookings || [];
+    const pendingCount = all.filter((item) => item.status === BOOKING_STATUS.PENDING).length;
     const bookings = filter === "all"
       ? all
       : all.filter((item) => item.status === filter);
-    this.setData({ bookings });
+    this.setData({ bookings, pendingCount });
   },
 
   noop() {},
+
+  async onClearHouseFilter() {
+    if (!this.data.activeHouseId) {
+      return;
+    }
+
+    this.setData({
+      activeHouseId: "",
+      activeHouseTitle: ""
+    });
+    await this.loadBookings();
+  },
 
   async onConfirmTap(event) {
     const bookingId = event.currentTarget.dataset.bookingId;

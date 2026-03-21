@@ -245,7 +245,10 @@ async function handleGetLandlordBookings(payload, event) {
   const page = Math.max(1, Number(payload.page || 1));
   const pageSize = Math.max(1, Math.min(50, Number(payload.pageSize || 10)));
   const skip = (page - 1) * pageSize;
-  const where = { landlordUserId: authState.user.userId };
+  const houseId = normalizeString(payload.houseId);
+  const where = houseId
+    ? { landlordUserId: authState.user.userId, houseId }
+    : { landlordUserId: authState.user.userId };
 
   const countRes = await db.collection(BOOKINGS).where(where).count();
   const listRes = await db.collection(BOOKINGS)

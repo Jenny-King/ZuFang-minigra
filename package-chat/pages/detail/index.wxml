@@ -107,7 +107,7 @@
 
   <view class="input-bar">
     <view class="composer-shell">
-      <input style="width: 587rpx; display: block; box-sizing: border-box"
+      <input
         class="msg-input"
         value="{{inputValue}}"
         placeholder="想了解什么，问问房东吧..."
@@ -130,6 +130,6 @@
       loading="{{uploadingImage}}"
       disabled="{{sending || uploadingImage}}"
       bindtap="onChooseImageTap"
-     style="width: 154rpx; display: flex; box-sizing: border-box; left: 24rpx; top: 0rpx; height: 79rpx; position: relative">+</button>
+    >+</button>
   </view>
 </view>

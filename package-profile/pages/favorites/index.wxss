@@ -1,40 +1,40 @@
 .favorites-page {
   min-height: 100vh;
-  padding-bottom: 28rpx;
+  padding-bottom: var(--radius-2xl);
 }
 
 .favorites-page.highlight .listing-card {
-  box-shadow: 0 0 0 2rpx rgba(60, 123, 253, 0.12), 0 18rpx 40rpx rgba(37, 99, 235, 0.1);
+  box-shadow: var(--shadow-focus), var(--shadow-card-raised);
 }
 
 .error-box {
-  padding: 20rpx;
-  margin-bottom: 20rpx;
-  border-radius: 8rpx;
-  color: #ff4d4f;
-  background: #fff1f0;
-  font-size: 24rpx;
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  font-size: var(--font-sm);
 }
 
 .fav-list {
   display: flex;
   flex-direction: column;
-  gap: 18rpx;
+  gap: var(--space-md);
 }
 
 .listing-card {
   position: relative;
   overflow: hidden;
-  border-radius: 28rpx;
-  background: #ffffff;
-  box-shadow: 0 14rpx 32rpx rgba(15, 23, 42, 0.06);
+  border-radius: var(--radius-2xl);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-card-raised);
 }
 
 .card-inner {
   position: relative;
   z-index: 2;
-  background: #ffffff;
-  transition: transform 0.28s ease;
+  background: var(--color-background-card);
+  transition: transform var(--duration-normal) var(--easing-standard);
 }
 
 .listing-card.swiped .card-inner {
@@ -43,42 +43,46 @@
 
 .listing-body {
   display: flex;
+  align-items: center;
   gap: 18rpx;
   padding: 22rpx;
 }
 
 .cover {
   display: block;
-  flex: 0 0 180rpx;
-  width: 180rpx;
-  height: 140rpx;
-  border-radius: 20rpx;
-  background: #f5f5f5;
+  flex: 0 0 var(--image-thumb-collection-width);
+  width: var(--image-thumb-collection-width);
+  height: var(--image-thumb-collection-height);
+  border-radius: var(--radius-lg);
+  background: var(--color-background-subtle);
 }
 
 .main {
   flex: 1;
   min-width: 0;
+  min-height: var(--image-thumb-collection-height);
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
-  font-size: 30rpx;
-  color: #1f1f1f;
-  font-weight: 600;
-  line-height: 1.45;
+  font-size: var(--font-title-sm);
+  color: var(--color-text-1);
+  font-weight: var(--weight-bold);
+  line-height: var(--lh-snug);
 }
 
 .meta {
   margin-top: 10rpx;
-  font-size: 24rpx;
-  color: #667085;
+  font-size: var(--font-sm);
+  color: var(--color-text-2);
 }
 
 .address {
   margin-top: 8rpx;
-  font-size: 24rpx;
-  line-height: 1.6;
-  color: #7f8797;
+  font-size: var(--font-sm);
+  line-height: var(--lh-normal);
+  color: var(--color-text-3);
   display: -webkit-box;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -87,7 +91,8 @@
 }
 
 .footer {
-  margin-top: 16rpx;
+  margin-top: auto;
+  padding-top: var(--space-md);
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -95,17 +100,17 @@
 }
 
 .price {
-  color: #ff5a5f;
-  font-size: 34rpx;
-  font-weight: 700;
+  color: var(--color-price-highlight);
+  font-size: var(--font-price-md);
+  font-weight: var(--weight-heavy);
   line-height: 1;
   white-space: nowrap;
 }
 
 .time {
-  color: #98a2b3;
-  font-size: 22rpx;
-  line-height: 1.6;
+  color: var(--color-text-3);
+  font-size: var(--font-caption);
+  line-height: var(--lh-normal);
 }
 
 .swipe-actions {
@@ -131,15 +136,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: var(--color-text-inverse);
   text-align: center;
   box-sizing: border-box;
 }
 
 .swipe-btn-char {
   display: block;
-  font-size: 28rpx;
-  font-weight: 500;
+  font-size: var(--font-md);
+  font-weight: var(--weight-medium);
   line-height: 1;
   color: inherit;
 }
@@ -149,12 +154,12 @@
 }
 
 .swipe-delete {
-  background: #ef4444;
+  background: var(--color-danger);
 }
 
 .loading-tip {
   text-align: center;
-  color: #999999;
-  font-size: 24rpx;
+  color: var(--color-text-3);
+  font-size: var(--font-sm);
   padding: 22rpx 0;
 }

@@ -24,6 +24,56 @@
   font-size: var(--font-sm);
 }
 
+.house-scope {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  border-radius: var(--radius-xl);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-card);
+}
+
+.house-scope__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.house-scope__label {
+  display: block;
+  color: var(--color-primary);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-bold);
+}
+
+.house-scope__title {
+  display: block;
+  margin-top: var(--space-2xs);
+  color: var(--color-text-1);
+  font-size: var(--font-sm);
+  line-height: var(--lh-snug);
+}
+
+.house-scope__clear {
+  margin: 0;
+  height: var(--control-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-bold);
+}
+
+.house-scope__clear::after {
+  border: none;
+}
+
 /* ---- 筛选栏 ---- */
 .filter-bar {
   margin-bottom: var(--space-lg);

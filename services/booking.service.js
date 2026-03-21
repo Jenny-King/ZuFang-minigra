@@ -41,12 +41,18 @@ async function getMyBookings(
  */
 async function getLandlordBookings(
   page = REQUEST_DEFAULT.PAGE,
-  pageSize = REQUEST_DEFAULT.PAGE_SIZE
+  pageSize = REQUEST_DEFAULT.PAGE_SIZE,
+  options = {}
 ) {
   assertPositiveInteger(page, "page");
   assertPositiveInteger(pageSize, "pageSize");
 
-  return callCloud("booking", "getLandlordBookings", { page, pageSize });
+  const houseId = String(options.houseId || "").trim();
+  return callCloud("booking", "getLandlordBookings", {
+    page,
+    pageSize,
+    ...(houseId ? { houseId } : {})
+  });
 }
 
 /**

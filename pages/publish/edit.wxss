@@ -239,6 +239,8 @@
   color: var(--color-text-1);
   font-size: var(--font-md);
   line-height: 1.3;
+  height: 100rpx;
+  box-sizing: border-box;
 }
 
 .layout-trigger__value--placeholder {

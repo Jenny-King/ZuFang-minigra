@@ -19,7 +19,7 @@
 - `services/`：前端服务层与云能力封装
 - `cloudfunctions/`：云函数
 - `scripts/`：按 `auth / assets / cleanup / data / deploy / devtools` 分类的工具脚本
-- `test-scripts/`：当前仅保留历史脚本 `legacy/ui-home-2.js` 与截图产物目录
+- `test-scripts/`：按 `core / scenarios / legacy / outputs` 组织的 UI 自动化与截图目录
 - `docs/`：需求、架构、接口、数据库与联调文档
 
 ## 开发说明
@@ -44,10 +44,16 @@
 
 ## 测试脚本说明
 
-`test-scripts/` 下的大部分自动化脚本已移除，当前仅保留历史脚本：
+当前 UI 自动化脚本按业务链路拆分在 `test-scripts/scenarios/`：
 
 ```bash
-node test-scripts/legacy/ui-home-2.js
+npm run test:ui
 ```
 
-既有截图产物仍保留在 `test-scripts/outputs/`，可继续用于留档或比对。
+如只回归“收藏/历史必须有数据”的关键链路，可执行：
+
+```bash
+npm run test:ui:favorites-history
+```
+
+截图仍统一落在 `test-scripts/outputs/`，可用于留档或比对。

@@ -13,6 +13,13 @@
     "deploy:cf": "powershell -ExecutionPolicy Bypass -File scripts/deploy/deploy-cloudfunction.ps1",
     "seed:houses6": "node scripts/data/seed-six-house-test-data.js",
     "seed:test-data": "node scripts/data/prepare-manual-test-data.js",
+    "test:ui": "node test-scripts/core/run-all.js",
+    "test:ui:auth-home": "node test-scripts/scenarios/ui-auth-home-2.js",
+    "test:ui:browse-detail": "node test-scripts/scenarios/ui-browse-detail-2.js",
+    "test:ui:favorites-history": "node test-scripts/scenarios/ui-favorites-history-2.js",
+    "test:ui:chat-notifications": "node test-scripts/scenarios/ui-chat-notifications-2.js",
+    "test:ui:landlord-manage": "node test-scripts/scenarios/ui-landlord-manage-2.js",
+    "test:ui:settings-security": "node test-scripts/scenarios/ui-settings-security-2.js",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "check": "npm run lint && npm run test"

@@ -494,6 +494,7 @@ async function repairAccountProfile(db, account, userId) {
 
 async function ensureAccount(app, db, account) {
   const summary = {
+    key: account.key,
     phone: account.phone,
     role: account.role,
     purpose: account.purpose,
@@ -912,7 +913,7 @@ function printSummary(summary) {
   console.log(`- tenant counts: favorites=${summary.counts.tenantFavorites}, history=${summary.counts.tenantHistory}, bookings=${summary.counts.tenantBookings}, notifications=${summary.counts.tenantSystemNotifications}, feedbacks=${summary.counts.tenantFeedbacks}`);
 }
 
-async function main() {
+async function prepareManualTestData(options = {}) {
   const app = createApp();
   const db = app.database();
   const envId = resolveEnvId();
@@ -946,6 +947,7 @@ async function main() {
   const summary = {
     envId,
     accounts: accountSummaries,
+    sessions,
     houses,
     favorite,
     history,
@@ -954,11 +956,29 @@ async function main() {
     booking,
     counts
   };
-
-  printSummary(summary);
+  if (!options.silent) {
+    printSummary(summary);
+  }
+  return summary;
 }
 
-main().catch((error) => {
-  console.error(`[prepare-manual-test-data] 失败：${error && error.message ? error.message : "未知错误"}`);
-  process.exit(1);
-});
+if (require.main === module) {
+  prepareManualTestData().catch((error) => {
+    console.error(`[prepare-manual-test-data] 失败：${error && error.message ? error.message : "未知错误"}`);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  ACCOUNTS,
+  ACTIVE_STATUS,
+  BOOKING_MARKER,
+  HOUSE_FIXTURES,
+  SUPPORT_MARKER,
+  callFunction,
+  createApp,
+  ensureCollectionsExist,
+  prepareManualTestData,
+  printSummary,
+  resolveEnvId
+};

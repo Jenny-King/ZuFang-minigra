@@ -4,25 +4,23 @@
     class="home-top-bar {{dropdownVisible ? 'home-top-bar-dropdown-open' : ''}}"
     style="{{topBarStyle}}"
   >
-    <view class="search-panel">
-      <view class="search-capsule">
-        <view class="search-capsule-city" bindtap="onCityTap">
-          <view class="city-dot"></view>
-          <text class="search-capsule-city-label">{{selectedCityLabel || (locationLoading ? "定位中" : currentCityLabel)}}</text>
-          <text class="city-entry-arrow">▾</text>
-        </view>
-        <view class="search-capsule-input">
-          <text class="search-capsule-icon">⌕</text>
-          <input
-            class="search-input"
-            placeholder="搜索小区、地铁、房源关键词"
-            placeholder-class="search-input-placeholder"
-            value="{{keywordDraft}}"
-            bindinput="onKeywordInput"
-            confirm-type="search"
-            bindconfirm="onSearchTap"
-          />
-        </view>
+    <view class="topbar">
+      <view class="city-pill" bindtap="onCityTap">
+        <view class="city-dot"></view>
+        <text class="city-name">{{selectedCityLabel || (locationLoading ? "定位中" : currentCityLabel)}}</text>
+        <text class="city-chev">▾</text>
+      </view>
+      <view class="search-bar">
+        <text class="search-icon">⌕</text>
+        <input
+          class="search-input"
+          placeholder="搜索小区、地铁、房源关键词"
+          placeholder-class="search-placeholder"
+          value="{{keywordDraft}}"
+          bindinput="onKeywordInput"
+          confirm-type="search"
+          bindconfirm="onSearchTap"
+        />
       </view>
     </view>
 
@@ -282,8 +280,8 @@
                   class="latest-card-thumb"
                   src="{{item.displayImage}}"
                   mode="aspectFill"
-                  radius="var(--radius-md)"
-                  height="148rpx"
+                  radius="18rpx"
+                  height="var(--image-thumb-list-height)"
                 />
               </view>
               <view class="latest-card-body">

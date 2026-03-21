@@ -54,6 +54,7 @@ page {
   --font-title-xs: 31rpx;
   --font-title-sm: 30rpx;
   --font-lg: 32rpx;
+  --font-price-md: 34rpx;
   --font-price-lg: 36rpx;
   --font-xl: 40rpx;
   --font-2xl: 40rpx;
@@ -128,9 +129,10 @@ page {
   --avatar-size-md: 80rpx;
   --avatar-size-lg: 92rpx;
   --card-width-featured: 304rpx;
-  --image-thumb-featured-height: 190rpx;
+  --image-thumb-featured-height: 216rpx;
   --image-thumb-size: 148rpx;
   --image-thumb-list-width: 184rpx;
+  --image-thumb-list-height: 148rpx;
   --image-upload-size: 200rpx;
   --color-featured-badge-hot: rgba(239, 68, 68, 0.82);
   --color-featured-badge-metro: rgba(37, 99, 235, 0.82);

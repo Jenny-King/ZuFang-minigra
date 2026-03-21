@@ -14,7 +14,7 @@
   padding: 0 var(--page-padding) 20rpx;
   background: var(--color-background-card);
   box-shadow: 0 10rpx 24rpx rgba(15, 23, 42, 0.03);
-}
+
 
 .home-top-bar-dropdown-open {
   box-shadow: none;
@@ -28,31 +28,30 @@
   padding: 0 var(--page-padding) calc(var(--space-3xl) + env(safe-area-inset-bottom));
 }
 
-.search-panel {
-  padding-top: 8rpx;
-}
-
-.search-capsule {
+.topbar {
   display: flex;
   align-items: center;
-  min-height: var(--input-height);
-  overflow: hidden;
-  padding: 0 var(--space-md);
-  border-radius: var(--radius-pill);
-  background: var(--color-background-subtle);
-  box-shadow:
-    inset 0 0 0 var(--line-width-thin) rgba(229, 231, 235, 0.95),
-    0 8rpx 20rpx rgba(15, 23, 42, 0.04);
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
+  padding-bottom: var(--space-xs);
 }
 
-.search-capsule-city {
+.city-pill {
   display: flex;
   align-items: center;
   gap: var(--space-2xs);
+  padding: 0 var(--space-md);
+  height: var(--control-height-md);
+  border-radius: var(--radius-pill);
+  background: var(--color-background-page);
+  border: var(--line-width-thin) solid var(--color-border);
   flex-shrink: 0;
-  max-width: 180rpx;
-  min-height: var(--input-height);
-  padding-right: var(--space-md);
+  transition: all var(--duration-fast);
+}
+
+.city-pill:active {
+  background: var(--color-primary-bg);
+  border-color: rgba(37, 99, 235, 0.3);
 }
 
 .city-dot {
@@ -61,57 +60,58 @@
   flex-shrink: 0;
   border-radius: var(--radius-pill);
   background: var(--color-success);
-  box-shadow: 0 0 0 var(--space-3xs) var(--color-success-bg);
 }
 
-.search-capsule-city-label {
+.city-name {
   max-width: 132rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--font-sm);
+  font-size: var(--font-label);
   font-weight: var(--weight-bold);
   color: var(--color-text-1);
 }
 
-.city-entry-arrow,
+.city-chev,
 .filter-chip-arrow {
   color: var(--color-text-3);
   font-size: var(--font-xs);
 }
 
-.search-capsule-input {
+.search-bar {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-2xs);
-  min-height: var(--input-height);
-  padding-left: var(--space-sm);
-  border-left: var(--line-width-thin) solid rgba(209, 213, 219, 0.9);
+  padding: 0 var(--space-md);
+  height: var(--control-height-md);
+  border-radius: var(--radius-pill);
+  background: var(--color-background-page);
+  border: var(--line-width-thin) solid var(--color-border);
 }
 
-.search-capsule-icon {
+.search-icon {
   flex-shrink: 0;
   color: var(--color-text-3);
-  font-size: var(--font-label);
+  font-size: var(--font-md);
   line-height: 1;
 }
 
 .search-input {
   flex: 1;
-  height: var(--input-height);
-  min-height: var(--input-height);
-  line-height: var(--input-height);
+  height: var(--control-height-md);
+  min-height: var(--control-height-md);
+  line-height: var(--control-height-md);
   padding: 0;
   font-size: var(--font-label);
   color: var(--color-text-1);
 }
 
-.search-input-placeholder {
+.search-placeholder {
   color: var(--color-text-3);
   font-size: var(--font-label);
-  line-height: var(--input-height);
+  line-height: var(--control-height-md);
 }
 
 .filter-bar {
@@ -548,10 +548,15 @@
   margin-bottom: 8rpx;
 }
 
-.featured-price-main,
-.latest-card-price-main {
+.featured-price-main {
   color: var(--color-price-highlight);
   font-size: var(--font-price-lg);
+  font-weight: var(--weight-heavy);
+}
+
+.latest-card-price-main {
+  color: var(--color-price-highlight);
+  font-size: var(--font-price-md);
   font-weight: var(--weight-heavy);
 }
 

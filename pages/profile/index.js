@@ -6,11 +6,19 @@ const historyService = require("../../services/history.service");
 const userService = require("../../services/user.service");
 const userStore = require("../../store/user.store");
 const authUtils = require("../../utils/auth");
-const { USER_ROLE } = require("../../config/constants");
+const { USER_ROLE, BOOKING_STATUS, BOOKING_TIME_SLOTS } = require("../../config/constants");
 const { ROUTES, navigateTo } = require("../../config/routes");
 const { maskPhone, fallbackText } = require("../../utils/format");
 const { logger } = require("../../utils/logger");
 const toast = require("../../utils/toast");
+
+const BOOKING_STATUS_TEXT_MAP = {
+  [BOOKING_STATUS.PENDING]: "待确认",
+  [BOOKING_STATUS.CONFIRMED]: "已确认",
+  [BOOKING_STATUS.REJECTED]: "已拒绝",
+  [BOOKING_STATUS.RESCHEDULED]: "已改期",
+  [BOOKING_STATUS.CANCELLED]: "已取消"
+};
 
 function formatIdentityStatus(userInfo = {}) {
   if (userInfo.verified) {
@@ -60,6 +68,74 @@ function buildQuickStats(favoriteCount = 0, historyCount = 0, bookingCount = 0) 
   };
 }
 
+function getTimeSlotLabel(value) {
+  const slot = BOOKING_TIME_SLOTS.find((item) => item.value === value);
+  return slot ? slot.label : String(value || "");
+}
+
+function getTimeSlotStart(value) {
+  const label = getTimeSlotLabel(value);
+  const match = label.match(/^(\d{2}:\d{2})/);
+  return match ? match[1] : label;
+}
+
+function parseDateOnly(value) {
+  const raw = String(value || "").trim();
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  }
+
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function formatBookingDayLabel(value) {
+  const date = parseDateOnly(value);
+  if (!date) {
+    return "";
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((date.getTime() - today.getTime()) / 86400000);
+
+  if (diffDays === 0) {
+    return "今天";
+  }
+  if (diffDays === 1) {
+    return "明天";
+  }
+  if (diffDays === 2) {
+    return "后天";
+  }
+
+  return `${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
+function buildBookingPreview(booking = {}) {
+  const status = booking.status || BOOKING_STATUS.PENDING;
+  const isRescheduled = status === BOOKING_STATUS.RESCHEDULED;
+  const previewDate = isRescheduled && booking.newDate ? booking.newDate : booking.date;
+  const previewTimeSlot = isRescheduled && booking.newTimeSlot ? booking.newTimeSlot : booking.timeSlot;
+  const displayDate = formatBookingDayLabel(previewDate);
+  const displayTime = getTimeSlotStart(previewTimeSlot);
+  const displayDateTime = [displayDate, displayTime].filter(Boolean).join(" ");
+
+  return {
+    bookingId: booking._id || booking.bookingId || "",
+    houseTitle: fallbackText(booking.houseTitle, "未命名房源"),
+    displayDateTime: displayDateTime || "时间待确认",
+    displayContactName: fallbackText(booking.contactName, "未填写"),
+    statusText: BOOKING_STATUS_TEXT_MAP[status] || "待确认",
+    statusClass: status || BOOKING_STATUS.PENDING
+  };
+}
+
 function formatRoleText(role) {
   const roleTextMap = {
     [USER_ROLE.TENANT]: "租客",
@@ -100,6 +176,7 @@ Page({
     quickStats: buildQuickStats(),
     unreadNotificationCount: 0,
     unreadNotificationBadge: "0",
+    bookingPreviewList: [],
     cachedAccounts: [],
     cachedAccountCount: 0,
     accountSwitcherVisible: false
@@ -144,7 +221,8 @@ Page({
       activeQuickAction: "",
       quickStats: buildQuickStats(),
       unreadNotificationCount: 0,
-      unreadNotificationBadge: "0"
+      unreadNotificationBadge: "0",
+      bookingPreviewList: []
     });
   },
 
@@ -239,7 +317,7 @@ Page({
       favoriteService.getFavoriteList({ page: 1, pageSize: 1 }),
       historyService.getHistoryList({ page: 1, pageSize: 1 }),
       chatService.getNotificationList({ page: 1, pageSize: 10 }),
-      bookingService.getMyBookingCount()
+      bookingService.getMyBookings(1, 2)
     ];
 
     const [favoriteRes, historyRes, notificationRes, bookingRes] = await Promise.allSettled(requests);
@@ -254,7 +332,13 @@ Page({
       )
       : 0;
 
-    const bookingCount = bookingRes.status === "fulfilled" ? Number(bookingRes.value.count || 0) : 0;
+    const bookingList = bookingRes.status === "fulfilled" && Array.isArray(bookingRes.value.list)
+      ? bookingRes.value.list
+      : [];
+    const bookingCount = bookingRes.status === "fulfilled"
+      ? Number(bookingRes.value.total || bookingList.length || 0)
+      : 0;
+    const bookingPreviewList = bookingList.slice(0, 2).map((item) => buildBookingPreview(item));
 
     this.setData({
       quickStats: {
@@ -263,7 +347,8 @@ Page({
         notificationLabel: formatCountLabel(unreadNotificationCount)
       },
       unreadNotificationCount,
-      unreadNotificationBadge: formatCountLabel(unreadNotificationCount)
+      unreadNotificationBadge: formatCountLabel(unreadNotificationCount),
+      bookingPreviewList
     });
     logger.debug("profile_refresh_stats_end", {
       favoriteCount,

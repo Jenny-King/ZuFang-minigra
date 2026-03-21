@@ -1,4 +1,4 @@
-const { initAutomator, ensureCurrentPage, takeSimulatorScreen } = require('./base-2');
+const { initAutomator, takeSimulatorScreen } = require('../simulator-capture');
 
 (async () => {
   let miniProgram;
@@ -8,7 +8,11 @@ const { initAutomator, ensureCurrentPage, takeSimulatorScreen } = require('./bas
     console.log('进入我的房源管理页面: /pages/publish/index');
     const page = await miniProgram.switchTab('/pages/publish/index');
     await page.waitFor(3000);
-    await ensureCurrentPage(miniProgram, 'pages/publish/index');
+
+    const currentPage = await miniProgram.currentPage();
+    if (!currentPage || currentPage.path !== 'pages/publish/index') {
+      throw new Error(`当前页面不是 pages/publish/index，实际为: ${currentPage ? currentPage.path : 'unknown'}`);
+    }
 
     await takeSimulatorScreen('ui-my-houses', 'list');
 

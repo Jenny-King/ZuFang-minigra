@@ -65,7 +65,25 @@
         <text class="card-header-title">我的预约</text>
         <text class="card-header-action" data-action="bookings" bindtap="onQuickActionTap">全部</text>
       </view>
-      <view class="appt-empty" style="height: 222rpx; display: flex; box-sizing: border-box">
+      <view wx:if="{{bookingPreviewList.length}}" class="appt-preview-list">
+        <view
+          wx:for="{{bookingPreviewList}}"
+          wx:key="bookingId"
+          class="appt-preview-item"
+          data-action="bookings"
+          bindtap="onQuickActionTap"
+        >
+          <view class="appt-preview-icon">
+            <image class="appt-preview-icon-image" src="/assets/icons/home-active.png" mode="aspectFit" />
+          </view>
+          <view class="appt-preview-main">
+            <text class="appt-preview-title">{{item.houseTitle}}</text>
+            <text class="appt-preview-subtitle">{{item.displayDateTime}} · 联系人：{{item.displayContactName}}</text>
+          </view>
+          <text class="appt-preview-status {{item.statusClass}}">{{item.statusText}}</text>
+        </view>
+      </view>
+      <view wx:else class="appt-empty" style="height: 222rpx; display: flex; box-sizing: border-box">
         <text class="appt-empty-text">快速查看预约看房记录</text>
         <button class="appt-empty-btn" data-action="bookings" bindtap="onQuickActionTap">去查看预约</button>
       </view>

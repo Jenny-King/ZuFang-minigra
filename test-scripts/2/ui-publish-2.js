@@ -1,4 +1,4 @@
-const { initAutomator, takeSimulatorScreen } = require('./base-2');
+const { initAutomator, takeSimulatorScreen } = require('../simulator-capture');
 
 (async () => {
   let miniProgram;
@@ -18,7 +18,7 @@ const { initAutomator, takeSimulatorScreen } = require('./base-2');
       console.log('callMethod promise return:', error && error.message ? error.message : error);
     });
 
-    console.log('强制等待 4秒 缓冲，确保弹窗完全挂载物理剧中...');
+    console.log('强制等待 4 秒缓冲，确保弹窗完全挂载...');
     await page.waitFor(4000);
 
     await takeSimulatorScreen('ui-publish', 'submit-blocked');

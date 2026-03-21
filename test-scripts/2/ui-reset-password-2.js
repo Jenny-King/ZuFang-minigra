@@ -1,4 +1,4 @@
-const { initAutomator, takeSimulatorScreen } = require('./base-2');
+const { initAutomator, takeSimulatorScreen } = require('../simulator-capture');
 
 (async () => {
   let miniProgram;
@@ -12,6 +12,7 @@ const { initAutomator, takeSimulatorScreen } = require('./base-2');
     console.log('空表单直接提交触发校验...');
     page.callMethod('onSubmitTap').catch(() => {});
     await page.waitFor(1500);
+
     await takeSimulatorScreen('ui-reset-password', 'empty-submit');
   } catch (e) {
     console.error('用例 ui-reset-password-2 执行异常:', e);

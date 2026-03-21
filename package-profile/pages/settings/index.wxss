@@ -99,7 +99,10 @@
 .danger-btn {
   margin-top: 28rpx;
   height: 88rpx;
-  line-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   border-radius: 22rpx;
   background: #fff1f0;
   color: #ff4d4f;

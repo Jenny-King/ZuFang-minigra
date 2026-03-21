@@ -195,7 +195,9 @@
   margin: 0;
   padding: 0 var(--space-lg);
   height: 56rpx;
-  line-height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius-pill);
   font-size: var(--font-caption);
   font-weight: var(--weight-medium);
@@ -336,8 +338,11 @@
 .modal-btn {
   flex: 1;
   height: var(--button-height);
-  line-height: var(--button-height);
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   border-radius: var(--radius-pill);
   font-size: var(--font-md);
   font-weight: var(--weight-bold);

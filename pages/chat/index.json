@@ -1,7 +1,7 @@
 {
   "navigationBarTitleText": "消息",
   "enablePullDownRefresh": true,
-  "backgroundColor": "#f7f8fa",
+  "backgroundColor": "#ffffff",
   "backgroundTextStyle": "dark",
   "usingComponents": {
     "lazy-image": "/components/lazy-image/index",

@@ -57,7 +57,10 @@
   min-width: 210rpx;
   margin: 0;
   height: 84rpx;
-  line-height: 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20rpx;
   border-radius: 18rpx;
   font-size: 24rpx;
   color: #ffffff;
@@ -72,7 +75,10 @@
 .submit-btn {
   margin-top: 12rpx;
   height: 88rpx;
-  line-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   border-radius: 20rpx;
   background: linear-gradient(135deg, #1f4fd7 0%, #2f64f5 100%);
   color: #ffffff;

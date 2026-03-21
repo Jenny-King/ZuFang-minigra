@@ -1,4 +1,4 @@
-const { initAutomator, pageScrollTo, takeSimulatorScreen } = require('./base-2');
+const { initAutomator, takeSimulatorScreen } = require('../simulator-capture');
 
 (async () => {
   let miniProgram;
@@ -10,7 +10,14 @@ const { initAutomator, pageScrollTo, takeSimulatorScreen } = require('./base-2')
     await page.waitFor(3000);
 
     console.log('下划 1000px 以触发底部懒加载机制...');
-    await pageScrollTo(miniProgram, 1000, 300);
+    await miniProgram.evaluate(() => new Promise((resolve) => {
+      wx.pageScrollTo({
+        scrollTop: 1000,
+        duration: 300,
+        success: resolve,
+        fail: resolve
+      });
+    }));
     await page.waitFor(2000);
 
     await takeSimulatorScreen('ui-home', 'scrolled');

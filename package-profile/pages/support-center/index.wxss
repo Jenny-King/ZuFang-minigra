@@ -205,7 +205,10 @@
 .feedback-btn {
   margin-top: 24rpx;
   height: 84rpx;
-  line-height: 84rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   border-radius: 20rpx;
   background: linear-gradient(180deg, #2f64f5 0%, #1f4fd7 100%);
   color: #ffffff;
@@ -238,7 +241,10 @@
 .support-note-btn {
   margin-top: 22rpx;
   height: 76rpx;
-  line-height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   border-radius: 18rpx;
   background: #eef4ff;
   color: #2563eb;

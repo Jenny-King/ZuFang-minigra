@@ -225,6 +225,82 @@
   font-weight: var(--weight-medium);
 }
 
+/* Appointments Preview */
+.appt-preview-list {
+  display: flex;
+  flex-direction: column;
+}
+.appt-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 26rpx 28rpx 28rpx;
+}
+.appt-preview-item + .appt-preview-item {
+  border-top: 2rpx solid var(--color-border);
+}
+.appt-preview-item:active {
+  background: var(--color-background-subtle);
+}
+.appt-preview-icon {
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(180deg, #d9ecff 0%, #c5e0ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.appt-preview-icon-image {
+  width: 42rpx;
+  height: 42rpx;
+}
+.appt-preview-main {
+  flex: 1;
+  min-width: 0;
+}
+.appt-preview-title {
+  display: block;
+  color: var(--color-text-1);
+  font-size: var(--font-title-sm);
+  font-weight: var(--weight-heavy);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.appt-preview-subtitle {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--color-text-3);
+  font-size: var(--font-caption);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.appt-preview-status {
+  flex-shrink: 0;
+  margin-left: 8rpx;
+  font-size: var(--font-caption);
+  font-weight: var(--weight-bold);
+  color: var(--color-warning);
+}
+.appt-preview-status.pending {
+  color: var(--color-warning);
+}
+.appt-preview-status.confirmed {
+  color: var(--color-success);
+}
+.appt-preview-status.rejected,
+.appt-preview-status.cancelled {
+  color: var(--color-text-3);
+}
+.appt-preview-status.rescheduled {
+  color: var(--color-info);
+}
+
 /* Appointments Empty State */
 .appt-empty {
   display: flex;
@@ -253,7 +329,11 @@
 }
 .appt-empty-btn {
   margin-top: 8rpx;
-  padding: 14rpx 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72rpx;
+  padding: 0 44rpx;
   border-radius: var(--radius-pill);
   background: var(--color-primary-bg);
   color: var(--color-primary);
@@ -383,6 +463,11 @@
 }
 .auth-btn {
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64rpx;
+  padding: 0 28rpx;
   border-radius: var(--radius-pill);
   background: var(--color-background-subtle);
   color: var(--color-text-1);
@@ -539,8 +624,11 @@
 .account-switcher-btn {
   flex: 1;
   height: var(--button-height);
-  line-height: var(--button-height);
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   border-radius: var(--radius-lg);
   background: var(--color-background-card);
   color: var(--color-text-1);

@@ -1,4 +1,4 @@
-const { initAutomator, takeSimulatorScreen } = require('./base-2');
+const { initAutomator, takeSimulatorScreen } = require('../simulator-capture');
 
 (async () => {
   let miniProgram;

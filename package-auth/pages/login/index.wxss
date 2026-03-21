@@ -10,7 +10,6 @@
 
 .wechat-btn {
   height: 104rpx;
-  line-height: 104rpx;
   border-radius: var(--radius-2xl);
   background: var(--color-success);
   color: var(--color-text-inverse);
@@ -20,6 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
 }
 
 .wechat-btn::after {

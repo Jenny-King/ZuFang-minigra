@@ -3,6 +3,7 @@ const houseService = require("../../../services/house.service");
 const { MESSAGE_TYPE, BOOKING_STATUS } = require("../../../config/constants");
 const authUtils = require("../../../utils/auth");
 const { ROUTES, navigateTo } = require("../../../config/routes");
+const { parseBookingMessage } = require("../../../utils/chat-message");
 const { formatPrice, fallbackText } = require("../../../utils/format");
 const { logger } = require("../../../utils/logger");
 const toast = require("../../../utils/toast");
@@ -225,26 +226,16 @@ Page({
       const isBooking = item.messageType === MESSAGE_TYPE.BOOKING;
       let bookingData = null;
       if (isBooking) {
-        try {
-          const parsed = typeof item.content === "string" ? JSON.parse(item.content) : item.content;
-          bookingData = {
-            bookingId: parsed.bookingId || "",
-            houseTitle: parsed.houseTitle || "房源",
-            date: parsed.date || "",
-            timeSlotLabel: parsed.timeSlotLabel || parsed.timeSlot || "",
-            status: parsed.status || BOOKING_STATUS.PENDING,
-            statusText: BOOKING_STATUS_TEXT[parsed.status] || "待确认"
-          };
-        } catch (err) {
-          bookingData = {
-            bookingId: "",
-            houseTitle: "预约看房",
-            date: "",
-            timeSlotLabel: "",
-            status: BOOKING_STATUS.PENDING,
-            statusText: "待确认"
-          };
-        }
+        const parsedBooking = parseBookingMessage(item.content);
+        const bookingStatus = parsedBooking?.status || BOOKING_STATUS.PENDING;
+        bookingData = {
+          bookingId: parsedBooking?.bookingId || "",
+          houseTitle: parsedBooking?.houseTitle || "预约看房",
+          date: parsedBooking?.date || "",
+          timeSlotLabel: parsedBooking?.timeSlotLabel || "",
+          status: bookingStatus,
+          statusText: BOOKING_STATUS_TEXT[bookingStatus] || "待确认"
+        };
       }
       return {
         ...item,

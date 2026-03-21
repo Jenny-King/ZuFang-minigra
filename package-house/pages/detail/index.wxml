@@ -113,7 +113,7 @@
   </view>
 
   <view class="bottom-bar">
-    <button class="favorite-action {{isFavorite ? 'favorite-action--active' : ''}}" loading="{{favoriteLoading}}" bindtap="onToggleFavoriteTap">
+    <button class="favorite-action {{isFavorite ? 'favorite-action--active' : ''}}" loading="{{favoriteLoading}}" bindtap="onToggleFavoriteTap" style="width: 222rpx; display: flex; box-sizing: border-box; left: 0rpx; top: 0rpx">
       <text class="favorite-icon">{{isFavorite ? '♥' : '♡'}}</text>
       <text class="favorite-label">{{isFavorite ? '已收藏' : '收藏'}}</text>
     </button>

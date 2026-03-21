@@ -2,7 +2,7 @@
 
 .chat-page {
   min-height: 100vh;
-  background: var(--color-background-page);
+  background: var(--color-background-card);
 }
 
 .error-box {
@@ -11,7 +11,7 @@
   justify-content: space-between;
   gap: var(--space-md);
   padding: var(--card-padding);
-  margin-bottom: var(--space-lg);
+  margin: 24rpx 32rpx;
   border-radius: var(--radius-sm);
   background: var(--color-danger-bg);
 }
@@ -24,6 +24,9 @@
 .error-box__retry {
   min-height: var(--control-height-sm);
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 var(--space-md);
   border-radius: var(--radius-pill);
   background: var(--color-background-card);
@@ -78,7 +81,7 @@
 /* ── Chat Item ── */
 .chat-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 24rpx;
   padding: 28rpx 32rpx;
   position: relative;
@@ -91,7 +94,7 @@
   content: '';
   position: absolute;
   top: 0;
-  left: 144rpx;
+  left: 152rpx;
   right: 0;
   height: 1rpx;
   background: var(--color-border-subtle);

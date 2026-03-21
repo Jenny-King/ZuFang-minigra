@@ -106,7 +106,9 @@
   margin: var(--space-xl) 0 0;
   min-width: 220rpx;
   height: var(--button-height);
-  line-height: var(--button-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 var(--space-xl);
   border-radius: var(--radius-pill);
   font-size: var(--font-md);

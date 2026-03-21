@@ -2,6 +2,7 @@ const chatService = require("../../services/chat.service");
 const authUtils = require("../../utils/auth");
 const { ROUTES, navigateTo } = require("../../config/routes");
 const { formatDate, formatPrice, fallbackText } = require("../../utils/format");
+const { getConversationPreviewText } = require("../../utils/chat-message");
 const { logger } = require("../../utils/logger");
 
 const db = wx.cloud.database();
@@ -106,7 +107,7 @@ Page({
         ...item,
         displayName: fallbackText(participantInfo.nickName || item.targetName, "未知用户"),
         displayAvatar: participantInfo.avatarUrl || item.targetAvatar || "",
-        displayLastMessage: fallbackText(item.lastMessage, "暂无消息"),
+        displayLastMessage: getConversationPreviewText(item.lastMessage),
         displayLastTime: item.lastMessageTime ? formatDate(item.lastMessageTime) : "",
         displayHouseTitle: houseTitle,
         displayHouseMeta: houseMeta || "房源信息待完善",

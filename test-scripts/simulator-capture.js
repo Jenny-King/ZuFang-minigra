@@ -7,10 +7,6 @@ const WINDOW_CAPTURE_DELAY_MS = Number(process.env.WINDOW_CAPTURE_DELAY_MS || 15
 const WINDOW_CAPTURE_TIMEOUT_MS = Number(process.env.WINDOW_CAPTURE_TIMEOUT_MS || 30000);
 const SIMULATOR_TITLEBAR_CROP_PX = Number(process.env.SIMULATOR_TITLEBAR_CROP_PX || 24);
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function escapeForPowerShell(value) {
   return String(value).replace(/'/g, "''");
 }
@@ -178,66 +174,32 @@ $graphics.CopyFromScreen($origin.X, $origin.Y, 0, 0, $bitmap.Size)
 $bitmap.Save($outputPath, [System.Drawing.Imaging.ImageFormat]::Png)
 $graphics.Dispose()
 $bitmap.Dispose()
-
-Write-Output "$width,$height"
-Write-Output $window.MainWindowTitle
 `;
 
-  const result = await runPowerShell(command, WINDOW_CAPTURE_TIMEOUT_MS);
+  await runPowerShell(command, WINDOW_CAPTURE_TIMEOUT_MS);
   const fileStat = fs.statSync(outputPath);
   if (!fileStat.size) {
     throw new Error(`模拟器截图写入失败: ${outputPath}`);
   }
 
-  const stdoutLines = (result.stdout || '').trim().split(/\r?\n/).filter(Boolean);
-  const dimensionLine = stdoutLines.find((line) => /^\d+,\d+$/.test(line)) || '';
-  const dimensions = dimensionLine ? dimensionLine.split(',').map((item) => Number(item)) : [0, 0];
-  const windowTitle = stdoutLines.filter((line) => line !== dimensionLine).pop() || '';
-  return {
-    outputPath,
-    bytes: fileStat.size,
-    width: dimensions[0] || 0,
-    height: dimensions[1] || 0,
-    windowTitle
-  };
+  return outputPath;
 }
 
 async function takeSimulatorScreen(sceneName, shotLabel = '') {
   const outputPath = buildOutputPath(sceneName, shotLabel);
-  const result = await captureSimulatorWindow({
+  const resultPath = await captureSimulatorWindow({
     projectName: path.basename(process.cwd()),
     outputPath
   });
 
+  const fileStat = fs.statSync(resultPath);
   console.log(
-    `[Base-2] [v] ${sceneName}/${path.basename(result.outputPath)} 模拟器截图完毕 (${result.bytes} bytes)`
+    `[Simulator-Capture] [v] ${sceneName}/${path.basename(resultPath)} 模拟器截图完毕 (${fileStat.size} bytes)`
   );
-  return result.outputPath;
-}
-
-async function ensureCurrentPage(miniProgram, expectedPath) {
-  const currentPage = await miniProgram.currentPage();
-  if (!currentPage || currentPage.path !== expectedPath) {
-    throw new Error(`当前页面不是 ${expectedPath}，实际为: ${currentPage ? currentPage.path : 'unknown'}`);
-  }
-  return currentPage;
-}
-
-async function pageScrollTo(miniProgram, scrollTop, duration = 350) {
-  return miniProgram.evaluate((targetTop, targetDuration) => new Promise((resolve) => {
-    wx.pageScrollTo({
-      scrollTop: targetTop,
-      duration: targetDuration,
-      success: resolve,
-      fail: resolve
-    });
-  }), scrollTop, duration);
+  return resultPath;
 }
 
 module.exports = {
   initAutomator,
-  takeSimulatorScreen,
-  ensureCurrentPage,
-  pageScrollTo,
-  sleep
+  takeSimulatorScreen
 };

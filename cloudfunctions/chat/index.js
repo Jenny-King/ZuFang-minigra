@@ -22,8 +22,21 @@ const SESSION_STATUS = {
 const CHAT_NOTIFICATION_TYPE = "chat";
 const MESSAGE_TYPE = {
   TEXT: "text",
-  IMAGE: "image"
+  IMAGE: "image",
+  BOOKING: "booking"
 };
+
+function buildConversationPreview(content, messageType) {
+  if (messageType === MESSAGE_TYPE.IMAGE) {
+    return "[图片]";
+  }
+
+  if (messageType === MESSAGE_TYPE.BOOKING) {
+    return "发起了预约看房申请";
+  }
+
+  return content;
+}
 
 function createLogger(context) {
   const prefix = `[chat][${context?.requestId || "local"}]`;
@@ -345,7 +358,7 @@ async function handleSendMessage(payload, event) {
   }
 
   const now = new Date();
-  const lastMessagePreview = messageType === MESSAGE_TYPE.IMAGE ? "[图片]" : content;
+  const lastMessagePreview = buildConversationPreview(content, messageType);
   const addRes = await db.collection(CHAT_MESSAGES).add({
     data: {
       conversationId,

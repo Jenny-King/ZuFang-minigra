@@ -27,29 +27,44 @@
     </view>
 
     <scroll-view class="filter-bar" scroll-x enhanced enable-flex show-scrollbar="{{false}}">
-      <view
-        class="filter-chip {{(activeDropdown === 'region' && dropdownVisible) || selectedRegionIndex > 0 ? 'filter-chip-active' : ''}}"
-        data-key="region"
-        bindtap="onFilterChipTap"
-      >
-        {{selectedRegionIndex > 0 ? ('区域 · ' + (regionOptions[selectedRegionIndex].label || '全部')) : '区域'}}
-        <text class="filter-chip-arrow">{{activeDropdown === 'region' && dropdownVisible ? '▴' : '▾'}}</text>
-      </view>
-      <view
-        class="filter-chip {{(activeDropdown === 'type' && dropdownVisible) || selectedRoomFilterLabel ? 'filter-chip-active' : ''}}"
-        data-key="type"
-        bindtap="onFilterChipTap"
-      >
-        {{selectedRoomFilterLabel ? ('居室 · ' + selectedRoomFilterLabel) : '居室'}}
-        <text class="filter-chip-arrow">{{activeDropdown === 'type' && dropdownVisible ? '▴' : '▾'}}</text>
-      </view>
-      <view
-        class="filter-chip {{(activeDropdown === 'price' && dropdownVisible) || selectedPriceLabel ? 'filter-chip-active' : ''}}"
-        data-key="price"
-        bindtap="onFilterChipTap"
-      >
-        {{selectedPriceLabel ? ('租金 · ' + selectedPriceLabel) : '租金'}}
-        <text class="filter-chip-arrow">{{activeDropdown === 'price' && dropdownVisible ? '▴' : '▾'}}</text>
+      <view class="filter-bar-track">
+        <view class="filter-bar-main">
+          <view
+            class="filter-chip {{(activeDropdown === 'region' && dropdownVisible) || selectedRegionIndex > 0 ? 'filter-chip-active' : ''}}"
+            data-key="region"
+            bindtap="onFilterChipTap"
+          >
+            {{selectedRegionIndex > 0 ? ('区域 · ' + (regionOptions[selectedRegionIndex].label || '全部')) : '区域'}}
+            <text class="filter-chip-arrow">{{activeDropdown === 'region' && dropdownVisible ? '▴' : '▾'}}</text>
+          </view>
+          <view
+            class="filter-chip {{(activeDropdown === 'type' && dropdownVisible) || selectedRoomFilterLabel ? 'filter-chip-active' : ''}}"
+            data-key="type"
+            bindtap="onFilterChipTap"
+          >
+            {{selectedRoomFilterLabel ? ('居室 · ' + selectedRoomFilterLabel) : '居室'}}
+            <text class="filter-chip-arrow">{{activeDropdown === 'type' && dropdownVisible ? '▴' : '▾'}}</text>
+          </view>
+          <view
+            class="filter-chip {{(activeDropdown === 'price' && dropdownVisible) || selectedPriceLabel ? 'filter-chip-active' : ''}}"
+            data-key="price"
+            bindtap="onFilterChipTap"
+          >
+            {{selectedPriceLabel ? ('租金 · ' + selectedPriceLabel) : '租金'}}
+            <text class="filter-chip-arrow">{{activeDropdown === 'price' && dropdownVisible ? '▴' : '▾'}}</text>
+          </view>
+        </view>
+        <view
+          class="filter-chip filter-chip-filter {{(activeDropdown === 'all' && dropdownVisible) || hasDropdownFilter ? 'filter-chip-active' : ''}}"
+          data-key="all"
+          bindtap="onFilterChipTap"
+        >
+          <view class="filter-chip-funnel">
+            <view class="filter-chip-funnel-top"></view>
+            <view class="filter-chip-funnel-stem"></view>
+          </view>
+          筛选
+        </view>
       </view>
     </scroll-view>
   </view>
@@ -69,24 +84,24 @@
     >
       <view class="filter-dropdown-sheet">
         <scroll-view class="filter-dropdown-content" scroll-y enhanced show-scrollbar="{{false}}">
-          <view wx:if="{{activeDropdown === 'region'}}" class="filter-dropdown-section">
-            <view class="filter-dropdown-title">选择区域</view>
+          <view wx:if="{{activeDropdown === 'region' || activeDropdown === 'all'}}" class="filter-dropdown-section">
+            <view class="filter-dropdown-title">{{activeDropdown === 'all' ? '区域' : '选择区域'}}</view>
             <view class="filter-option-grid">
-            <view
-              wx:for="{{regionOptions}}"
-              wx:key="value"
-              class="filter-option-tag {{draftRegionIndex === index ? 'filter-option-tag-active' : ''}}"
-              data-key="region"
+              <view
+                wx:for="{{regionOptions}}"
+                wx:key="value"
+                class="filter-option-tag {{draftRegionIndex === index ? 'filter-option-tag-active' : ''}}"
+                data-key="region"
                 data-index="{{index}}"
-              bindtap="onSelectDropdownOption"
-            >
-              <text class="filter-option-tag-text">{{item.label || "全部区域"}}</text>
+                bindtap="onSelectDropdownOption"
+              >
+                <text class="filter-option-tag-text">{{item.label || "全部区域"}}</text>
+              </view>
             </view>
           </view>
-        </view>
 
-        <view wx:if="{{activeDropdown === 'type'}}" class="filter-dropdown-section">
-          <view class="filter-dropdown-title">选择居室</view>
+        <view wx:if="{{activeDropdown === 'type' || activeDropdown === 'all'}}" class="filter-dropdown-section">
+          <view class="filter-dropdown-title">{{activeDropdown === 'all' ? '居室' : '选择居室'}}</view>
           <view class="filter-option-grid">
             <view
               wx:for="{{draftRoomFilterOptions}}"
@@ -100,41 +115,41 @@
           </view>
         </view>
 
-          <view wx:if="{{activeDropdown === 'price'}}" class="filter-dropdown-section">
-            <view class="filter-dropdown-title">选择租金</view>
-            <view class="price-range-form">
-              <view
-                class="price-input-box {{draftMinPrice ? 'price-input-box-filled' : ''}}"
-              >
-                <input
-                  class="price-input"
-                  type="number"
-                  maxlength="6"
-                  placeholder="最低租金"
-                  value="{{draftMinPrice}}"
-                  data-field="min"
-                  bindinput="onPriceInput"
-                />
-                <text class="price-input-unit">元/月</text>
-              </view>
-              <text class="price-range-divider">-</text>
-              <view
-                class="price-input-box {{draftMaxPrice ? 'price-input-box-filled' : ''}}"
-              >
-                <input
-                  class="price-input"
-                  type="number"
-                  maxlength="6"
-                  placeholder="最高租金"
-                  value="{{draftMaxPrice}}"
-                  data-field="max"
-                  bindinput="onPriceInput"
-                />
-                <text class="price-input-unit">元/月</text>
-              </view>
+        <view wx:if="{{activeDropdown === 'price' || activeDropdown === 'all'}}" class="filter-dropdown-section">
+          <view class="filter-dropdown-title">{{activeDropdown === 'all' ? '租金' : '选择租金'}}</view>
+          <view class="price-range-form">
+            <view
+              class="price-input-box {{draftMinPrice ? 'price-input-box-filled' : ''}}"
+            >
+              <input
+                class="price-input"
+                type="number"
+                maxlength="6"
+                placeholder="最低租金"
+                value="{{draftMinPrice}}"
+                data-field="min"
+                bindinput="onPriceInput"
+              />
+              <text class="price-input-unit">元/月</text>
             </view>
-            <view class="price-range-hint">支持只填最低或最高，留空表示不限</view>
+            <text class="price-range-divider">-</text>
+            <view
+              class="price-input-box {{draftMaxPrice ? 'price-input-box-filled' : ''}}"
+            >
+              <input
+                class="price-input"
+                type="number"
+                maxlength="6"
+                placeholder="最高租金"
+                value="{{draftMaxPrice}}"
+                data-field="max"
+                bindinput="onPriceInput"
+              />
+              <text class="price-input-unit">元/月</text>
+            </view>
           </view>
+          <view class="price-range-hint">支持只填最低或最高，留空表示不限</view>
+        </view>
         </scroll-view>
 
         <view class="filter-dropdown-actions">
@@ -202,8 +217,9 @@
                   src="{{item.displayImage}}"
                   mode="aspectFill"
                   radius="var(--radius-lg)"
-                  height="340rpx"
+                  height="200rpx"
                 />
+                <view class="featured-thumb-overlay"></view>
                 <view class="featured-badge featured-badge-{{item.featuredBadgeType}}">
                   {{item.featuredBadgeLabel}}
                 </view>

@@ -57,7 +57,7 @@ const FEATURED_BADGES = [
 ];
 
 const DROPDOWN_CLOSE_DURATION = 220;
-const FILTER_DROPDOWN_KEYS = ["region", "type", "price"];
+const FILTER_DROPDOWN_KEYS = ["region", "type", "price", "all"];
 
 function buildDisplayAddress(item = {}) {
   const region = String(item.region || "").trim();
@@ -77,6 +77,15 @@ function getHasActiveFilter(data = {}) {
     || parsePriceValue(data.selectedMinPrice) > 0
     || parsePriceValue(data.selectedMaxPrice) > 0
     || String(data.selectedListSort || HOUSE_SORT_BY.LATEST) !== HOUSE_SORT_BY.LATEST
+  );
+}
+
+function getHasDropdownFilter(data = {}) {
+  return Boolean(
+    Number(data.selectedRegionIndex || 0) > 0
+    || normalizeRoomFilterValues(data.selectedRoomFilterValues).length > 0
+    || parsePriceValue(data.selectedMinPrice) > 0
+    || parsePriceValue(data.selectedMaxPrice) > 0
   );
 }
 
@@ -128,6 +137,7 @@ Page({
     draftMinPrice: "",
     draftMaxPrice: "",
     hasActiveFilter: false,
+    hasDropdownFilter: false,
     loading: false,
     refreshing: false,
     errorText: ""
@@ -848,11 +858,13 @@ Page({
   },
 
   syncHasActiveFilter(nextData = {}) {
+    const mergedState = {
+      ...this.data,
+      ...nextData
+    };
     this.setData({
-      hasActiveFilter: getHasActiveFilter({
-        ...this.data,
-        ...nextData
-      })
+      hasActiveFilter: getHasActiveFilter(mergedState),
+      hasDropdownFilter: getHasDropdownFilter(mergedState)
     });
   },
 

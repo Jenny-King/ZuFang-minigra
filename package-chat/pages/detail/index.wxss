@@ -26,6 +26,9 @@
 .error-box__retry {
   min-height: var(--control-height-sm);
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 var(--space-md);
   border-radius: var(--radius-pill);
   background: var(--color-background-card);
@@ -244,8 +247,10 @@
   min-width: 112rpx;
   max-width: 144rpx;
   height: 80rpx;
-  line-height: 80rpx;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   border-radius: 40rpx;
   background: transparent;
@@ -261,8 +266,10 @@
   min-width: 112rpx;
   max-width: 144rpx;
   height: 80rpx;
-  line-height: 80rpx;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   border-radius: 40rpx;
   background: #3c7bfd;

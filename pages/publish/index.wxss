@@ -36,7 +36,9 @@
   margin: 0;
   flex-shrink: 0;
   height: 68rpx;
-  line-height: 68rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 var(--space-lg);
   border-radius: var(--radius-lg);
   background: var(--color-primary);
@@ -56,7 +58,9 @@
 .booking-manage-btn {
   margin: 0;
   height: 68rpx;
-  line-height: 68rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 var(--space-lg);
   border-radius: var(--radius-lg);
   background: var(--color-primary-bg);
@@ -322,7 +326,9 @@
 .action-btn {
   margin: 0;
   height: var(--control-height-sm);
-  line-height: var(--control-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 var(--space-md);
   border-radius: var(--radius-md);
   font-size: var(--font-caption);
@@ -429,7 +435,10 @@
   margin-top: var(--space-lg);
   min-width: 260rpx;
   height: var(--control-height-md);
-  line-height: var(--control-height-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   border-radius: var(--radius-lg);
   background: var(--color-primary);
   color: var(--color-text-inverse);
@@ -480,7 +489,10 @@
 .delete-cancel-btn {
   margin-top: var(--space-sm);
   height: var(--action-bar-button-height);
-  line-height: var(--action-bar-button-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   border-radius: var(--radius-lg);
   font-size: var(--font-md);
 }

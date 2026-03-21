@@ -1,4 +1,4 @@
-<view class="container chat-page">
+<view class="chat-page">
   <!-- Search -->
   <view class="search-bar">
     <view class="search-inner">

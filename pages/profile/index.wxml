@@ -25,22 +25,22 @@
           <text>{{userInfo.displayWechatStatus}}</text>
         </view>
       </view>
-    </view>
-
-    <!-- Stats 3-col overlap -->
-    <view class="stats-card">
-      <view class="stat {{activeQuickAction === 'favorites' ? 'active' : ''}}" data-action="favorites" bindtap="onQuickActionTap">
-        <text class="stat-num">{{quickStats.favoriteLabel}}</text>
-        <text class="stat-label">我的收藏</text>
-      </view>
-      <view class="stat {{activeQuickAction === 'history' ? 'active' : ''}}" data-action="history" bindtap="onQuickActionTap">
-        <text class="stat-num">{{quickStats.historyLabel}}</text>
-        <text class="stat-label">浏览历史</text>
-      </view>
-      <view class="stat {{activeQuickAction === 'notifications' ? 'active' : ''}}" data-action="notifications" bindtap="onQuickActionTap">
-        <text class="stat-num">{{quickStats.notificationLabel}}</text>
-        <text class="stat-label">消息通知</text>
-        <text class="stat-badge" wx:if="{{unreadNotificationCount > 0}}">新</text>
+      
+      <!-- Stats 3-col inline row -->
+      <view class="stats-row">
+        <view class="stat {{activeQuickAction === 'favorites' ? 'active' : ''}}" data-action="favorites" bindtap="onQuickActionTap">
+          <text class="stat-num">{{quickStats.favoriteLabel}}</text>
+          <text class="stat-label">我的收藏</text>
+        </view>
+        <view class="stat {{activeQuickAction === 'history' ? 'active' : ''}}" data-action="history" bindtap="onQuickActionTap">
+          <text class="stat-num">{{quickStats.historyLabel}}</text>
+          <text class="stat-label">浏览历史</text>
+        </view>
+        <view class="stat {{activeQuickAction === 'notifications' ? 'active' : ''}}" data-action="notifications" bindtap="onQuickActionTap">
+          <text class="stat-num">{{quickStats.notificationLabel}}</text>
+          <text class="stat-label">消息通知</text>
+          <text class="stat-badge" wx:if="{{unreadNotificationCount > 0}}">新</text>
+        </view>
       </view>
     </view>
   </block>
@@ -57,10 +57,10 @@
   <view class="page-scroll" wx:if="{{isLoggedIn && userInfo}}">
 
     <!-- 我的预约 -->
-    <view class="section">
-      <view class="section-header">
-        <text class="section-header-title">我的预约</text>
-        <text class="section-header-action" data-action="bookings" bindtap="onQuickActionTap">全部</text>
+    <view class="card-group">
+      <view class="card-header">
+        <text class="card-header-title">我的预约</text>
+        <text class="card-header-action" data-action="bookings" bindtap="onQuickActionTap">全部</text>
       </view>
       <view class="appt-empty">
         <view class="appt-empty-icon">
@@ -72,7 +72,7 @@
     </view>
 
     <!-- 工具菜单 -->
-    <view class="section">
+    <view class="card-group">
       <view class="menu-item" bindtap="onGoSupportCenter">
         <view class="menu-icon bg-blue">
           <text class="menu-icon-text">客</text>
@@ -107,10 +107,10 @@
     </view>
 
     <!-- 已缓存账号：inline pill switcher -->
-    <view class="section" wx:if="{{isLoggedIn}}">
-      <view class="section-header">
-        <text class="section-header-title">已缓存账号</text>
-        <text class="section-header-action" bindtap="onSwitchAccountTap">管理</text>
+    <view class="card-group" wx:if="{{isLoggedIn}}">
+      <view class="card-header">
+        <text class="card-header-title">已缓存账号</text>
+        <text class="card-header-action" bindtap="onSwitchAccountTap">管理</text>
       </view>
       <scroll-view class="acct-switcher" scroll-x enhanced show-scrollbar="{{false}}">
         <view class="acct-inline-container">
@@ -135,9 +135,11 @@
       </scroll-view>
     </view>
 
-    <button class="logout-btn" bindtap="onLogoutTap">
-      退出当前账号
-    </button>
+    <view class="logout-wrap" wx:if="{{isLoggedIn}}">
+      <button class="logout-btn" bindtap="onLogoutTap">
+        退出当前账号
+      </button>
+    </view>
   </view>
 
   <!-- 账号管理弹窗 -->

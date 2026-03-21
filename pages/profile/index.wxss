@@ -116,46 +116,49 @@
   border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Stats 3-col overlap */
-.stats-card {
-  margin: -72rpx 32rpx 24rpx;
-  background: var(--color-background-card);
-  border-radius: var(--radius-md);
-  box-shadow: 0 8rpx 40rpx rgba(0, 0, 0, 0.10);
+/* Stats 3-col inline row */
+.stats-row {
   display: flex;
+  margin: 0 32rpx 32rpx;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(24rpx);
+  -webkit-backdrop-filter: blur(24rpx);
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
   overflow: hidden;
   position: relative;
-  z-index: 5;
+  z-index: 1;
 }
 .stat {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32rpx 12rpx;
+  padding: 26rpx 12rpx;
   position: relative;
 }
 .stat:active {
-  background: var(--color-background-subtle);
+  background: rgba(255, 255, 255, 0.08);
 }
 .stat + .stat::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 18%;
-  bottom: 18%;
+  top: 16%;
+  bottom: 16%;
   width: 2rpx;
-  background: var(--color-border);
+  background: rgba(255, 255, 255, 0.2);
 }
 .stat-num {
   font-size: var(--font-xl);
   font-weight: var(--weight-heavy);
-  color: var(--color-text-1);
+  color: var(--color-text-inverse);
+  letter-spacing: -0.6rpx;
 }
 .stat-label {
   font-size: var(--font-caption);
-  color: var(--color-text-2);
-  margin-top: 8rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 6rpx;
   font-weight: var(--weight-medium);
 }
 .stat-badge {
@@ -177,32 +180,37 @@
 /* Scroll area */
 .page-scroll {
   flex: 1;
-  padding-bottom: 32rpx;
+  padding-bottom: 0;
 }
 
-/* Sections */
-.section {
-  margin: 0 32rpx 24rpx;
+/* Sections -> Card groups */
+.card-group {
+  margin: 24rpx 24rpx 0;
   background: var(--color-background-card);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06), 0 0 0 1rpx rgba(0,0,0,0.04);
   overflow: hidden;
 }
-.section-header {
+.card-group + .card-group {
+  margin-top: 20rpx;
+}
+.card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 26rpx 32rpx 20rpx;
+  padding: 24rpx 28rpx 20rpx;
   border-bottom: 2rpx solid var(--color-border);
 }
-.section-header-title {
+.card-header-title {
   font-size: var(--font-label);
   font-weight: var(--weight-bold);
-  color: var(--color-text-2);
+  color: var(--color-text-3);
+  letter-spacing: 0.8rpx;
 }
-.section-header-action {
+.card-header-action {
   font-size: var(--font-label);
   color: var(--color-primary);
+  font-weight: var(--weight-medium);
 }
 
 /* Appointments Empty State */
@@ -250,21 +258,15 @@
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 28rpx;
-  padding: 28rpx 32rpx;
+  gap: 24rpx;
+  padding: 26rpx 28rpx;
   position: relative;
 }
 .menu-item:active {
   background: var(--color-background-subtle);
 }
-.menu-item + .menu-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 108rpx;
-  right: 0;
-  height: 2rpx;
-  background: var(--color-border);
+.menu-item + .menu-item {
+  border-top: 2rpx solid var(--color-border);
 }
 .menu-icon {
   width: 72rpx;
@@ -393,12 +395,15 @@
 }
 
 /* Logout */
+.logout-wrap {
+  padding: 20rpx 24rpx 28rpx;
+}
 .logout-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 16rpx 32rpx 48rpx;
-  height: 96rpx;
+  width: 100%;
+  height: 92rpx;
   background: var(--color-background-card);
   border: 3rpx solid #fecaca !important;
   border-radius: var(--radius-md);
@@ -406,6 +411,7 @@
   font-size: var(--font-title-sm);
   font-weight: var(--weight-bold);
   line-height: normal;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
 }
 .logout-btn::after {
   display: none;

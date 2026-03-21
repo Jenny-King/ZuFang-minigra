@@ -225,20 +225,30 @@ async function mockLogin(miniProgram, user = { phone: '13387395714', role: 'land
  * @param miniProgram Automator 实例
  * @param name 截屏标识短名
  */
-async function takeScreen(miniProgram, sceneName) {
+async function takeScreen(miniProgram, sceneName, shotLabel = '') {
   const outputsDir = path.join(__dirname, 'outputs', sceneName);
   if (!fs.existsSync(outputsDir)) {
     fs.mkdirSync(outputsDir, { recursive: true });
   }
 
   const timestamp = Date.now();
-  const screenshotPath = path.join(outputsDir, `${timestamp}.png`);
+  const normalizedLabel = String(shotLabel || '').trim().replace(/[^\w-]+/g, '-');
+  const screenshotName = normalizedLabel ? `${timestamp}-${normalizedLabel}.png` : `${timestamp}.png`;
+  const screenshotPath = path.join(outputsDir, screenshotName);
   console.log(`[Base] 正在捕捉屏幕并存入: ${screenshotPath}`);
-  await miniProgram.screenshot({
-    path: screenshotPath,
-    fullPage: true
-  });
-  console.log(`[Base] [v] ${sceneName}/${timestamp}.png 截图完毕`);
+  const screenshotBase64 = await miniProgram.screenshot();
+  if (!screenshotBase64 || typeof screenshotBase64 !== 'string') {
+    throw new Error(`[Base] 截图失败，未返回有效图片数据: ${sceneName}`);
+  }
+
+  fs.writeFileSync(screenshotPath, screenshotBase64, 'base64');
+  const fileStat = fs.statSync(screenshotPath);
+  if (!fileStat.size) {
+    throw new Error(`[Base] 截图文件写入失败: ${screenshotPath}`);
+  }
+
+  console.log(`[Base] [v] ${sceneName}/${path.basename(screenshotPath)} 截图完毕 (${fileStat.size} bytes)`);
+  return screenshotPath;
 }
 
 module.exports = {

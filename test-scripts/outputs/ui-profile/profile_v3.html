@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>我的 - ZuFang</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#07c160;--green-bg:#e8f9ee;
+  --blue:#2563eb;--blue-bg:#eff6ff;
+  --orange:#f59e0b;
+  --red:#ef4444;
+  --text-1:#111827;--text-2:#6b7280;--text-3:#9ca3af;
+  --bg:#f5f5f5;--white:#fff;--border:#f0f0f0;
+  --radius-md:14px;--shadow:0 2px 12px rgba(0,0,0,.07);--shadow-md:0 4px 20px rgba(0,0,0,.10);
+}
+body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:#c8cbd4;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:32px 0}
+.phone{width:375px;min-height:812px;background:var(--bg);border-radius:44px;box-shadow:0 24px 80px rgba(0,0,0,.25),0 0 0 1.5px rgba(0,0,0,.12);overflow:hidden;display:flex;flex-direction:column;position:relative}
+
+/* Status */
+.status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 20px 0 16px;flex-shrink:0;position:absolute;top:0;left:0;right:0;z-index:10}
+.status-time{font-size:15px;font-weight:600;color:#fff}
+.status-icons{display:flex;align-items:center;gap:5px}
+.status-icons svg{width:15px;height:15px;fill:#fff}
+
+/* Hero */
+.hero{padding-top:44px;background:linear-gradient(145deg,#1d4ed8 0%,#2563eb 50%,#3b82f6 100%);position:relative;overflow:visible;flex-shrink:0;padding-bottom:44px;animation:slideDown .35s ease both}
+.hero::before{content:'';position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.06);top:-80px;right:-60px;pointer-events:none}
+.hero::after{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04);bottom:-50px;left:-20px;pointer-events:none}
+.hero-main{display:flex;align-items:center;gap:14px;padding:22px 20px 14px;position:relative;z-index:1}
+.avatar-wrap{position:relative;cursor:pointer;flex-shrink:0}
+.avatar{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#93c5fd,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;border:3px solid rgba(255,255,255,.3);box-shadow:0 4px 16px rgba(0,0,0,.18);transition:transform .2s;user-select:none}
+.avatar:hover{transform:scale(1.04)}
+.avatar-edit{position:absolute;bottom:0;right:0;width:22px;height:22px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.avatar-edit svg{width:12px;height:12px;stroke:#6b7280;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hero-info{flex:1;min-width:0}
+.hero-name{font-size:20px;font-weight:700;color:#fff;letter-spacing:.3px}
+.hero-phone{font-size:13px;color:rgba(255,255,255,.7);margin-top:3px}
+.badges{display:flex;align-items:center;gap:8px;padding:0 20px 18px;position:relative;z-index:1;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent}
+.badge svg{width:11px;height:11px;flex-shrink:0}
+.badge-role{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.28)}
+.badge-warn{background:#fef3c7;color:#92400e;border-color:#fde68a}
+.badge-warn svg{stroke:#d97706;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.badge-muted{background:rgba(255,255,255,.1);color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.15)}
+.badge-muted svg{stroke:rgba(255,255,255,.5);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Stats — 3-col, overlap */
+.stats-card{margin:-36px 16px 12px;background:#fff;border-radius:var(--radius-md);box-shadow:var(--shadow-md);display:flex;overflow:hidden;position:relative;z-index:5;animation:fadeUp .3s .05s ease both}
+.stat{flex:1;display:flex;flex-direction:column;align-items:center;padding:16px 6px;cursor:pointer;transition:background .15s;position:relative}
+.stat:hover{background:#fafafa}
+.stat+.stat::before{content:'';position:absolute;left:0;top:18%;bottom:18%;width:1px;background:var(--border)}
+.stat-num{font-size:20px;font-weight:700;color:var(--text-1);letter-spacing:-.5px}
+.stat-label{font-size:11px;color:var(--text-2);margin-top:4px;font-weight:500;text-align:center}
+
+/* Scroll */
+.page-scroll{flex:1;overflow-y:auto;padding-bottom:8px}
+.page-scroll::-webkit-scrollbar{display:none}
+
+/* Section */
+.section{margin:0 16px 12px;background:#fff;border-radius:var(--radius-md);box-shadow:var(--shadow);overflow:hidden}
+.section:nth-of-type(1){animation:fadeUp .3s .12s ease both}
+.section:nth-of-type(2){animation:fadeUp .3s .18s ease both}
+.section:nth-of-type(3){animation:fadeUp .3s .24s ease both}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 10px;border-bottom:1px solid var(--border)}
+.section-header-title{font-size:13px;font-weight:600;color:var(--text-2)}
+
+/* 我的预约 */
+.appt-empty{display:flex;flex-direction:column;align-items:center;padding:22px 16px 20px;gap:8px}
+.appt-empty-icon{width:44px;height:44px;border-radius:12px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center}
+.appt-empty-icon svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.appt-empty-text{font-size:13px;color:var(--text-3)}
+.appt-empty-btn{margin-top:4px;padding:7px 22px;border-radius:20px;background:var(--blue-bg);color:var(--blue);font-size:13px;font-weight:600;font-family:inherit;border:none;cursor:pointer;transition:background .15s}
+.appt-empty-btn:hover{background:#dbeafe}
+.appt-item{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background .15s;position:relative}
+.appt-item:hover{background:#fafafa}
+.appt-item+.appt-item::before{content:'';position:absolute;top:0;left:54px;right:0;height:1px;background:var(--border)}
+.appt-thumb{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.appt-thumb svg{width:22px;height:22px;stroke:#93c5fd;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.appt-body{flex:1;min-width:0}
+.appt-title{font-size:14px;font-weight:600;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.appt-meta{font-size:12px;color:var(--text-3);margin-top:3px}
+.appt-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.appt-status-pending{background:#fffbeb;color:#d97706}
+.appt-status-done{background:var(--green-bg);color:var(--green)}
+
+/* Menu */
+.menu-item{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:background .15s;position:relative}
+.menu-item:hover{background:#fafafa}
+.menu-item:active{background:#f3f4f6}
+.menu-item+.menu-item::before{content:'';position:absolute;top:0;left:54px;right:0;height:1px;background:var(--border)}
+.menu-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.menu-text{flex:1}
+.menu-title{font-size:15px;font-weight:600;color:var(--text-1)}
+.menu-sub{font-size:12px;color:var(--text-3);margin-top:2px}
+.menu-tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--green-bg);color:var(--green);margin-right:4px;white-space:nowrap}
+.menu-arrow svg{width:16px;height:16px;stroke:var(--text-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── 已缓存账号：inline pill switcher ── */
+.acct-switcher{display:flex;align-items:center;gap:8px;padding:14px 16px;overflow-x:auto}
+.acct-switcher::-webkit-scrollbar{display:none}
+.acct-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 12px 6px 6px;
+  border-radius:24px;
+  border:1.5px solid var(--border);
+  background:#fafafa;
+  cursor:pointer;transition:all .18s;flex-shrink:0;
+  font-family:inherit;
+}
+.acct-pill:hover{background:#f0f9ff;border-color:#bfdbfe}
+.acct-pill.active{background:var(--blue-bg);border-color:#93c5fd}
+.acct-pill-avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,#60a5fa,#2563eb);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.acct-pill.active .acct-pill-avatar{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
+.acct-pill-name{font-size:13px;font-weight:600;color:var(--text-2);max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct-pill.active .acct-pill-name{color:var(--blue)}
+.acct-pill-check{width:14px;height:14px;flex-shrink:0;display:none}
+.acct-pill.active .acct-pill-check{display:block;stroke:var(--blue);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.acct-add-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:24px;
+  border:1.5px dashed #d1d5db;background:#fafafa;
+  cursor:pointer;font-size:13px;color:var(--text-3);font-family:inherit;
+  transition:all .18s;flex-shrink:0;
+}
+.acct-add-pill:hover{border-color:#93c5fd;color:var(--blue);background:#f0f9ff}
+.acct-add-pill svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* Logout */
+.logout-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 16px 32px;width:calc(100% - 32px);height:48px;background:#fff;border:1.5px solid #fecaca;border-radius:var(--radius-md);color:var(--red);font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s;animation:fadeUp .3s .30s ease both}
+.logout-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.logout-btn:hover{background:#fef2f2;border-color:#f87171}
+
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="status">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1 6s4.5-4 11-4 11 4 11 4M5 10s3-2.5 7-2.5S19 10 19 10M9 14s1.5-1 3-1 3 1 3 1M12 18h.01"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="11" rx="2"/><path d="M18 10h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2"/></svg>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-main">
+      <div class="avatar-wrap">
+        <div class="avatar">测</div>
+        <div class="avatar-edit">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+        </div>
+      </div>
+      <div class="hero-info">
+        <div class="hero-name">测试租客</div>
+        <div class="hero-phone">173****1058</div>
+      </div>
+    </div>
+    <div class="badges">
+      <span class="badge badge-role">
+        <svg viewBox="0 0 24 24" style="stroke:rgba(255,255,255,0.8);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        租客
+      </span>
+      <span class="badge badge-warn">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        未实名
+      </span>
+      <span class="badge badge-muted">
+        <svg viewBox="0 0 24 24"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/></svg>
+        微信未绑定
+      </span>
+    </div>
+  </div>
+
+  <!-- Stats 3-col overlap -->
+  <div class="stats-card">
+    <div class="stat"><span class="stat-num">0</span><span class="stat-label">我的收藏</span></div>
+    <div class="stat"><span class="stat-num">0</span><span class="stat-label">浏览历史</span></div>
+    <div class="stat"><span class="stat-num">0</span><span class="stat-label">消息通知</span></div>
+  </div>
+
+  <div class="page-scroll">
+
+    <!-- 我的预约 -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-header-title">我的预约</span>
+        <span style="font-size:13px;color:var(--blue);cursor:pointer">全部</span>
+      </div>
+      <div class="appt-empty" id="appt-empty">
+        <div class="appt-empty-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <span class="appt-empty-text">暂无预约记录</span>
+        <button class="appt-empty-btn" onclick="showAppts()">去预约看房</button>
+      </div>
+      <div id="appt-list" style="display:none">
+        <div class="appt-item">
+          <div class="appt-thumb"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="appt-body"><div class="appt-title">朝阳区·光华路精装两居</div><div class="appt-meta">明天 14:00 · 房东：李先生</div></div>
+          <span class="appt-status appt-status-pending">待确认</span>
+        </div>
+        <div class="appt-item">
+          <div class="appt-thumb"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="appt-body"><div class="appt-title">海淀区·中关村合租单间</div><div class="appt-meta">03/18 10:30 · 房东：王女士</div></div>
+          <span class="appt-status appt-status-done">已完成</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 工具菜单 -->
+    <div class="section">
+      <div class="menu-item">
+        <div class="menu-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="menu-text"><div class="menu-title">客服中心</div><div class="menu-sub">常见问题与在线客服</div></div>
+        <div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        </div>
+        <div class="menu-text"><div class="menu-title">设置</div><div class="menu-sub">账号安全与偏好设置</div></div>
+        <div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
+        <div class="menu-text"><div class="menu-title">切换角色</div><div class="menu-sub">租客 / 房东 身份切换</div></div>
+        <span class="menu-tag">租客</span>
+        <div class="menu-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+
+    <!-- 已缓存账号：inline pill switcher -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-header-title">已缓存账号</span>
+      </div>
+      <div class="acct-switcher" id="acct-switcher">
+        <button class="acct-pill active" onclick="switchAcct(this)">
+          <div class="acct-pill-avatar">测</div>
+          <span class="acct-pill-name">测试租客</span>
+          <svg class="acct-pill-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <button class="acct-pill" onclick="switchAcct(this)">
+          <div class="acct-pill-avatar" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">王</div>
+          <span class="acct-pill-name">王小明</span>
+          <svg class="acct-pill-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <button class="acct-add-pill" onclick="alert('添加账号')">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          添加
+        </button>
+      </div>
+    </div>
+
+    <button class="logout-btn">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      退出当前账号
+    </button>
+
+  </div>
+</div>
+
+<script>
+function showAppts(){
+  document.getElementById('appt-empty').style.display='none';
+  document.getElementById('appt-list').style.display='block';
+}
+function switchAcct(el){
+  document.querySelectorAll('.acct-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

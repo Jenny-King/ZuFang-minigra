@@ -1,63 +1,51 @@
 <view class="container profile-page">
-  <view wx:if="{{loading && isLoggedIn && !userInfo}}" class="profile-loading card">
+  <view wx:if="{{loading && isLoggedIn && !userInfo}}" class="profile-loading section">
     <skeleton type="profile" />
   </view>
 
-  <view class="card hero-card" wx:if="{{isLoggedIn && userInfo}}">
-    <view class="hero-top">
+  <block wx:if="{{isLoggedIn && userInfo}}">
+    <view class="hero">
       <view class="hero-main">
-        <view class="hero-avatar-wrap" bindtap="onAvatarTap">
-          <image
-            class="hero-avatar-image"
-            src="{{userInfo.avatarUrl || '/assets/images/avatar-placeholder.png'}}"
-            mode="aspectFill"
-          />
+        <view class="avatar-wrap" bindtap="onAvatarTap">
+          <image class="avatar" src="{{userInfo.avatarUrl || '/assets/images/avatar-placeholder.png'}}" mode="aspectFill" />
         </view>
-
-        <view class="hero-content">
+        <view class="hero-info">
           <view class="hero-name">{{userInfo.displayName}}</view>
-          <view class="hero-subline">{{userInfo.displayPhone}}</view>
-          <view class="hero-avatar-tip">{{avatarUploading ? '头像上传中' : '点按头像可更换'}}</view>
+          <view class="hero-phone">{{userInfo.displayPhone}}</view>
+        </view>
+      </view>
+      <view class="badges">
+        <view class="badge badge-role {{userInfo.roleBadgeClass}}">
+          <text>{{userInfo.displayRole}}</text>
+        </view>
+        <view class="badge badge-warn {{userInfo.identityBadgeClass}}">
+          <text>{{userInfo.identityBadgeText}}</text>
+        </view>
+        <view class="badge badge-muted {{userInfo.wechatBadgeClass}}">
+          <text>{{userInfo.displayWechatStatus}}</text>
         </view>
       </view>
     </view>
 
-    <view class="hero-badges">
-      <view class="badge role {{userInfo.roleBadgeClass}}">
-        <text>{{userInfo.displayRole}}</text>
-      </view>
-      <view class="badge identity {{userInfo.identityBadgeClass}}">
-        <text class="badge-icon">{{userInfo.identityBadgeIcon}}</text>
-        <text>{{userInfo.identityBadgeText}}</text>
-      </view>
-      <view class="badge wechat {{userInfo.wechatBadgeClass}}">
-        <text class="badge-icon badge-dot">{{userInfo.wechatBound ? '●' : '○'}}</text>
-        <text>{{userInfo.displayWechatStatus}}</text>
-      </view>
-    </view>
-
-    <view class="hero-stats">
-      <view class="stat-card {{activeQuickAction === 'favorites' ? 'active' : ''}}" data-action="favorites" bindtap="onQuickActionTap">
-        <text class="stat-number">{{quickStats.favoriteLabel}}</text>
+    <!-- Stats 3-col overlap -->
+    <view class="stats-card">
+      <view class="stat {{activeQuickAction === 'favorites' ? 'active' : ''}}" data-action="favorites" bindtap="onQuickActionTap">
+        <text class="stat-num">{{quickStats.favoriteLabel}}</text>
         <text class="stat-label">我的收藏</text>
       </view>
-      <view class="stat-card {{activeQuickAction === 'history' ? 'active' : ''}}" data-action="history" bindtap="onQuickActionTap">
-        <text class="stat-number">{{quickStats.historyLabel}}</text>
+      <view class="stat {{activeQuickAction === 'history' ? 'active' : ''}}" data-action="history" bindtap="onQuickActionTap">
+        <text class="stat-num">{{quickStats.historyLabel}}</text>
         <text class="stat-label">浏览历史</text>
       </view>
-      <view class="stat-card {{activeQuickAction === 'bookings' ? 'active' : ''}}" data-action="bookings" bindtap="onQuickActionTap">
-        <text class="stat-number">{{quickStats.bookingLabel}}</text>
-        <text class="stat-label">我的预约</text>
-      </view>
-      <view class="stat-card {{activeQuickAction === 'notifications' ? 'active' : ''}}" data-action="notifications" bindtap="onQuickActionTap">
-        <text class="stat-number">{{quickStats.notificationLabel}}</text>
+      <view class="stat {{activeQuickAction === 'notifications' ? 'active' : ''}}" data-action="notifications" bindtap="onQuickActionTap">
+        <text class="stat-num">{{quickStats.notificationLabel}}</text>
         <text class="stat-label">消息通知</text>
         <text class="stat-badge" wx:if="{{unreadNotificationCount > 0}}">新</text>
       </view>
     </view>
-  </view>
+  </block>
 
-  <view class="card guest-card" wx:else>
+  <view class="guest-card" wx:if="{{!isLoggedIn}}">
     <view class="guest-title">未登录</view>
     <view class="guest-subtitle">登录后可查看收藏、历史、通知与个人资料</view>
     <view class="auth-actions">
@@ -66,81 +54,93 @@
     </view>
   </view>
 
-  <view class="section-card" wx:if="{{isLoggedIn && userInfo}}">
-    <view class="menu-item" bindtap="onGoSupportCenter">
-      <view class="menu-icon amber">
-        <text class="menu-icon-text">客</text>
+  <view class="page-scroll" wx:if="{{isLoggedIn && userInfo}}">
+
+    <!-- 我的预约 -->
+    <view class="section">
+      <view class="section-header">
+        <text class="section-header-title">我的预约</text>
+        <text class="section-header-action" data-action="bookings" bindtap="onQuickActionTap">全部</text>
       </view>
-      <view class="menu-main">
-        <text class="menu-title">客服中心</text>
-        <text class="menu-subtitle">常见问题与在线客服</text>
+      <view class="appt-empty">
+        <view class="appt-empty-icon">
+           <text class="appt-empty-icon-text">约</text>
+        </view>
+        <text class="appt-empty-text">快速查看预约看房记录</text>
+        <button class="appt-empty-btn" data-action="bookings" bindtap="onQuickActionTap">去查看预约</button>
       </view>
-      <text class="arrow">></text>
     </view>
 
-    <view class="menu-item" bindtap="onOpenSettingsTap">
-      <view class="menu-icon purple">
-        <text class="menu-icon-text">设</text>
+    <!-- 工具菜单 -->
+    <view class="section">
+      <view class="menu-item" bindtap="onGoSupportCenter">
+        <view class="menu-icon bg-blue">
+          <text class="menu-icon-text">客</text>
+        </view>
+        <view class="menu-text">
+          <view class="menu-title">客服中心</view>
+          <view class="menu-sub">常见问题与在线客服</view>
+        </view>
+        <view class="menu-arrow">></view>
       </view>
-      <view class="menu-main">
-        <text class="menu-title">设置</text>
-        <text class="menu-subtitle">账号安全与偏好设置</text>
+      <view class="menu-item" bindtap="onOpenSettingsTap">
+        <view class="menu-icon bg-purple">
+          <text class="menu-icon-text">设</text>
+        </view>
+        <view class="menu-text">
+          <view class="menu-title">设置</view>
+          <view class="menu-sub">账号安全与偏好设置</view>
+        </view>
+        <view class="menu-arrow">></view>
       </view>
-      <text class="arrow">></text>
+      <view class="menu-item" bindtap="onSwitchRoleTap">
+        <view class="menu-icon bg-orange">
+           <text class="menu-icon-text">角</text>
+        </view>
+        <view class="menu-text">
+          <view class="menu-title">切换角色</view>
+          <view class="menu-sub">租客 / 房东 身份切换</view>
+        </view>
+        <view class="menu-tag">{{userInfo.displayRole}}</view>
+        <view class="menu-arrow">></view>
+      </view>
     </view>
 
-    <view class="menu-item" bindtap="onSwitchRoleTap">
-      <view class="menu-icon red">
-        <text class="menu-icon-text">角</text>
+    <!-- 已缓存账号：inline pill switcher -->
+    <view class="section" wx:if="{{isLoggedIn}}">
+      <view class="section-header">
+        <text class="section-header-title">已缓存账号</text>
+        <text class="section-header-action" bindtap="onSwitchAccountTap">管理</text>
       </view>
-      <view class="menu-main">
-        <text class="menu-title">切换角色</text>
-        <text class="menu-subtitle">租客 / 房东 身份切换</text>
-      </view>
-      <text class="arrow">></text>
-    </view>
-  </view>
-
-  <view class="account-section" wx:if="{{isLoggedIn}}">
-    <view class="account-section-header">
-      <text class="account-section-label">已缓存账号</text>
-      <text class="account-section-action" bindtap="onSwitchAccountTap">管理</text>
-    </view>
-
-    <scroll-view class="account-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="account-inline-list">
-        <view
-          class="account-inline-item"
-          wx:for="{{cachedAccounts}}"
-          wx:key="userId"
-          data-user-id="{{item.userId}}"
-          bindtap="onSelectAccountTap"
-        >
-          <view class="account-inline-avatar {{item.isActive ? 'active' : ''}}">
-            <lazy-image
-              class="account-inline-image"
-              src="{{item.avatarUrl}}"
-              mode="aspectFill"
-              radius="var(--radius-pill)"
-              width="80rpx"
-              height="80rpx"
-            />
+      <scroll-view class="acct-switcher" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="acct-inline-container">
+          <view
+            class="acct-pill {{item.isActive ? 'active' : ''}}"
+            wx:for="{{cachedAccounts}}"
+            wx:key="userId"
+            data-user-id="{{item.userId}}"
+            bindtap="onSelectAccountTap"
+          >
+            <view class="acct-pill-avatar">
+              <lazy-image class="acct-pill-image" src="{{item.avatarUrl}}" mode="aspectFill" radius="50%" width="100%" height="100%" />
+            </view>
+            <text class="acct-pill-name">{{item.displayName}}</text>
+            <text wx:if="{{item.isActive}}" class="acct-pill-check">✓</text>
           </view>
-          <text class="account-inline-name {{item.isActive ? 'active' : ''}}">{{item.displayName}}</text>
+          <view class="acct-add-pill" bindtap="onAddAccountTap">
+             <text class="acct-add-icon">+</text>
+             <text>添加</text>
+          </view>
         </view>
+      </scroll-view>
+    </view>
 
-        <view class="account-inline-item" bindtap="onAddAccountTap">
-          <view class="account-inline-add">+</view>
-          <text class="account-inline-name dim">添加账号</text>
-        </view>
-      </view>
-    </scroll-view>
+    <button class="logout-btn" bindtap="onLogoutTap">
+      退出当前账号
+    </button>
   </view>
 
-  <view class="logout-wrap" wx:if="{{isLoggedIn}}">
-    <button class="logout-btn" bindtap="onLogoutTap">退出当前账号</button>
-  </view>
-
+  <!-- 账号管理弹窗 -->
   <view class="account-switcher-mask" wx:if="{{accountSwitcherVisible}}" bindtap="onCloseAccountSwitcher">
     <view class="account-switcher-panel" catchtap="noop">
       <view class="account-switcher-header">
@@ -166,7 +166,7 @@
             class="account-card-avatar"
             src="{{item.avatarUrl}}"
             mode="aspectFill"
-            radius="var(--radius-pill)"
+            radius="50%"
             width="92rpx"
             height="92rpx"
           />

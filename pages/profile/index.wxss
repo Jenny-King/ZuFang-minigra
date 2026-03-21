@@ -20,7 +20,7 @@
   padding-top: 88rpx;
   background: var(--gradient-brand);
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   flex-shrink: 0;
   padding-bottom: 0;
   height: 441rpx;

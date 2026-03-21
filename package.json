@@ -12,12 +12,14 @@
     "cleanup:housing-data": "node scripts/cleanup/cleanup-housing-data.js",
     "deploy:cf": "powershell -ExecutionPolicy Bypass -File scripts/deploy/deploy-cloudfunction.ps1",
     "seed:houses6": "node scripts/data/seed-six-house-test-data.js",
+    "seed:test-data": "node scripts/data/prepare-manual-test-data.js",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "check": "npm run lint && npm run test"
   },
   "devDependencies": {
     "@cloudbase/manager-node": "^4.10.2",
+    "@cloudbase/node-sdk": "^3.18.1",
     "eslint": "^9.18.0",
     "jest": "^29.7.0",
     "miniprogram-automator": "^0.12.1"
